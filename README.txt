@@ -1,52 +1,96 @@
-Add fields
-	Employer
-	Industry
+Product Definition
+------------------
+The application will be a Social Network Navigator. It will navigate a person's list of social network connections 
+show each connection's information (extracted from or linked to some social networking sites) allow the connection 
+to become the person so their connections can be navigated. 
+
+High Level Design - User Interface 
+----------------------------------
+UI Components
+	Main person (one line of summary info: name, address, description).
+	List of person's connections (one line of summary info)
+	Panel with details of selected person or connection.
+	Navigation buttons (next, previous, first, last screen of connections)
+UI Actions
+	Selecting a person or connection shows their details in the Details panel. 
+	Clicking on a selected connection makes the connection the main person.
+	Navigation buttons move between screens of connections
+
+High Level Design - Client Cache 
+--------------------------------
+The server will be fetching data from somewhere, either a data store or from some other website or web service. 
+This is going to be slow compared to desired UI response time so we need to keep a client side cache with the data 
+people will be likely to be requesting. The client cache needs to fetch data from the server before the user 
+requests viewing them. One way to arrange the cache is in terms of the number of mouse clicks a person is from 
+being visible on the main screen.
+
+	Visible
+	1 click from being visible
+	2 clicks from being visible
+	...
 	
-Algorithm
-	Person 
-		id
-		basic
-		full
-			list(s) of connections
-			
-	Increments
-		Person 
-			basic => full
-		List
-			add connections
-		Query
-			Run query to build list
-			Person's connections are a query
+If there are N people per screen then
+	N visible persons
+	<= 4*N 1-click persons  (next, previous, first, last)
+	<= 4*N 2-click persons (next-next, previous-previous, first-next, last-previous
+	
+Choosing a new main person will change the few clicks away persons a lot. These persons can be predicted but 
+changing the main person is a big change so we will leave this prediction for a future iteration of the design.
+The cache can be navigated forwards and backwards. Backwards navigation can be cached effectively with an LRU 
+cache. Forwards navigation cached by enumerating the persons that can be accessed by 1 or more mouse clicks.
+Therefore a sufficient cache hint is a set of lists of persons that can be reached in m mouse clicks for 
+m=0..M where M is a parameter that is to specified and optimised.
 
-Scaling
-	Sharding
-		http://assets.en.oreilly.com/1/event/27/What%20Every%20Developer%20Should%20Know%20About%20Database%20Scalability%20Presentation.pdf
+High Level Design - UI and Client Cache Interaction
+---------------------------------------------------
+The previous section outlined a cache that depended on the UI state. This leads to a simple set of interactions 
+between the UI and cache.
+	User sets new UI state
+	UI sends the m-click hints to client cache and disables user controls (effectively freezing the state of the UI)
+	Client cache signals UI when visible persons are in cache.
+	UI enables user controls.
+	
+This is simple interaction which is good for a small project like this.
+Client Cache Effectiveness and Tuning
 
-TODO
-	Connections list
-		entry = (id, completeness, order)
-		completeness = id, basic info, # connections
-		order changes with completeness
-			id, # connections, ....
-		re-sort connections list when size changes or completeness of any entry changges
-			keep a checksum of completensses to detect changes. Does java have an md5?
-	Add time-outs to server calls
-	Optimise number of simultaneous server calls in progress
-	Remove anchor level from server side
-	Add m-click pre-fetch
-	Split PersonClient into summary and detail
-	Gears support
-		http://code.google.com/docreader/#p=gwt-google-apis&s=gwt-google-apis&t=GearsGettingStartedDatabase
-	UI fluff
-		http://gwt-ext.com/
-			
-REFERENCES
-	http://anyall.org/blog/2009/04/performance-comparison-keyvalue-stores-for-language-model-counts/
-	http://www.zackgrossbart.com/hackito/antiptrn-gwt/ ** <= Important for high-level design
-	http://www.youtube.com/watch?v=P-jRS4LvsDQ&feature=channel  Lots of useful info on GWT core
-	http://www.ibm.com/developerworks/opensource/library/j-gaej2/index.html  <= Intro to writing GWT apps
-	http://www.youtube.com/watch?v=sz6txhPT7vQ&feature=channel <= Using Google Apps with GWT
-		Can create RPC proxies for apps
-		Gadgets are usually servlets
-		Gears (in Dalvik?)
-		
+The effectivenees of the cache will depend on how often it fetched the m-click-away persons from the server 
+before the user makes those clicks.
+
+There are some obvious trade-offs. 
+	Fewer navigation controls in the UI makes caching easier but leads to a less flexibiltiy
+	Bigger caches are faster but use up client side memory and may waste server fetches.
+
+High Level Design - Client Cache and Server Interactions
+--------------------------------------------------------
+This is simple in principle. Fetch data from the server. Some things will need to be tuned 
+	number of people fetched per server interaction
+	timing of fetches for different client cache levels (all at once or m-click before m+1-click)
+
+High Level Design - Server
+--------------------------
+We are going to be fetching some data from one or more social networking sites and extracting some 
+meta-data from it. 
+	Person = summary (name, address, ...) + detail + list of connections (other persons)
+	
+Since we want to access this rapidly for each person we will need to store it on our server in our 
+format. Most likely we will have a multi-stage cache:
+	Fetch raw data from web-page or web-service (and store it Google datastore)
+	Fetch data from datastore (and store it memcache)
+	Fetch data from memcache.
+	
+We will need to run this a little to get some idea of the relative speeds of 1,2 and 3 to see how 
+we will tune this. At first glance, it is difficult to see how we will be able to get by without 
+the datastore and memcache so the first iteration design will have a multi-level cache.
+
+Raw fetches from an external web-service are going to be slow so pre-populating the datastore with 
+person data will give much better results. However this would mean a big hit on the webservices for 
+data that might never be used. Therefore in the first iteration we will fetch raw data from the 
+webservices as it is requested.
+
+High Level Design - Person Data Structure
+-----------------------------------------
+The person data structure is mostly straightforward, a big chunk of data with some meta-data. The 
+obvious wrinkle is the relationships between persons. Each person has connections to other persons. 
+If there needs to be any work on connections, such as sorting the connections by the connections' 
+meta-data then we have to decide how much meta-data to store with each connection, or see how the 
+datastore can assist in one to many relationships.

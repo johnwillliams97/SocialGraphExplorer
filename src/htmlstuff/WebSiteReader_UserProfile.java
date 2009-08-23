@@ -5,16 +5,11 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.logging.Logger;
-
 import org.htmlparser.*;
-//import org.htmlparser.filters.*;
 import org.htmlparser.nodes.TagNode;
 import org.htmlparser.util.NodeIterator;
 import org.htmlparser.util.NodeList;
 import org.htmlparser.util.ParserException;
-
-
-
 import htmlstuff.WebSiteReader_Common.Force;
 import datatypes.PersonLI;
 
@@ -328,7 +323,6 @@ public class WebSiteReader_UserProfile {
 		} 
 		catch (Exception e) {
 			e.printStackTrace();
-			assert(false);
 		}
 		return person;
 	}
@@ -337,7 +331,5 @@ public class WebSiteReader_UserProfile {
 		wsr.doMakeLiUserProfile(liUniqueID, parentID, false, true) ;
 		return wsr._wholePageBuffer;
 	}
-	public static int test(int n) {
-		return n;
-	}
+	
 }

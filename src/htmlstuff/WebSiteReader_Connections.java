@@ -3,7 +3,6 @@ package htmlstuff;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.htmlparser.*;
 import org.htmlparser.nodes.TagNode;
 import org.htmlparser.util.NodeIterator;
@@ -23,16 +22,12 @@ public class WebSiteReader_Connections {
 		String name = _linkedInBase + "/profile?viewConns=&key=" + key;
 		return name;		
 	}
-	/*
-	 * http://htmlparser.sourceforge.net/samples.html
-	 * http://htmlparser.sourceforge.net/javadoc/org/htmlparser/Parser.html#main(java.lang.String[])
-	 */
+	
 	
 	
 	/*
 	 * Search state for one profile html page
-	 * 
-	 */
+		 */
 	private List<Long> _connectionKeys = new ArrayList<Long>();
 	
 	/*
@@ -60,7 +55,6 @@ public class WebSiteReader_Connections {
 		if (isDoneSearching())
 			return;
 			
-//		boolean isAnchorTag = false;
 		TagNode tag = null;
 		String  tagName = null;
 		String  tagNameAttr = null;
