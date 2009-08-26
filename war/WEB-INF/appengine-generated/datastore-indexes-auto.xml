@@ -1,0 +1,11 @@
+<!-- Indices written at Wed, 26 Aug 2009 07:14:59 UTC -->
+
+<datastore-indexes>
+
+    <!-- Used 1 time in query history -->
+    <datastore-index kind="PersonLI" ancestor="false" source="auto">
+        <property name="liUniqueID" direction="asc"/>
+        <property name="whenReadLast" direction="desc"/>
+    </datastore-index>
+
+</datastore-indexes>
