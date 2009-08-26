@@ -1,0 +1,7 @@
+Call server enough times to populate client cache at startup
+Add back button
+Clean up 'details' person html.
+Add authentication.
+Tune performance
+Remove anchor from client cache. No need for it.
+Optimise number of simultaneous server calls in progress. Probably two.
