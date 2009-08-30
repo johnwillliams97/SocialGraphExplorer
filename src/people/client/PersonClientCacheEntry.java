@@ -24,6 +24,11 @@ public class PersonClientCacheEntry {
 	}
 	public void setState(CacheEntryState state) {
 		this.state = state;
+		if (this.state == CacheEntryState.EMPTY) { 
+			// Clear all remnants for functions that act on requestedUniqueID etc
+			this.person = null;
+			this.requestedUniqueID = PersonClient.UNIQUE_ID_NOT_FOUND;
+		}
 	}
 	
 	public PersonClient getPerson() {

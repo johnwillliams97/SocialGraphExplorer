@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.logging.Logger;
-import com.google.apphosting.api.DeadlineExceededException;
+//import com.google.apphosting.api.DeadlineExceededException; !@#$ handled in general get() catch(Exception e)
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import cache.CacheActual;
 import cache.CacheCache;
@@ -12,6 +12,7 @@ import cache.CacheDB;
 import cache.CachePipeline;
 import cache.CacheActual.WebReadPolicy;
 import datatypes.PersonLI;
+import people.client.MiscCollections;
 import people.client.OurConfiguration;
 import people.client.PersonFetch;
 import people.client.PersonClient;
@@ -25,8 +26,9 @@ import people.client.PersonService;
  */
 @SuppressWarnings("serial")
 public class PersonServiceImpl extends RemoteServiceServlet implements PersonService {
-	private static  final long maxTime = OurConfiguration.MAX_TIME_FOR_SERVLET_RESPONSE; 
 	private static final Logger logger = Logger.getLogger(PersonServiceImpl.class.getName());
+	
+	private static  final long maxTime = OurConfiguration.MAX_TIME_FOR_SERVLET_RESPONSE; 
 	private final long servletLoadTime = Calendar.getInstance().getTimeInMillis();
 	private long firstCallTime = -1L;
 
@@ -39,6 +41,8 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 	 * Tiny class for capturing cache pipeline stats
 	 */
 	class CachePipelineInstance {
+	//	private static final Logger logger = Logger.getLogger(CachePipelineInstance.class.getName());
+		
 		private int numFetches = 0;
 		private int numMemCacheFetches = 0;
 		private int numDBCacheFetches = 0;
@@ -50,10 +54,14 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 			this.cachePipeline = cachePipeline;
 		}
 		public PersonLI get(long id, WebReadPolicy policy, long timeBoundMillis) {
+			double start = Statistics.getInstance().getCurrentTime();
 			PersonLI person = this.cachePipeline.get(id, policy, timeBoundMillis);
 			++this.numFetches;
+			String whence = "none";
 			if (person != null) {
-				String whence = person.getWhence();
+				double end = Statistics.getInstance().getCurrentTime();
+				person.setFetchDuration(Statistics.round3(end-start));
+				whence = person.getWhence();
 				if (whence != null) {
 					if (whence.contains("CacheDB"))
 						++this.numDBCacheFetches;
@@ -67,6 +75,10 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 			else {
 				++this.numCacheMisses ;
 			}
+			
+		//	String nameFull = person != null ? person.getNameFull() : "not found";
+		//	logger.warning(id + ":" + nameFull + " - " + whence);
+			
 			return person;
 		}
 		int getNumFetches() {
@@ -114,6 +126,7 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 			pc.setConnectionIDs(ps.getConnectionIDs());
 			pc.setIsChildConnectionInProgress(ps.getIsChildConnectionInProgress());
 			pc.setWhence(ps.getWhence());
+			pc.setFetchDuration(ps.getFetchDuration());
 			pc.setHtmlPage(ps.getHtmlPage());
 		}
 		return pc;
@@ -141,20 +154,37 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 	 * @return list of persons fetched from the data store
    */
 	@Override
-	public PersonClientGroup getPeople(long[] requestedUniqueIDs, int[] levels, 
+	public PersonClientGroup getPeople(long[] requestedUniqueIDs, int[] requestedLevels, 
 			long clientSequenceNumber, int numCallsForThisClientSequenceNumber, long sequenceNumber) {
+		
+		logger.info(MiscCollections.arrayToString(requestedUniqueIDs));
+		Statistics.createInstance("getPeople");
+		
 		PersonClientGroup resultsMain = new PersonClientGroup();
 		resultsMain.hadDeadlineExceededException = true;
-		try {
-			resultsMain = getPeople_(requestedUniqueIDs, levels, clientSequenceNumber, numCallsForThisClientSequenceNumber, sequenceNumber);
+		resultsMain.requestedUniqueIDs = requestedUniqueIDs;
+		resultsMain.requestedLevels = requestedLevels;
+		resultsMain.sequenceNumber = sequenceNumber;
+		
+		resultsMain = getPeople_(resultsMain, requestedUniqueIDs, requestedLevels, clientSequenceNumber, numCallsForThisClientSequenceNumber, sequenceNumber);
+		
+		// Some debug info  
+		if (resultsMain.fetches == null) {
+			logger.warning("resultsMain.fetches is null!!");
+			//Statistics.getInstance().showAllEvents();
 		}
-		catch (DeadlineExceededException e) {
-			logger.warning("DeadlineExceededException");
-			resultsMain.hadDeadlineExceededException = true;
+		else {
+			for (int i = 0; i < resultsMain.fetches.length; ++i) {
+				List<Long> connectionIDs = resultsMain.fetches[i].person.getConnectionIDs();
+				int numConnections = (connectionIDs != null) ? connectionIDs.size() : 0;
+				logger.info("\t" + i + ": " 
+						+ resultsMain.fetches[i].person.getNameFull() +  " - " 
+						+ resultsMain.fetches[i].person.getLiUniqueID()  +  " - " 
+						+ numConnections);
+			}
 		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
+		logger.info("=========================*");
+		
 		return resultsMain;
 	}
 	/*
@@ -163,18 +193,16 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 	 * @param sequenceNumber - tracks client requests
 	 * @return list of persons fetched from the data store
 	 */
-	private PersonClientGroup getPeople_(long[] requestedUniqueIDs, 
-										   int[]  requestedLevels,
-										   long   clientSequenceNumber, 
-										   int    numCallsForThisClientSequenceNumber,
-										   long   sequenceNumber) {
+	private PersonClientGroup getPeople_(
+						PersonClientGroup resultsMain,
+						long[] requestedUniqueIDs, 
+						int[]  requestedLevels,
+						long   clientSequenceNumber, 
+						int    numCallsForThisClientSequenceNumber,
+						long   sequenceNumber) {
 	
-		Statistics.createInstance("getPeople_");
 		CachePipelineInstance cachePipelineInstance = new CachePipelineInstance(this.cachePipeline);
 		
-		PersonClientGroup resultsMain = new PersonClientGroup();
-		resultsMain.requestedUniqueIDs = requestedUniqueIDs;
-		resultsMain.requestedLevels = requestedLevels;
 		List<Fetch2> fetchList = new ArrayList<Fetch2>();
 		
 		final long maxTime1 = maxTime / 2;
@@ -193,22 +221,42 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 			long liUniqueID = requestedUniqueIDs[i];
 			if (liUniqueID <= 0L)
 				liUniqueID = PersonLI.DEFAULT_LI_UNIQUEID;
-			PersonLI person = cachePipelineInstance.get(liUniqueID, WebReadPolicy.AUTO, start + maxTime1);
+			PersonLI person = null;
+			try {
+				 person = cachePipelineInstance.get(liUniqueID, WebReadPolicy.AUTO, start + maxTime1);
+			}
+			catch (Exception e) {
+				// Best effort response to an exception
+				logger.warning("Exception for person " + liUniqueID +  ", " + i+ ": " + e.getMessage() + "," + e.toString()); 
+				e.printStackTrace();
+				break;
+			}
+			/*
+			if (i == (int)(Math.random()*4.0) ) {
+				System.err.println("Simulating a server fault! i=" + i); // !@#$  !@#$
+				break;
+			}
+			*/
 			if (person != null) {
 				cleanPersonConnections(person);
-				end = Calendar.getInstance().getTimeInMillis();
 				Fetch2 fetch = new Fetch2();
 				fetch.person = person;
 				fetch.requestedUniqueID = requestedUniqueIDs[i];
 				fetch.level = requestedLevels[i];
 				fetchList.add(fetch);
 			}
+			logger.info(liUniqueID + ":" + (person != null ? person.getNameFull() : "not found") + ", i = " + i + ". fetchList size = " + fetchList.size());
+			
 		}
+		logger.info("outta there!");
+		
 		Statistics.getInstance().recordEvent("responseDuration1");
 		resultsMain.responseDuration1 = Statistics.getInstance().getLastTime();
 
 		Statistics.getInstance().recordEvent("responseDuration2");
 		resultsMain.responseDuration2 = Statistics.getInstance().getLastTime();
+		
+		logger.info("* fetchList size = " + fetchList.size());
 		// Convert running list to output result
 		if (fetchList.size() > 0) { 
 			showPersonList(fetchList, "start");
@@ -224,16 +272,9 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 				fetches[i] = fetch;										
 			}
 			resultsMain.fetches = fetches; //getUniqueNonNullEntries(results, 1000);
+			logger.info("num fetches = " + fetches.length);
 		}
-		
-		for (int i = 0; i < resultsMain.fetches.length; ++i) {
-			List<Long> connectionIDs = resultsMain.fetches[i].person.getConnectionIDs();
-			int numConnections = (connectionIDs != null) ? connectionIDs.size() : 0;
-			logger.warning("\t" + i + ": " 
-					+ resultsMain.fetches[i].person.getNameFull() +  " - " 
-					+ resultsMain.fetches[i].person.getLiUniqueID()  +  " - " 
-					+ numConnections);
-		}
+			
 		resultsMain.servletLoadTime = this.servletLoadTime + this.firstCallTime; // This is the most unique signature I can synthesize
 		resultsMain.clientSequenceNumber = clientSequenceNumber;
 		resultsMain.numCallsForThisClientSequenceNumber = numCallsForThisClientSequenceNumber;
@@ -241,26 +282,25 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 		
 		Statistics.getInstance().recordEvent("responseDuration");
 		resultsMain.responseDuration = Statistics.getInstance().getLastTime();
-		logger.warning("Servlet load time = " + resultsMain.servletLoadTime);
+		//logger.warning("Servlet load time = " + resultsMain.servletLoadTime);
 		
-		Statistics.getInstance().showAllEvents();	
+		//Statistics.getInstance().showAllEvents();	
 		
 		resultsMain.numCacheFetches = cachePipelineInstance.getNumFetches();
 		resultsMain.numMemCacheFetches = cachePipelineInstance.getNumMemCacheFetches();
-		resultsMain.numDBCacheFetches = cachePipelineInstance.getNumDBCacheFetches();
-		logger.warning("Total  cache fetches =     " + resultsMain.numCacheFetches);
-		logger.warning("Number mem cache fetches = " + resultsMain.numMemCacheFetches);
-		logger.warning("Number DB cache fetches =  " + resultsMain.numDBCacheFetches);
+		//resultsMain.numDBCacheFetches = cachePipelineInstance.getNumDBCacheFetches();
+		//logger.warning("Total  cache fetches =     " + resultsMain.numCacheFetches);
+		//logger.warning("Number mem cache fetches = " + resultsMain.numMemCacheFetches);
+		//logger.warning("Number DB cache fetches =  " + resultsMain.numDBCacheFetches);
 		
-		logger.warning("==========================");
 		return resultsMain;
 	}
 
 	private static void showPersonList(List<Fetch2> fetchList, String name) {
-		logger.warning("------ " + name + " : " + fetchList.size());
+		logger.info("------ " + name + " : " + fetchList.size());
 		for (int i = 0; i < fetchList.size(); ++i) {
 			PersonLI person = fetchList.get(i).person;
-			logger.warning("  " + i + ": " 
+			logger.info("  " + i + ": " 
 					+ person.getNameFull() + ", " 
 					+ person.getLocation() + ", " 
 					+ person.getNumConnections() + ", " 

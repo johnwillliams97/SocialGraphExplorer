@@ -17,6 +17,15 @@ public class WebSiteReader_Connections {
 	@SuppressWarnings("unused")
 	private String _target = null; // for debugging
 	
+	/* For time-bound best-effort operation
+	 * Searches give up at this time and return partial results
+	 */
+	private long _timeBoundMillis = 0L;  
+	
+	private WebSiteReader_Connections(long timeBoundMillis) {
+		_timeBoundMillis = timeBoundMillis;
+	}
+	
 	static private String _linkedInBase = "http://www.linkedin.com";
 	public static String makeLiConnectionsName(long key) {
 		String name = _linkedInBase + "/profile?viewConns=&key=" + key;
@@ -25,9 +34,10 @@ public class WebSiteReader_Connections {
 	
 	
 	
+	
 	/*
 	 * Search state for one profile html page
-		 */
+	 */
 	private List<Long> _connectionKeys = new ArrayList<Long>();
 	
 	/*
@@ -196,7 +206,7 @@ public class WebSiteReader_Connections {
 		_target = target; // for debugging
 	
 		try { 
-			Parser parser = WebSiteReader_Common.setupParser(target, Force.ON);
+			Parser parser = WebSiteReader_Common.setupParser(target, Force.ON, _timeBoundMillis);
 			if (parser != null) {
 				_connected = true;
 				if (_fetchWholePage) {
@@ -212,7 +222,6 @@ public class WebSiteReader_Connections {
 		} 
 		catch (Exception e) {
 			e.printStackTrace();
-			assert(false);
 		}
 		 
 		return _split_nextPage;
@@ -230,7 +239,7 @@ public class WebSiteReader_Connections {
 			>0 = number of pages read
 			need to distinguish between no attempt to read and failure
 	 */
-	public static ConnectionsReaderState  doGetLiConnections(long liUniqueID, long lastPageNumRead)  {
+	public static ConnectionsReaderState  doGetLiConnections(long liUniqueID, long lastPageNumRead, long timeBoundMillis)  {
 		assert(lastPageNumRead != PersonLI.PROGRESS_COMPLETED);  // This function should not be called if the person's connection list is complete
 		assert(lastPageNumRead == PersonLI.PROGRESS_NOT_STARTED || lastPageNumRead > 0);
 
@@ -244,7 +253,7 @@ public class WebSiteReader_Connections {
 		int numPasses = 0;
 		
 		do {
-			WebSiteReader_Connections wsr = new WebSiteReader_Connections();
+			WebSiteReader_Connections wsr = new WebSiteReader_Connections(timeBoundMillis);
 			wsr.doMakeLiConnectionsOneSplit(nextPage);
 			if (!wsr._connected)
 				break;
@@ -270,8 +279,9 @@ public class WebSiteReader_Connections {
 		} while (nextPage != null && numPasses < 1);  		// limits this to 1 pass
 		return readerState.connected ? readerState : null;
 	}
-	public static String doGetLiConnectionsPage(long liUniqueID, long lastPageNumRead)  {
-		WebSiteReader_Connections wsr = new WebSiteReader_Connections();
+	
+	public static String doGetLiConnectionsPage(long liUniqueID, long lastPageNumRead, long timeBoundMillis)  {
+		WebSiteReader_Connections wsr = new WebSiteReader_Connections(timeBoundMillis);
 		wsr._fetchWholePage = true;
 		String nextPage = makeLiConnectionsUrl(liUniqueID,  lastPageNumRead);
 		wsr.doMakeLiConnectionsOneSplit(nextPage) ;

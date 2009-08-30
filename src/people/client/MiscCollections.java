@@ -52,7 +52,7 @@ public class MiscCollections {
 		return list;
 	}
 	
-	static public int[] listToArrayInt(List<Integer> list) {
+	static public  int[] listToArrayInt(List<Integer> list) {
 		int[] array = null;
 		if (list != null) {
 			array = new int[list.size()];
@@ -85,7 +85,7 @@ public class MiscCollections {
 		return flattened;
 	}
 	
-	static String arrayToString(long[] ids) {
+	static public String arrayToString(long[] ids) {
  		int numIDs = (ids != null) ? ids.length : 0;
  		String dbgIDs = "" + numIDs + ": [";
 		for (int i = 0; i < numIDs; ++i)

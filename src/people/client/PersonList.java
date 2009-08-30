@@ -6,6 +6,7 @@ import java.util.List;
 import people.client.PersonClientCache.GetPersonsFromCacheCallback;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
@@ -14,7 +15,9 @@ import com.google.gwt.user.client.ui.HTMLTable.Cell;
 
 
 /**
- * A composite that displays a list of persons that can be selected.
+ * 
+ * The main UI for SocialGraphExplorer
+ * 	A composite that displays a list of persons that can be selected.
  * 
  * Behaviour
  *  Each person has a list of connections.
@@ -50,6 +53,7 @@ public class PersonList extends Composite implements ClickHandler {
 	// UI behaviour
 	static final int VISIBLE_PERSONS_COUNT = OurConfiguration.VISIBLE_PERSONS_COUNT;  // %^&* 10
 	
+	private boolean _firstFetch = true;
 	/*
 	 * This UI is a list. First item in the list is the 'anchor'.
 	 * The following items are indexes in anchor's connections list
@@ -60,18 +64,34 @@ public class PersonList extends Composite implements ClickHandler {
 		public int   startIndex;
 		public boolean anchorFetched;
 		public boolean visibleFetched; 
-		CanonicalState(CanonicalState s1) {
+		public CanonicalState(CanonicalState s1) {
 			this.anchorUniqueID = s1.anchorUniqueID;
 			this.startIndex = s1.startIndex;
 			this.anchorFetched = s1.anchorFetched;
 			this.visibleFetched = s1.visibleFetched;
 		}
-		CanonicalState() {
+		private void init() {
 			this.anchorUniqueID = PersonClient.MAGIC_PERSON_CLIENT_1_UNIQUE_ID;   // The ID of the anchor person
 			this.startIndex = 0;
 			this.anchorFetched = false;
 			this.visibleFetched = false;
 		}
+		public CanonicalState() {
+			init();
+		}
+		private static final String SEPARATOR = ",";
+		public String getAsString() {
+			return "" + this.anchorUniqueID + SEPARATOR + this.startIndex;
+		}
+		CanonicalState(String stringRep) {
+			init();
+			String[] parts = stringRep.split(SEPARATOR);
+			if (parts.length > 0)
+				this.anchorUniqueID = Long.parseLong(parts[0]);
+			if (parts.length > 1)
+				this.startIndex = Integer.parseInt(parts[1]);
+		}
+		
 	}
 	
 	private CanonicalState state = new CanonicalState();
@@ -104,7 +124,6 @@ public class PersonList extends Composite implements ClickHandler {
 	private HorizontalPanel navBar = new HorizontalPanel();
 
 	private boolean isNavigationDisabled = false;
-
 
 
   	/*
@@ -201,10 +220,10 @@ public class PersonList extends Composite implements ClickHandler {
 	 */
 	@Override
 	public void onClick(ClickEvent event) {
-		SocialGraphExplorer.get().showInstantStatus("onClick()");
+		//SocialGraphExplorer.get().showInstantStatus("onClick()");
 	    Object sender = event.getSource();
 	    if (sender == olderButton) {
-	    	SocialGraphExplorer.get().showInstantStatus("olderButton");
+	    //	SocialGraphExplorer.get().showInstantStatus("olderButton");
 	      // Move forward a page.
 	      this.state.startIndex += VISIBLE_PERSONS_COUNT;
 	      if (this.state.startIndex >= getPersonCount()) {
@@ -216,7 +235,7 @@ public class PersonList extends Composite implements ClickHandler {
 	      }
 	    } 
 	    else if (sender == newerButton) {
-	    	SocialGraphExplorer.get().showInstantStatus("newerButton");
+	    //	SocialGraphExplorer.get().showInstantStatus("newerButton");
 	      // Move back a page.
 	      this.state.startIndex -= VISIBLE_PERSONS_COUNT;
 	      if (this.state.startIndex < 0) {
@@ -228,7 +247,7 @@ public class PersonList extends Composite implements ClickHandler {
 	      }
 	    } 
 	    else if (sender == oldestButton) {
-	    	SocialGraphExplorer.get().showInstantStatus("oldestButton");
+	    	//SocialGraphExplorer.get().showInstantStatus("oldestButton");
 		    // Move to end.
 		    this.state.startIndex = getPersonCount() -1 -VISIBLE_PERSONS_COUNT;
 		    if (this.state.startIndex < 0) 
@@ -238,7 +257,7 @@ public class PersonList extends Composite implements ClickHandler {
 		    updatePersonList("oldestButton");
 		}
 		else if (sender == newestButton) {
-			SocialGraphExplorer.get().showInstantStatus("newestButton");
+			//SocialGraphExplorer.get().showInstantStatus("newestButton");
 		    // Move to start.
 		    this.state.startIndex = 0;
 		    styleRow(selectedRow, false);
@@ -554,6 +573,11 @@ public class PersonList extends Composite implements ClickHandler {
 	  } 
 	  return uniqueIDsList;
   }
+  
+  public void updatePersonListExtern(String stringRep) {
+	  this.state = new CanonicalState(stringRep);
+	  updatePersonList("updatePersonListExtern(" + stringRep +")");
+  }
   /*
    * Update the person list from the client cache
    * Returns through cacheCallbackUpdateList.handleReturn()
@@ -566,6 +590,11 @@ public class PersonList extends Composite implements ClickHandler {
 	  
 		  if (!statesEqual(this.state, this.oldState))
 			  this.state.visibleFetched = false;
+		  
+		  // Web history handling
+		  if (this.state.anchorUniqueID > 0) {
+			  History.newItem(this.state.getAsString()); 
+		  }
 		  
 		  SocialGraphExplorer.get().showInstantStatus("updatePersonList(" + dbgMsg +  ", " + !this.state.anchorFetched + ", " + !this.state.visibleFetched + ")");
 		 
@@ -635,7 +664,7 @@ public class PersonList extends Composite implements ClickHandler {
   	}
   	
   	private void redrawUI() {
-  		SocialGraphExplorer.get().showInstantStatus("redrawUI()");
+  	//	SocialGraphExplorer.get().showInstantStatus("redrawUI()");
   	// Show the selected persons.
     	PersonClient person = null;
     		    	
@@ -645,7 +674,10 @@ public class PersonList extends Composite implements ClickHandler {
         		int numConnections = (person.getConnectionIDs() != null) ? person.getConnectionIDs().size() : 0;
     		   	table.setText(i+1 , 0, squeeze(person.getNameFull(), 40) + " - " + i + ",  " 
 	        			+ person.getWhence() + ",  " 
-	        			+ (person.getIsChildConnectionInProgress() ? "in progress" : ""));
+	        			+ (person.getIsChildConnectionInProgress() ? "in progress" : "..") + ","
+	        			+ (person.getHtmlPage() != null ? person.getHtmlPage().length()/1024 : 0) + "kb, " 
+	        			+ person.getFetchDuration() + " sec"
+	        			);
 	        	table.setText(i+1 , 1, squeeze(person.getDescription(), 40) + " - " + numConnections);
 	        	table.setText(i+1 , 2, person.getLocation() + " - " + person.getLiUniqueID());
         	}
@@ -682,7 +714,7 @@ public class PersonList extends Composite implements ClickHandler {
 	}
   	
   	private void disableNavigation() {
-  		SocialGraphExplorer.get().showInstantStatus("disableNavigation()");
+  	//	SocialGraphExplorer.get().showInstantStatus("disableNavigation()");
   		this.isNavigationDisabled = true;
   		newerButton.setVisible(false);
   	  	newestButton.setVisible(false);
@@ -719,6 +751,7 @@ public class PersonList extends Composite implements ClickHandler {
 	    		oldState.anchorUniqueID = state.anchorUniqueID; 
 	    		state.visibleFetched = false;     // A change of anchor invalidates the visible state
 	    			    	
+	    		assert(entries[PersonClientCache.CACHE_LEVEL_ANCHOR]!= null);
 	    		assert(entries[PersonClientCache.CACHE_LEVEL_ANCHOR].length > 0);
   				PersonClientCacheEntry newAnchorEntry = entries[PersonClientCache.CACHE_LEVEL_ANCHOR][0];
   				PersonClient newAnchor = newAnchorEntry.getPerson();
@@ -733,10 +766,11 @@ public class PersonList extends Composite implements ClickHandler {
 	    	}
 	    	
 	    	redrawUI();
-	    // DO THIS IN ACCEPT()	
-	    //	if (needSecondUpdate) {
-  		//		updatePersonList("follow-up"); // call server a 2nd time
-	    //	}
+	    
+	    	if (_firstFetch) {
+  				updatePersonList("follow-up"); // call server a 2nd time
+  				_firstFetch = false;
+	    	}
 		}	
 	}
   

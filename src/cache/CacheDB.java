@@ -14,6 +14,7 @@ import datatypes.PersonLI;
 
 public class CacheDB implements CacheActual<Long, PersonLI> {
 	private static final Logger logger = Logger.getLogger(CacheActual.class.getName());
+	
 	private static String 		LINKED_IN = "LinkedIn";
 	private WebSiteReader_EntryPoint 	webSiteReaderEntry = new WebSiteReader_EntryPoint();
 	private long 				longestLIReadDuration = 0L; // For profiling
@@ -38,7 +39,8 @@ public class CacheDB implements CacheActual<Long, PersonLI> {
 				needsLIRead = true;
 				person = null;
 			}
-			else if (person.getIsChildConnectionInProgress()) { 
+			// Partially read states
+			else if (person.getIsChildConnectionInProgress() || person.getHtmlPage() == null) { 
 				needsLIRead = true;
 				logger.info("Re-read" + person.getNameFull() + " from LI");
 			}
@@ -53,7 +55,7 @@ public class CacheDB implements CacheActual<Long, PersonLI> {
 				long after = Calendar.getInstance().getTimeInMillis();
 				long duration = after - before;
 				this.longestLIReadDuration = Math.max(duration, this.longestLIReadDuration);
-				logger.warning("LinkeIn read took " + duration/1000L + " (longest = " + this.longestLIReadDuration/1000L + ")");
+				logger.info("LinkeIn read took " + duration/1000L + " (longest = " + this.longestLIReadDuration/1000L + ")");
 				Statistics.getInstance().recordEvent("done getPersonFromLI");
 				if (personRead != null) {
 					personRead.setWhence(LINKED_IN);
@@ -62,16 +64,19 @@ public class CacheDB implements CacheActual<Long, PersonLI> {
 					Statistics.getInstance().recordEvent("Saved " + person.getNameFull() + " to DB");
 					// !@#$ check
 					PersonLI 	person2 = PersonLI.findInDBbyUniqueId(key);
-					boolean personHasHtml = (person.getHtmlPage() != null);
-					boolean person2HasHtml = (person2.getHtmlPage() != null);
+					boolean personHasHtml  = (person != null  && person.getHtmlPage() != null);
+					boolean person2HasHtml = (person2 != null && person2.getHtmlPage() != null);
 					assert(person2HasHtml == personHasHtml);
-					String employer1 = person.getEmployer();
-					String employer2 = person2.getEmployer();
+					String employer1 = person != null  ? person.getEmployer()  : null;;
+					String employer2 = person2 != null ? person2.getEmployer() : null;
 					assert((employer1 == null && employer2 == null) ||
-							employer1.equals(employer2));
+						   (employer1 != null && employer2 != null && employer1.equals(employer2)));
 				}
 			}
 		}
+		
+		logger.info(key + ": " + (person != null ? person.getNameFull() : "not found")); 
+				
 		return person;
 	}
 	
@@ -83,8 +88,12 @@ public class CacheDB implements CacheActual<Long, PersonLI> {
 */
 	@Override
 	public PersonLI get(Long key, WebReadPolicy policy, long timeBoundMillis) {
-		Statistics.getInstance().recordEvent("CacheDB.get()");
-		return this.getFromDBandLI(key, true, policy, timeBoundMillis);
+		PersonLI person = this.getFromDBandLI(key, true, policy, timeBoundMillis);
+		
+		//String nameFull = person != null ? person.getNameFull() : "not found";
+		//logger.warning(key + ":" + nameFull);
+		
+		return person;
 	}
 	
 	@Override
@@ -108,8 +117,12 @@ public class CacheDB implements CacheActual<Long, PersonLI> {
 	
 	@Override
 	public PersonLI setWhence(PersonLI person) {
-		if (person != null && person.getWhence() == null) {
-			person.setWhence(this.identify());
+		logger.info("setWhence("+this.identify()+") - " + (person != null ? person.getNameFull() : "not found"));
+		if (person != null) {
+			String whence = person.getWhence();
+			if (whence == null) {
+				person.setWhence(this.identify());
+			}
 		}
 		return person;
 	}

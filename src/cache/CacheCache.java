@@ -3,16 +3,19 @@ package cache;
  * Wrapper for javax.cache.Cache
  */
 import java.util.Collections;
-//import java.util.HashMap;
-//import java.util.Map;
+import java.util.logging.Logger;
 import javax.cache.Cache;
 import javax.cache.CacheException;
 import javax.cache.CacheManager;
+
+import org.mortbay.log.Log;
+
 
 import datatypes.PersonLI;
 
 
 public class CacheCache implements CacheActual<Long, PersonLI> {
+	private static final Logger logger = Logger.getLogger(CacheCache.class.getName());
 
 	private Cache theCache = null;
 	
@@ -30,6 +33,10 @@ public class CacheCache implements CacheActual<Long, PersonLI> {
 		boolean incomplete = false;
 		if (person != null) {
 			incomplete = person.getIsChildConnectionInProgress() || person.getHtmlPage() == null;// || true;  //!@#$
+			long uniqueID = person.getLiUniqueID();
+			String nameFull = person.getNameFull();
+			String compl = incomplete ? "INCOMPLETE" : "complete";
+			logger.warning(uniqueID + ":" + nameFull + " - " + compl);
 		}
 		return incomplete;
 	}
@@ -41,7 +48,9 @@ public class CacheCache implements CacheActual<Long, PersonLI> {
 */
 	@Override
 	public PersonLI get(Long key, WebReadPolicy policy, long timeBoundMillis) {
-		return (PersonLI)theCache.get(key);
+		PersonLI person = (PersonLI)theCache.get(key);
+		//logger.info(key + ":" + (person != null ? person.getNameFull() : "not found"));
+		return person;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -56,7 +65,8 @@ public class CacheCache implements CacheActual<Long, PersonLI> {
 	}
 
 	@Override
-	public PersonLI setWhence(PersonLI person) {
+	public PersonLI setWhence(PersonLI person) { 
+		logger.info("setWhence("+this.identify()+") - " + (person != null ? person.getNameFull() : "not found"));
 		if (person != null) {
 			person.setWhence(this.identify());
 		}

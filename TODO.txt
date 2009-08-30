@@ -1,7 +1,61 @@
-Call server enough times to populate client cache at startup
-Add back button
+LIST OF WORK TO DO (x = Complete. ? = May not be an issue.)
+------------------
+x Call server enough times to populate client cache at startup 
+? Add back button
+	See  History.newItem(this.state.getAsString());  and ValueChangeHandler . Need to figure which to use 
 Clean up 'details' person html.
+	Check if html is in messy format and delete it if it is.
 Add authentication.
+Remove my LI cookies from  git so people cannot access my account
+Add cookies to save state between uses (anchor:start)
+Add Gears support
 Tune performance
+	Stop discarding old requests
+	Optimise number of simultaneous server calls in progress. Probably two.
 Remove anchor from client cache. No need for it.
-Optimise number of simultaneous server calls in progress. Probably two.
+Replace arrays and null checks with lists and empty lists
+Do stuff from 
+	http://blog.hivedevelopment.co.uk/2009/08/google-web-toolkit-gwt-mvp-example.html (best practices)
+	http://code.google.com/apis/socialgraph/ (Google social graph)
+		XFN and FOAF
+		'me' and 'friend' links
+Sort on 
+	#connections
+	location
+	name
+Handle &#x260  as in "? Adrian Cotterill ?"  
+Add build from scratch script
+Give visual feedback when on-screen data is being fetched (e.g. grey out people)
+Make UI usable
+	Get feedback from users
+	Keep list pointer at same location when going forward and back screens
+	Grey when not reponsive
+	Distinguish main person from connections
+	Move scroll controls out of table
+Command line client
+Cron jobs to update more records
+Generalise to m-clicks?
+Use Statistics.getCurrentTime() for all timings
+Test on all browsers and OSes
+	Vista + Chrome, Opera, IE, Safari, Firefox ok
+	
+Add Google Maps support to show geographical spread
+Do Matthew UI of line to line connections on screen. Shows clusters of connections
+Do David UI of a sphere.
+
+BUGS
+----
+Find and fix all !@#$
+whence=='nowhere' Fixed 2009/08/30
+Does not get whole screen of data every time
+	2009/08/28 Seem to be evicting invisible cache entries that are about to become visible
+	2009/08/28 Partly fixed by clearing out all pending requests to ensure cache coherency 
+				with clearPendingCacheEntries()
+Does not always get details. whence=='CacheDB' Fixed 2009/08/30
+Clicking on a partial record does not initiate extra fetches
+Person is sometimes duplicated in his own connections list on UI
+Remap URLs in HTML scraped from social networks (may be better to parse HTML)
+Level 0 of client cache is empty
+Moving between screens should maintain row position on screen
+Grey non-anchor persons when moving between screens
+

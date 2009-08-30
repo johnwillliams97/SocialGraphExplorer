@@ -3,7 +3,7 @@ package htmlstuff;
 import misc.Statistics;
 import datatypes.PersonLI;
 
-public class WebSiteReaderEntry {
+public class WebSiteReader_EntryPoint {
 	/*
 	 * Error handling
 	 */
@@ -19,7 +19,8 @@ public class WebSiteReaderEntry {
 	public PersonLI getPersonFromLI(
 				long     key,
 				PersonLI partPerson,    // whatever we got in previous fetches, null if no prev fetches
-				boolean  forceLiRead)	// forces a LI read
+				boolean  forceLiRead,	// forces a LI read
+				long timeBoundMillis)	// request must complete before this time
 	{
 		WebSiteReader_Common.startNewHttpRequest();
 
@@ -33,13 +34,12 @@ public class WebSiteReaderEntry {
 		   (forceLiRead && person != null && !person.getIsChildConnectionInProgress()) // Forced to read
 		   ) {
 			
-			person = WebSiteReader_UserProfile.doGetLiUserProfile(key, -777L);
+			person = WebSiteReader_UserProfile.doGetLiUserProfile(key, timeBoundMillis);
 			Statistics.getInstance().recordEvent("getPersonFromLI: Got summary");
-			//return person;  // Have done a read so leave
 		}
 		// Second fetch of this person: Get details
 		else if (person != null && person.getHtmlPage() == null) {
-			htmlPage = WebSiteReader_UserProfile.doGetLiUserProfilePage(key, -777L);
+			htmlPage = WebSiteReader_UserProfile.doGetLiUserProfilePage(key, timeBoundMillis);
 			Statistics.getInstance().recordEvent("getPersonFromLI: Got details");
 			person.setHtmlPage(htmlPage);
 		}
@@ -48,8 +48,11 @@ public class WebSiteReaderEntry {
 			for (int connType = 0; connType < person.getNumChildConnectionProgresses(); connType++) {
 				if (person.getChildConnectionProgress(connType) != PersonLI.PROGRESS_COMPLETED) {
 					if (connType == PersonLI.CHILDREN_CONNECTIONS) {// !@#$ Generalise this to a LUT
-						connectionsReaderState = WebSiteReader_Connections.doGetLiConnections(person.getLiUniqueID(), 
-							person.getChildConnectionProgress(connType)); 
+						connectionsReaderState = 
+							WebSiteReader_Connections.doGetLiConnections(
+									person.getLiUniqueID(), 
+									person.getChildConnectionProgress(connType),
+									timeBoundMillis); 
 					}
 					if (connectionsReaderState != null) {
 						person.addConnectionIDs(connectionsReaderState.connectionKeys);

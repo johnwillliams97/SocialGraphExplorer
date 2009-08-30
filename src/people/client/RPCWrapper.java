@@ -203,7 +203,7 @@ public class RPCWrapper {
     //	this.theLevels = levels;
     	
     	if (idsAtLevelList.size() > 0) {
-	       	System.err.println("getPersonsFromServer(" + description + ", " + getTotalNumberOfIDs(idsAtLevelList) );
+	       	System.err.println("getPersonsFromServer(" + description + ", " + getTotalNumberOfIDs(idsAtLevelList) + ")" );
 		
 	       	// Fetch the data remotely.
 		    // This is an async call that returns immediately 
@@ -229,7 +229,7 @@ public class RPCWrapper {
     }
 	
 	// Longest call to server	
-	private static long maxDuration  = 0;
+	private static double _maxDuration  = 0;
     /*
      * Callback that gets called when async call to server completes on server.
      *  theAcceptor.accept() keeps calling this function until the client cache is up to date
@@ -241,20 +241,23 @@ public class RPCWrapper {
 		// Log a bunch of statistics
 		onSuccessCallbackReportStatus(result, uniqueLevels) ;
 		
-		// Update the cache !!!! and call back to UI
+		// Update the cache !!!! , call back to UI 
+		// getPersonsFromServer() will get called again if data incomplete
 		this.theAcceptor.accept(uniqueLevels, result.fetches, result.clientSequenceNumber);
  	}
-/*
+
     private static void myAssert(boolean test) {
-    	assert(test);
+    	if (!test) {
+    		assert(test);
+    	}
     }
-    */
+    
     /*
      * Report some status. Not critical
      */
     private void onSuccessCallbackReportStatus(PersonClientGroup result, List<Integer> uniqueLevels ) {
     	// Verify some assumptions
-    	assert(result != null);
+    	myAssert(result != null);
     	//myAssert(result.requestedLevels != null);
     	//myAssert(result.requestedUniqueIDs != null);
     	//myAssert(result.fetches != null);
@@ -264,16 +267,22 @@ public class RPCWrapper {
 			baseServletLoadTime = result.servletLoadTime;
 		int numFetches = result.fetches != null ? result.fetches.length : 0;
 		totalFetches += numFetches;
+		int numRequestedIDs = (result.requestedUniqueIDs != null) ? result.requestedUniqueIDs.length : 0; //!@#$ use empty collections instead of null
+		//SocialGraphExplorer.get().showInstantStatus2("onSuccessCallback", numFetches + " of " + numRequestedIDs);
 		
-		SocialGraphExplorer.get().showInstantStatus2("onSuccessCallback", numFetches + " of " + result.requestedUniqueIDs.length);
-		// If this is a valid response
-		if (result.requestedUniqueIDs != null) {
+		if (result.requestedUniqueIDs == null) {
+			SocialGraphExplorer.get().showError("Bad result from server: result.requestedUniqueIDs == null");
+		}
+		else if (result.fetches == null) {
+			SocialGraphExplorer.get().showError("Bad result from server: result.fetches == null");
+		}
+		else { // If this is a valid response
 			if (numFetches < result.requestedUniqueIDs.length)
-				SocialGraphExplorer.get().showInstantStatus2("Incomplete fetch", numFetches + " of " + result.requestedUniqueIDs.length);
+				SocialGraphExplorer.get().showInstantStatus2("Incomplete fetch", numFetches + " of " + numRequestedIDs);
 			
 			// Track longest server response 
-			if (maxDuration < result.responseDuration)
-				maxDuration = result.responseDuration;
+			if (_maxDuration < result.responseDuration)
+				_maxDuration = result.responseDuration;
 			
 			// Report status  - for debugging
 			String uniqueLevelsString = uniqueLevels.toString();
@@ -295,19 +304,16 @@ public class RPCWrapper {
 					//+ getIDsAsString(result.persons)
 					);
 			SocialGraphExplorer.get().showStatus("Duration", 
-					+ result.responseDuration1/1000 + ", "
-			 		+ result.responseDuration2/1000 + ", "
-			 		+ result.responseDuration3/1000 + ", "
-			 		+ result.responseDuration/1000  + ": "
-			 		+ maxDuration/1000 );
+					+ result.responseDuration1 + ", "
+			 		+ result.responseDuration2 + ", "
+			 		+ result.responseDuration3 + ", "
+			 		+ result.responseDuration  + ": "
+			 		+ _maxDuration );
 		}
-		else {
-			SocialGraphExplorer.get().showError("Bad result from server");
-		}
+		
 		SocialGraphExplorer.get().statusFlush();
 				
 		//personCache.dumpCache();
-	
     }
   	
 	/*
@@ -357,7 +363,7 @@ public class RPCWrapper {
 			header = "Unexcepted Error processing remote call";
 			body = caught.getMessage();
     	}
-		String msg = "<b>" + header + " </b>\n" + body;
+		String msg = header + ":\n" + body;
     	Window.alert(msg);
     }
   
@@ -393,15 +399,7 @@ public class RPCWrapper {
   	}
   	 		
   	private static final String NO_CONNECTION_MESSAGE = 
-  			"<p>This program uses a <a href=\"http://code.google.com/"
-  	      + "webtoolkit/documentation/com.google.gwt.doc.DeveloperGuide."
-  	      + "RemoteProcedureCalls.html\" target=\"_blank\">Remote Procedure Call</a> "
+  			"This program uses a Remote Procedure Call "
   	      + "(RPC) to request data from the server.  In order for the RPC to "
-  	      + "successfully return data, the server component must be available.</p>"
-  	      + "<p>If you are running this demo from compiled code, the server "
-  	      + "component may not be available to respond to the RPC requests from "
-  	      + "DynaTable.  Try running this program in hosted mode to see the demo "
-  	      + "in action.</p> "
-  	      + "<p>Click on the Remote Procedure Call link above for more information "
-  	      + "on GWT's RPC infrastructure.";
+  	      + "successfully return data, the server component must be available.";
 }

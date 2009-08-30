@@ -144,23 +144,29 @@ public class PersonClient implements IsSerializable, PersonPublic {
 	
 	// !@#$ Hack for checking cache performance
 	String whence = "nowhere";
+	@Override
 	public void setWhence(String whence) {
 		this.whence = whence;
 	}
+	@Override
 	public String getWhence() {
 		return this.whence;
 	}
-	// !@#$ another hack for checking client cach
-	long fillTimeInMillis = -1L;
-	public void setFillTimeInMillis(long fillTimeInMillis) {
-		this.fillTimeInMillis = fillTimeInMillis;
+	
+	// !@#$ Hack for checking cache performance
+	// This shows how long it took to fetch the person
+	double fetchDuration = 0.0;
+	@Override
+	public void setFetchDuration(double fetchDuration) {
+		this.fetchDuration = fetchDuration;
 	}
-	public double getDurationSinceFill() {
-		double duration = -10.0;
-		if (this.fillTimeInMillis > 0)
-			duration = 0.0;//(double)(Calendar.getInstance().getTimeInMillis() - this.fillTimeInMillis)/1000.0;
-		return duration;
+	@Override
+	public double getFetchDuration() {
+		return this.fetchDuration;
 	}
+	
+	
+	
 	public boolean isIncomplete(boolean noDetail, boolean connectionsInProgress)  {
 		return 
 			((noDetail && (this.htmlPage == null)) ||

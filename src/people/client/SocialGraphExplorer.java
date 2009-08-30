@@ -12,6 +12,8 @@ import com.google.gwt.core.client.EntryPoint;
 //import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.Window;
@@ -20,11 +22,14 @@ import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 
-public class SocialGraphExplorer implements EntryPoint, ResizeHandler
-//, HistoryListener  
+public class SocialGraphExplorer 
+			implements EntryPoint, ResizeHandler
+                        //  , HistoryListener 
+                      //    ,ValueChangeHandler<String>  // !@#$ Should be <CanonicalState>
 {
-
-  private static SocialGraphExplorer singleton;
+	
+	
+	private static SocialGraphExplorer singleton;
 
   /**
    * Instantiate an application-level image bundle. This object will provide
@@ -130,6 +135,16 @@ public class SocialGraphExplorer implements EntryPoint, ResizeHandler
     // Finally, add the outer panel to the RootPanel, so that it will be
     // displayed.
     RootPanel.get().add(outer);
+    
+    // History handling. See http://onjava.com/pub/a/onjava/2006/05/31/working-with-google-web-toolkit.html?page=4
+    //Add a new listener to record the row history
+   /* personList.addTableListener( new TableListener(){
+        public void onCellClicked(SourcesTableEvents sender, 
+            int row, int cell) {
+            History.newItem( ""+row );
+        }
+    });
+    */
 
     // Call the window resized handler to get the initial sizes setup. Doing
     // this in a deferred command causes it to occur after all widgets' sizes
@@ -159,12 +174,34 @@ public class SocialGraphExplorer implements EntryPoint, ResizeHandler
     */
 	//int listHeight =  personList.getAbsoluteTop();
 
-    // Give the mail detail widget a chance to resize itself as well.
-    personDetail.adjustSize(width, height);
-    serverStatus.adjustSize(width, 0);
+    // Give the person detail widget a chance to resize itself as well.
+	  
+	  if (OurConfiguration.DEBUG_MODE) {
+		personDetail.adjustSize(width, height/10);
+		serverStatus.adjustSize(width, height);
+	  }
+	  else {
+			personDetail.adjustSize(width, height);
+			serverStatus.adjustSize(width, 0);
+	  }
   }
 
-
+//Web history handling
+  /*
+	@Override
+	public void onValueChange(ValueChangeEvent<String> event) {
+		String stringRep = event.getValue();
+		personList.updatePersonListExtern(stringRep);
+	}
+*/
+	final ValueChangeHandler<String> historyHandler = new
+	ValueChangeHandler<String>() {
+		@Override
+		public void onValueChange(ValueChangeEvent<String> event) {
+			String stringRep = event.getValue();
+			personList.updatePersonListExtern(stringRep);
+		}
+	};
 
 
 }

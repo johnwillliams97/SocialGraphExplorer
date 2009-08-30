@@ -1,3 +1,9 @@
+Locations
+---------
+Source:  http://github.com/peterwilliams97/SocialGraphExplorer
+Program: http://peterwilliams9798.appspot.com/
+Admin:   http://appengine.google.com/dashboard?&app_id=peterwilliams9798
+
 Product Definition
 ------------------
 The application will be a Social Network Navigator. It will navigate a person's list of social network connections 

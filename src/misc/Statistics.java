@@ -1,7 +1,7 @@
 package misc;
 
 import java.util.ArrayList;
-import java.util.Calendar;
+//import java.util.Calendar;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -29,16 +29,16 @@ public class Statistics {
 	}
 	
 	public class Event {
-		public long   _when;
+		private double _when; // seconds since construction
 		public String _name;
-		public int _sequence;
+		public int    _sequence;
 		public Event(String name) {
 			this._name = name;
 			this._sequence = ++_sequenceNumber;
-			this._when =  Calendar.getInstance().getTimeInMillis() - _callStartTime;
+			this._when = getCurrentTime();
 		}
 		public String describe() {
-			String description = "Event[" + this._sequence + "] " + this._when/1000L + " sec: '" + this._name + "'";
+			String description = "Event[" + this._sequence + "] " + this._when + " sec: '" + this._name + "'";
 			return description;
 		}
 	}
@@ -46,16 +46,22 @@ public class Statistics {
 	private long _callStartTime = 0L;
 	private int  _sequenceNumber = 0;
 	
-	//Need to synchronize access to _events since this list is shared across servlets
+	//Need to synchronise access to _events since this list is shared across servlets
 	private List<Event> _events = null;
 	
 	private Statistics() {
-		this._callStartTime = Calendar.getInstance().getTimeInMillis();
+		//this._callStartTime = Calendar.getInstance().getTimeInMillis();
+		this._callStartTime = System.nanoTime();
 		this._sequenceNumber = 0;
 		this._events = new ArrayList<Event>();
 	}
-	public long getLastTime() {
-		long lastTime = 0L;
+	public double getCurrentTime() {
+	//	return (double)(Calendar.getInstance().getTimeInMillis() - _callStartTime)/1000.0;
+		return (double)(System.nanoTime() - _callStartTime)/10.0e9;
+	}
+	
+	public double getLastTime() {
+		double lastTime = 0.0;
 		synchronized(this) {
 			int numEvents = this._events.size();
 			if (numEvents > 0)
@@ -64,22 +70,30 @@ public class Statistics {
 		return lastTime;
 	}
 	
+	
 	public  void recordEvent(String name) {
 		Event event = new Event(name);
-		synchronized(this) {
+		synchronized(this) {  // _events exists across getPeople() calls
 			this._events.add(event);
 		}
-		logger.warning(event.describe());
+		//logger.warning(event.describe());
 	}
 	
 	public void showAllEvents() {
-		logger.warning("=============== All events ============");
+		logger.info("=============== All events ============");
 		synchronized(this) {
 			for (Event event: this._events) {
 				logger.warning(event.describe());
 			}
 		}
-		logger.warning("=============== ---------- ============");
+		logger.info("=============== ---------- ============");
+	}
+	
+	static private double roundBy(double x, double multiplier) {
+		return ((double)Math.round(x*multiplier))/multiplier;
+	}
+	static public double round3(double x) {
+		return roundBy(x, 1000.0);
 	}
 	
 }

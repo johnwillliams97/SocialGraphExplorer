@@ -1,6 +1,5 @@
 package htmlstuff;
 
-import htmlstuff.WebSiteReader_Quota.ActionType;
 import java.util.Calendar;
 import java.util.logging.Logger;
 import java.util.logging.Level;
@@ -9,12 +8,13 @@ import org.htmlparser.http.ConnectionManager;
 import org.htmlparser.http.Cookie;
 import org.htmlparser.util.ParserException;
 
-
 public class WebSiteReader_Common {
-	  private static final Logger log = Logger.getLogger(WebSiteReader_Common.class.getName());
+	private static final Logger log = Logger.getLogger(WebSiteReader_Common.class.getName());
 	 
 	private static WebSiteReader_Common instance = null;
+	
 	protected WebSiteReader_Common() {   }  // Exists only to defeat instantiation.
+	
 	public static WebSiteReader_Common getInstance() {
 	    if (instance == null) {
 	         instance = new WebSiteReader_Common();
@@ -68,7 +68,7 @@ public class WebSiteReader_Common {
 	private long _lastTime = 0L;
 	public enum Force { AUTO, OFF, ON }
 	
-	public static Parser setupParser(String target, Force force)
+	public static Parser setupParser(String target, Force force, long timeBoundMillis) 
 		throws ParserException {
 		Parser parser =  null;
 		WebSiteReader_Common wsrc = getInstance();
@@ -90,7 +90,7 @@ public class WebSiteReader_Common {
 		} 
 		for (int i = 0; i < 5; i++) {
 			try {
-				log.log(Level.INFO, "new Parser(" + target + ")");
+				log.info("new Parser(" + target + ")");
 				parser = new Parser(target);
 			}
 			catch (RuntimeException e)  {
@@ -98,7 +98,8 @@ public class WebSiteReader_Common {
 			}
 			if (parser != null)
 				break;
-			if (!WebSiteReader_Quota.isCallAllowed(ActionType.SERVLET))
+			now = Calendar.getInstance().getTimeInMillis();
+			if (now >= timeBoundMillis)
 				break;
 		}
 		wsrc._lastTime = Calendar.getInstance().getTimeInMillis();

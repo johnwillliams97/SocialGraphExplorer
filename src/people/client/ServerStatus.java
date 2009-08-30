@@ -126,6 +126,7 @@ public class ServerStatus extends Composite {
 		  header = "?";
 	  if (msg == null)
 		  msg = "??";
+	  System.err.println(header + ": " + msg);
 	  String item = "" + this.instantStatusCount + ": <b>" + header + " = </b>" + msg + "<b>;</b> ";
 	  this.line += item;
 	  ++this.unflushedEntries;

@@ -36,5 +36,11 @@ public interface PersonPublic {
 	  public ReadState  getReadState();
 	  public void       setHtmlPage(String htmlPage);
 	  public String     getHtmlPage();
+	  
+	  // Debug and tuning
+	  public void 		setWhence(String whence);
+	  public String 	getWhence();
+	  public void 		setFetchDuration(double fetchDuration);
+	  public double 	getFetchDuration();
 	
 }

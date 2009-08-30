@@ -14,11 +14,11 @@ public class PersonClientGroup  implements IsSerializable {
 	public int[]  requestedLevels;          // For matching to client cache refresh requests
 	public long[] requestedUniqueIDs;		// persons requested
 	 
-	// Timings
-	public long responseDuration;		// Total
-	public long responseDuration1;		// Milestone 1
-	public long responseDuration2;
-	public long responseDuration3;
+	// Timings in seconds
+	public double responseDuration;		// Total
+	public double responseDuration1;		// Milestone 1
+	public double responseDuration2;
+	public double responseDuration3;
 	
 	//Cache stats
 	public int  numCacheFetches;

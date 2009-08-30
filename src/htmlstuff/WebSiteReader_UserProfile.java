@@ -13,43 +13,50 @@ import org.htmlparser.util.ParserException;
 import htmlstuff.WebSiteReader_Common.Force;
 import datatypes.PersonLI;
 
+/*
+ * LinkedIn key  
+ * 		<meta name="UniqueID" content="258598">
+ * Profile
+ * 		http://www.linkedin.com/profile?viewProfile=&key=258598
+ *  		<meta name="LinkedInBookmarkType" content="profile">
+ *  		<meta name="ShortTitle" content="Will Cave-Bigley">
+ *  		<meta name="Description" content="Will Cave-Bigley: Manager- Ecareer in the Staffing and Recruiting industry (Melbourne Area, Australia)">
+ *  		<meta name="UniqueID" content="258598">
+ *  		<meta name="SaveURL" content="http://www.linkedin.com/profile?viewProfile=&amp;key=258598&amp;authToken=BMgJ&amp;authType=name"> 
 
+	"See all Connections"
+		<div class="module connections"> 
+    	<div class="header"> 
+		<p class="more">
+			<a href="/profile?viewConns=&key=258598&goback=%2Evpf_258598_1_BMgJ_name_*1_Will_Cave*5Bigley" 
+				name="seeMoreConnections">See all <strong>Connections</strong> &raquo;</a></p> 
+
+ * List of connections
+ *		http://www.linkedin.com/profile?viewConns=&key=258598
+ *          <div class="cnxset"> 
+          	<div class="cnxset-in"> 
+            <div class="listbox" id="other"><div class="listbox-in"> 
+            <ul name="browseConnectionsGrid"> 
+            	<li class="row-start connection">
+            		<a href="/profile?viewProfile=&key=2532782&goback=%2Ebcc_258598_1" title="View Alex's profile" rel="contact">Alex Adams</a> 
+                    <br><span name="headline" class="headline">IT Executive</span></li> 
+               	<li class=" connection">
+               		<a href="/profile?viewProfile=&key=5862348&goback=%2Ebcc_258598_1" title="View Allan's profile" rel="contact">Allan Davies</a> 
+                    <br><span name="headline" class="headline">Delivery Assurance Consultant at Transurban</span></li
+ *
+ * 
+ */
 public class WebSiteReader_UserProfile {
 	private static final Logger logger = Logger.getLogger(WebSiteReader_UserProfile.class.getName());
 	
-	/*
-	 * LinkedIn key  
-	 * 		<meta name="UniqueID" content="258598">
-	 * Profile
-	 * 		http://www.linkedin.com/profile?viewProfile=&key=258598
-	 *  		<meta name="LinkedInBookmarkType" content="profile">
-	 *  		<meta name="ShortTitle" content="Will Cave-Bigley">
-	 *  		<meta name="Description" content="Will Cave-Bigley: Manager- Ecareer in the Staffing and Recruiting industry (Melbourne Area, Australia)">
-	 *  		<meta name="UniqueID" content="258598">
-	 *  		<meta name="SaveURL" content="http://www.linkedin.com/profile?viewProfile=&amp;key=258598&amp;authToken=BMgJ&amp;authType=name"> 
-
-		"See all Connections"
-			<div class="module connections"> 
-	    	<div class="header"> 
-			<p class="more">
-				<a href="/profile?viewConns=&key=258598&goback=%2Evpf_258598_1_BMgJ_name_*1_Will_Cave*5Bigley" 
-					name="seeMoreConnections">See all <strong>Connections</strong> &raquo;</a></p> 
-
-	 * List of connections
-	 *		http://www.linkedin.com/profile?viewConns=&key=258598
-	 *          <div class="cnxset"> 
-	          	<div class="cnxset-in"> 
-	            <div class="listbox" id="other"><div class="listbox-in"> 
-	            <ul name="browseConnectionsGrid"> 
-	            	<li class="row-start connection">
-	            		<a href="/profile?viewProfile=&key=2532782&goback=%2Ebcc_258598_1" title="View Alex's profile" rel="contact">Alex Adams</a> 
-	                    <br><span name="headline" class="headline">IT Executive</span></li> 
-	               	<li class=" connection">
-	               		<a href="/profile?viewProfile=&key=5862348&goback=%2Ebcc_258598_1" title="View Allan's profile" rel="contact">Allan Davies</a> 
-	                    <br><span name="headline" class="headline">Delivery Assurance Consultant at Transurban</span></li
-	 *
-	 * 
-	 */
+	private long _timeBoundMillis = 0L;  // For time-bound best-effort operation
+	
+	
+	public WebSiteReader_UserProfile(long timeBoundMillis) {
+		_timeBoundMillis = timeBoundMillis;
+	}
+	
+	
 	@SuppressWarnings("unused")
 	private String _target = null; // for debugging
 	
@@ -261,12 +268,10 @@ public class WebSiteReader_UserProfile {
 	}
 	/*
 	 * Main function. Gets LinkedIn user profile info
-	 * 
 	 */
-	//boolean _fetchWholePage = false; callServerToFetchPersons
 	String  _wholePageBuffer = null;
 	
-	private void doMakeLiUserProfile(long liUniqueID, long parentID, 
+	private void doMakeLiUserProfile(long liUniqueID, 
 									 boolean parsePage,
 									 boolean fetchWholePage)  
 		throws NullPointerException {
@@ -278,7 +283,7 @@ public class WebSiteReader_UserProfile {
 		setHasMoreConnections(_person, false);  // Until proven otherwise
 	
 		try { 
-			Parser parser = WebSiteReader_Common.setupParser(target, Force.ON);
+			Parser parser = WebSiteReader_Common.setupParser(target, Force.ON, _timeBoundMillis );
 			if (parser != null) {
 				if (fetchWholePage) {
 					// Save whole page of HTML
@@ -310,25 +315,22 @@ public class WebSiteReader_UserProfile {
 	 * 	doGetLiUserProfile() gets a summary of the person
 	 * 	doGetLiUserProfilePage() fetches the whole page
 	 */
-	public static PersonLI doGetLiUserProfile(long liUniqueID, long parentID
-			/*, boolean fetchWholePage*/)  {
+	public static PersonLI doGetLiUserProfile(long liUniqueID, long timeBoundMillis)  {
 		PersonLI person = null;
 		boolean fetchWholePage = false;
 		try {
-			WebSiteReader_UserProfile wsr = new WebSiteReader_UserProfile();
-			wsr.doMakeLiUserProfile(liUniqueID, parentID, true, fetchWholePage) ;
+			WebSiteReader_UserProfile wsr = new WebSiteReader_UserProfile(timeBoundMillis);
+			wsr.doMakeLiUserProfile(liUniqueID,true, fetchWholePage) ;
 			person = wsr._outPerson;
-			//if (wsr._wholePageBuffer != null)
-			//	person.setHtmlPage(wsr._wholePageBuffer);
 		} 
 		catch (Exception e) {
 			e.printStackTrace();
 		}
 		return person;
 	}
-	public static String doGetLiUserProfilePage(long liUniqueID, long parentID)  {
-		WebSiteReader_UserProfile wsr = new WebSiteReader_UserProfile();
-		wsr.doMakeLiUserProfile(liUniqueID, parentID, false, true) ;
+	public static String doGetLiUserProfilePage(long liUniqueID, long timeBoundMillis)  {
+		WebSiteReader_UserProfile wsr = new WebSiteReader_UserProfile(timeBoundMillis);
+		wsr.doMakeLiUserProfile(liUniqueID, false, true) ;
 		return wsr._wholePageBuffer;
 	}
 	

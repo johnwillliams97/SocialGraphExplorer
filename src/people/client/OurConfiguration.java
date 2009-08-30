@@ -20,7 +20,7 @@ public class OurConfiguration {
 
 	
 	// For PersonList
-	public static final  int VISIBLE_PERSONS_COUNT =  11; // 10 // %^&*
+	public static final  int VISIBLE_PERSONS_COUNT =  10; // 10 // %^&*
 	public static final  int ANCHOR_HISTORY_COUNT  = 20;
  /*
 	public static final  int VISIBLE_PERSONS_COUNT = 3;  // %^&*
@@ -29,4 +29,7 @@ public class OurConfiguration {
 	// For ClientCache
 	public static final int INVISIBLE_FETCH_DELAY_CLICK1 = 100;  	// msec
 	public static final int INVISIBLE_FETCH_DELAY_CLICK2 = 200;	// msec
+	
+	// Debuggin
+	public static final boolean DEBUG_MODE = false;
 }

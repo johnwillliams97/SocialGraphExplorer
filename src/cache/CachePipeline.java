@@ -3,10 +3,13 @@ package cache;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import cache.CacheActual.WebReadPolicy;
 
+
 public class CachePipeline<K,V> {
+	private static final Logger logger = Logger.getLogger(CachePipeline.class.getName());
 	
 	private Set<CacheStage<K,V>> pipeline = null;
 	private CacheStage<K,V> firstStage = null;
@@ -73,7 +76,20 @@ public class CachePipeline<K,V> {
 	}
 	
 	public /*synchronized */ V get(K key, WebReadPolicy policy, long timeBoundMillis) {
-		V value = firstStage.get(key, policy, timeBoundMillis);
+		V value = null;
+		
+		try {
+			value = firstStage.get(key, policy, timeBoundMillis);
+		}
+		catch (Exception e) {
+			// Best effort response to an exception
+			logger.warning("Exception for person " + key + ", cache pipeline: '" + e.getMessage() + "', " + e.toString()); 
+			e.printStackTrace();
+		}
+		
+		
+	//	PersonLI person = (PersonLI)value;
+	//	logger.info(key + ":" + (person != null ? person.getNameFull() : "not found"));
 		//log.info(this.identify()); !@#$ Debugging
 		return value;
 	}
