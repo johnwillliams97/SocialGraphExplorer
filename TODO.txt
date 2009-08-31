@@ -2,7 +2,8 @@ LIST OF WORK TO DO (x = Complete. ? = May not be an issue.)
 ------------------
 x Call server enough times to populate client cache at startup 
 ? Add back button
-	See  History.newItem(this.state.getAsString());  and ValueChangeHandler . Need to figure which to use 
+	See  History.newItem(this.state.getAsString()); 
+Honor URL args e.g.	http://localhost:59310/SocialGraphExplorer.html#1960788,99
 Clean up 'details' person html.
 	Check if html is in messy format and delete it if it is.
 Add authentication.
@@ -58,4 +59,5 @@ Remap URLs in HTML scraped from social networks (may be better to parse HTML)
 Level 0 of client cache is empty
 Moving between screens should maintain row position on screen
 Grey non-anchor persons when moving between screens
+Don't mark anchor changed in updatePersonList_() when it is not. rewind!
 

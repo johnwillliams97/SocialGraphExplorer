@@ -16,6 +16,7 @@ import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DeferredCommand;
+import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -29,7 +30,15 @@ public class SocialGraphExplorer
 {
 	
 	
+	private ValueChangeHandler<String> historyHandler;
+	
 	private static SocialGraphExplorer singleton;
+	/**
+	   * Gets the singleton  instance.
+	   */
+	public static SocialGraphExplorer get() {
+	    return singleton;
+	}
 
   /**
    * Instantiate an application-level image bundle. This object will provide
@@ -43,12 +52,7 @@ public class SocialGraphExplorer
    */
  // public interface Images extends Shortcuts.Images, TopPanel.Images {  }
 
-  /**
-   * Gets the singleton Mail instance.
-   */
-  public static SocialGraphExplorer get() {
-    return singleton;
-  }
+  
 
  // x private TopPanel topPanel = new TopPanel(images);
   private VerticalPanel rightPanel = new VerticalPanel();
@@ -81,10 +85,16 @@ public class SocialGraphExplorer
   		log("Error",  msg);
   	}
   	public void showInstantStatus(String msg) {
-  		serverStatus.showInstantStatus(msg);
+  		serverStatus.showInstantStatus(msg, false);
+ 	}
+  	public void showInstantStatus(String msg, boolean bold) {
+  		serverStatus.showInstantStatus(msg, bold);
  	}
   	public void showInstantStatus2(String header, String body) {
-  		serverStatus.showInstantStatus2(header, body);
+  		serverStatus.showInstantStatus2(header, body, false);
+ 	}
+  	public void showInstantStatus2(String header, String body, boolean bold) {
+  		serverStatus.showInstantStatus2(header, body, bold);
  	}
     	
 
@@ -95,10 +105,20 @@ public class SocialGraphExplorer
   	public void onModuleLoad() {
   		singleton = this;
 
+  	//Web history handling
+		historyHandler = new ValueChangeHandler<String>() {
+			@Override
+			public void onValueChange(ValueChangeEvent<String> event) {
+				String stringRep = event.getValue();
+				personList.updatePersonListExtern(stringRep, true);
+			}
+		};
+		History.addValueChangeHandler(historyHandler);
   	//	History.addHistoryListener(this);
+		
  //   topPanel.setWidth("100%");
 
-    // PersonList uses LoadsOfFun.get() in its constructor, so initialize it after
+    // PersonList uses LoadsOfFun.get() in its constructor, so initialise it after
     // 'singleton'.
     personList = new PersonList();
     personList.setWidth("100%");
@@ -186,22 +206,6 @@ public class SocialGraphExplorer
 	  }
   }
 
-//Web history handling
-  /*
-	@Override
-	public void onValueChange(ValueChangeEvent<String> event) {
-		String stringRep = event.getValue();
-		personList.updatePersonListExtern(stringRep);
-	}
-*/
-	final ValueChangeHandler<String> historyHandler = new
-	ValueChangeHandler<String>() {
-		@Override
-		public void onValueChange(ValueChangeEvent<String> event) {
-			String stringRep = event.getValue();
-			personList.updatePersonListExtern(stringRep);
-		}
-	};
 
 
 }

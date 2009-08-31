@@ -121,54 +121,7 @@ public class PersonClientCache {
 		_rpcWrapper = new RPCWrapper();
 	  }
 	  
-	   /*
-	   * Get an entry from a cache level.
-	   * It may, or may not, contain a person.
-	   * @param uniqueID
-	   * @param level
-	   * @return - matching cache entry, or null if there is no match
-	   */
-		public PersonClientCacheEntry getPersonCacheEntryAtLevel(long uniqueID, int level) {
-		  PersonClientCacheEntry personCacheEntry = null;
-		  boolean match = false;
-		  if (uniqueID > 0 || uniqueID == PersonClient.MAGIC_PERSON_CLIENT_1_UNIQUE_ID)  {
-			  for (PersonClientCacheEntry cacheEntry: _theClientCache[level]) {
-				  // Need this special test during the bootstrapping phase where cacheEntry person has not been filled
-				  // !@#$ Can this be simplified
-				  match = (cacheEntry.getRequestedUniqueID() == uniqueID); // For bootstrapping, uniqueID < 0 
-				  if (cacheEntry.getPerson() != null)   {
-					  if ((cacheEntry.getPerson().getRequestedID() == uniqueID && uniqueID < 0) ||   // For bootstrapping, uniqueID < 0 
-						  (cacheEntry.getPerson().getLiUniqueID()  == uniqueID && uniqueID > 0)) {    // For matching on connections,  uniqueID > 0 
-						  match = true;
-					  } 
-				  }
-				  if (match) {
-					  personCacheEntry = cacheEntry;
-					  cacheEntry.bumpLastReference();
-					  
-					//  log.info("getPersonCacheEntry(" + uniqueID + ") = " 
-					//		  + cacheEntry.getPerson().getLiUniqueID() + ", " 
-					//		  + cacheEntry.getPerson().getRequestedID() );
-					  break;
-				  }
-			  }
-		  }
-		  return personCacheEntry;
-	  }
-	  /*
-	   * Get all FILLED cache entries at a specified level.
-	   * @param level
-	   * @return - all cache entries at this level
-	   */
-	  public PersonClientCacheEntry[] getFilledCacheEntriesAtLevel(int level) {
-		  Set<Long> fetchedIDs = getIdList(level, CacheEntryState.FILLED);
-		  PersonClientCacheEntry[] entries = new PersonClientCacheEntry[fetchedIDs.size()];
-		  int i = 0;
-		  for (Long id: fetchedIDs) {
-			  entries[i++] = getPersonCacheEntryAtLevel(id, level);
-		  }
-		  return entries; // ??
-	  }
+	  
 	
 	  
 	  /*
@@ -332,7 +285,7 @@ public class PersonClientCache {
 	   * 
 	   */
 	  	private void fetchPersonsFromServer(List<Integer> requestedLevels, boolean needsReturn) {
-	  		SocialGraphExplorer.get().showInstantStatus("fetchPersonsFromServer(" + requestedLevels + ", " + needsReturn + ")");
+	  		//SocialGraphExplorer.get().showInstantStatus("fetchPersonsFromServer(" + requestedLevels + ", " + needsReturn + ")");
 	  		List<IDsAtLevel> idsToFetch = getIdLists(requestedLevels, CacheEntryState.NEED_TO_FETCH);
 	  		if (idsToFetch.size() > 0) {
 			  ++this._clientSequenceNumber;
@@ -485,7 +438,8 @@ public class PersonClientCache {
 			  					boolean noDetail, boolean connectionsInProgress,
 			  					List<Integer> targetLevels) {
 		  List<IDsAtLevel> list = new ArrayList<IDsAtLevel>();
-		  for (int i = 0; i < fetches.length; ++i) {
+		  int numFetches = fetches != null ? fetches.length : 0;
+		  for (int i = 0; i < numFetches; ++i) {
 			  if (fetches[i].person.isIncomplete(noDetail, connectionsInProgress)) {
 				  int level = fetches[i].level;
 				  if (targetLevels.contains((Integer)level)) {
@@ -632,13 +586,62 @@ public class PersonClientCache {
 	  		Integer visible = CACHE_LEVEL_VISIBLE;
 	  		return (requestedLevels.contains(anchor) || requestedLevels.contains(visible));
 	  	}
-	  	
+	  	/*
+		  * @return - all visible FILLED cache entries
+		   */
 	  	private PersonClientCacheEntry[][] getVisibleCacheEntries() {
 	  		PersonClientCacheEntry[][] visibleCacheEntries = new PersonClientCacheEntry[2][];
   			visibleCacheEntries[0] = getFilledCacheEntriesAtLevel(CACHE_LEVEL_ANCHOR);
   			visibleCacheEntries[1] = getFilledCacheEntriesAtLevel(CACHE_LEVEL_VISIBLE);
+  			assert(visibleCacheEntries[0] != null);
   			return visibleCacheEntries;
 	  	}
+	  	
+	  	  /*
+		   * Get all FILLED cache entries at a specified level.
+		   * @param level
+		   * @return - all cache entries at this level
+		   */
+		  public PersonClientCacheEntry[] getFilledCacheEntriesAtLevel(int level) {
+			  Set<Long> fetchedIDs = getIdList(level, CacheEntryState.FILLED);
+			  PersonClientCacheEntry[] entries = new PersonClientCacheEntry[fetchedIDs.size()];
+			  int i = 0;
+			  for (Long id: fetchedIDs) {
+				  entries[i++] = getPersonCacheEntryAtLevel(id, level);
+			  }
+			  return entries; // ??
+		  }
+		  
+		  /*
+		   * Get an entry from a cache level.
+		   * It may, or may not, contain a person.
+		   * @param uniqueID
+		   * @param level
+		   * @return - matching cache entry, or null if there is no match
+		   */
+		  private PersonClientCacheEntry getPersonCacheEntryAtLevel(long uniqueID, int level) {
+			  PersonClientCacheEntry personCacheEntry = null;
+			  boolean match = false;
+			  if (uniqueID > 0 || uniqueID == PersonClient.MAGIC_PERSON_CLIENT_1_UNIQUE_ID)  {
+				  for (PersonClientCacheEntry cacheEntry: _theClientCache[level]) {
+					  // Need this special test during the bootstrapping phase where cacheEntry person has not been filled
+					  // !@#$ Can this be simplified
+					  match = (cacheEntry.getRequestedUniqueID() == uniqueID); // For bootstrapping, uniqueID < 0 
+					  if (cacheEntry.getPerson() != null)   {
+						  if ((cacheEntry.getPerson().getRequestedID() == uniqueID && uniqueID < 0) ||   // For bootstrapping, uniqueID < 0 
+							  (cacheEntry.getPerson().getLiUniqueID()  == uniqueID && uniqueID > 0)) {    // For matching on connections,  uniqueID > 0 
+							  match = true;
+						  } 
+					  }
+					  if (match) {
+						  personCacheEntry = cacheEntry;
+						  break;
+					  }
+				  }
+			  }
+			  return personCacheEntry;
+		  }
+		  
 	  	/*
 		 * Add some (actual) persons to the cache. This should only get called when the
 		 * server returns

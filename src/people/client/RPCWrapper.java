@@ -336,7 +336,7 @@ public class RPCWrapper {
  	*/
  	
 	/*
-	 * Error handling
+	 * Error handling fetchPersonsFromServer
 	 */
 	private void onFailureCallback(Throwable caught) {
     	//setStatusText("Error");

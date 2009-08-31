@@ -8,9 +8,6 @@ import javax.cache.Cache;
 import javax.cache.CacheException;
 import javax.cache.CacheManager;
 
-import org.mortbay.log.Log;
-
-
 import datatypes.PersonLI;
 
 
@@ -36,7 +33,8 @@ public class CacheCache implements CacheActual<Long, PersonLI> {
 			long uniqueID = person.getLiUniqueID();
 			String nameFull = person.getNameFull();
 			String compl = incomplete ? "INCOMPLETE" : "complete";
-			logger.warning(uniqueID + ":" + nameFull + " - " + compl);
+			if (incomplete)
+				logger.warning(uniqueID + ":" + nameFull + " - " + compl);
 		}
 		return incomplete;
 	}

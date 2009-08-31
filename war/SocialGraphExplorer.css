@@ -260,6 +260,13 @@ html>body .gwt-DecoratedStackPanel .gwt-StackPanelItem-below-selected .stackItem
   background: #eee;
 }
 
+
+.mail-DisabledRow {
+  color: gray;
+}
+ 
+
+
 .mail-Toolbar .gwt-Image {
 }
 

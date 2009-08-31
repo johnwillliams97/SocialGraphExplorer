@@ -101,7 +101,9 @@ public class ServerStatus extends Composite {
 	  body.setHTML(html);
  }
   
-  public void showInstantStatus(String msg) {
+  public void showInstantStatus(String msg, boolean bold) {
+	  if (bold) 
+		  msg = "<b>" + msg + "</b>";
 	  this.instantStatus = msg;
 	  ++this.instantStatusCount;
 	  this.instantStatusHistory.add(this.instantStatus);
@@ -111,7 +113,7 @@ public class ServerStatus extends Composite {
 	  }
 	  redraw();
   }
-  public void showInstantStatus2(String header, String body) {
+  public void showInstantStatus2(String header, String body, boolean bold) {
 	  String msg = "";
 	  if (header != null)
 		  msg += header;
@@ -119,7 +121,7 @@ public class ServerStatus extends Composite {
 	  if (body != null)
 		  msg += body;
 	  msg += ")";
-	  showInstantStatus(msg);
+	  showInstantStatus(msg, bold);
   }
   public void showStatus(String header, String msg) {
 	  if (header == null)
