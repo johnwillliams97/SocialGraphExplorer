@@ -339,21 +339,7 @@ public class RPCWrapper {
 	 * Error handling fetchPersonsFromServer
 	 */
 	private void onFailureCallback(Throwable caught) {
-    	//setStatusText("Error");
-		/*
-    	if (errorDialog == null) {
-    		errorDialog = new ErrorDialog();
-    	}
-    	if (caught instanceof InvocationException) {
-    		errorDialog.setText("An RPC server could not be reached");
-    		errorDialog.setBody(NO_CONNECTION_MESSAGE);
-    	} else {
-    		errorDialog.setText("Unexcepted Error processing remote call");
-    		errorDialog.setBody(caught.getMessage());
-    	}
-    	errorDialog.center();
-    	*/
-		String header = "Error";
+    	String header = "Error";
 		String body = "";
 		if (caught instanceof InvocationException) {
 			header = "An RPC server could not be reached";
@@ -364,40 +350,11 @@ public class RPCWrapper {
 			body = caught.getMessage();
     	}
 		String msg = header + ":\n" + body;
+		SocialGraphExplorer.get().log(header, body);
     	Window.alert(msg);
     }
   
-	ErrorDialog errorDialog = new ErrorDialog();
-	  
-	   // A dialog box for displaying an error.
-	  
-  	private static class ErrorDialog extends DialogBox implements ClickHandler {
-	    private HTML body = new HTML("");
-	
-	    public ErrorDialog() {
-	    	setStylePrimaryName("DynaTable-ErrorDialog");
-	    	Button closeButton = new Button("Close", this);
-	    	VerticalPanel panel = new VerticalPanel();
-	    	panel.setSpacing(4);
-	    	panel.add(body);
-	    	panel.add(closeButton);
-	    	panel.setCellHorizontalAlignment(closeButton, VerticalPanel.ALIGN_RIGHT);
-	    	setWidget(panel);
-	    }
-	
-	    public String getBody() {
-	    	return body.getHTML();
-	    }
-	    @Override
-	    public void onClick(ClickEvent event) {
-	    	hide();
-	    }
-	
-	    public void setBody(String html) {
-	    	body.setHTML(html);
-	    }
-  	}
-  	 		
+		 		
   	private static final String NO_CONNECTION_MESSAGE = 
   			"This program uses a Remote Procedure Call "
   	      + "(RPC) to request data from the server.  In order for the RPC to "
