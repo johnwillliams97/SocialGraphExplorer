@@ -2,14 +2,10 @@ package cache;
 /*
  * Wrapper for DB access
  */
-import java.util.Calendar;
+
 import java.util.logging.Logger;
-
-import misc.Statistics;
-
+import people.client.Statistics;
 import htmlstuff.WebSiteReader_EntryPoint;
-//import htmlstuff.WebSiteReader_Quota; indexesToUniqueIDs
-
 import datatypes.PersonLI;
 
 public class CacheDB implements CacheActual<Long, PersonLI> {
@@ -17,12 +13,12 @@ public class CacheDB implements CacheActual<Long, PersonLI> {
 	
 	private static String 		LINKED_IN = "LinkedIn";
 	private WebSiteReader_EntryPoint 	webSiteReaderEntry = new WebSiteReader_EntryPoint();
-	private long 				longestLIReadDuration = 0L; // For profiling
+	private double 				longestLIReadDuration = 0.0; // For profiling
 	
 	private static boolean isNullOrEmpty(String s) {
 		return s == null || s.isEmpty();
 	}
-	private PersonLI getFromDBandLI(Long key, boolean doCheckLI, WebReadPolicy policy, long timeBoundMillis) {
+	private PersonLI getFromDBandLI(Long key, boolean doCheckLI, WebReadPolicy policy, double timeBoundSec) {
 		
 		PersonLI 	person = PersonLI.findInDBbyUniqueId(key);
 		boolean 	needsLIRead = false;
@@ -46,14 +42,14 @@ public class CacheDB implements CacheActual<Long, PersonLI> {
 			}
 	
 			if (needsLIRead) {
-				long before = Calendar.getInstance().getTimeInMillis();
+				double before = Statistics.getCurrentTime();
 				Statistics.getInstance().recordEvent("getPersonFromLI");
 				
 				// Actual website read is hidden amongst the instrumentation
-				PersonLI personRead = webSiteReaderEntry.getPersonFromLI(key, person, policy == WebReadPolicy.ALWAYS, timeBoundMillis);
+				PersonLI personRead = webSiteReaderEntry.getPersonFromLI(key, person, policy == WebReadPolicy.ALWAYS, timeBoundSec);
 				
-				long after = Calendar.getInstance().getTimeInMillis();
-				long duration = after - before;
+				double after = Statistics.getCurrentTime();
+				double duration = after - before;
 				this.longestLIReadDuration = Math.max(duration, this.longestLIReadDuration);
 				logger.info("LinkeIn read took " + duration/1000L + " (longest = " + this.longestLIReadDuration/1000L + ")");
 				Statistics.getInstance().recordEvent("done getPersonFromLI");
@@ -81,14 +77,14 @@ public class CacheDB implements CacheActual<Long, PersonLI> {
 	}
 	
 /*	@Override
-	public boolean containsKey(Long key,long timeBoundMillis) {
+	public boolean containsKey(Long key,double timeBoundSec) {
 		Statistics.getInstance().recordEvent("CacheDB.containsKey()");
 		return (this.getFromDBandLI(key, false, WebReadPolicy.AUTO) != null);
 	} 
 */
 	@Override
-	public PersonLI get(Long key, WebReadPolicy policy, long timeBoundMillis) {
-		PersonLI person = this.getFromDBandLI(key, true, policy, timeBoundMillis);
+	public PersonLI get(Long key, WebReadPolicy policy, double timeBoundSec) {
+		PersonLI person = this.getFromDBandLI(key, true, policy, timeBoundSec);
 		
 		//String nameFull = person != null ? person.getNameFull() : "not found";
 		//logger.warning(key + ":" + nameFull);

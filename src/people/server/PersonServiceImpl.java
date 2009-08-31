@@ -1,7 +1,6 @@
 package people.server;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.logging.Logger;
 //import com.google.apphosting.api.DeadlineExceededException; !@#$ handled in general get() catch(Exception e)
@@ -17,7 +16,7 @@ import people.client.OurConfiguration;
 import people.client.PersonFetch;
 import people.client.PersonClient;
 import people.client.PersonClientGroup;
-import misc.Statistics;
+import people.client.Statistics;
 import people.client.PersonService;
 
 
@@ -28,9 +27,9 @@ import people.client.PersonService;
 public class PersonServiceImpl extends RemoteServiceServlet implements PersonService {
 	private static final Logger logger = Logger.getLogger(PersonServiceImpl.class.getName());
 	
-	private static  final long maxTime = OurConfiguration.MAX_TIME_FOR_SERVLET_RESPONSE; 
-	private final long servletLoadTime = Calendar.getInstance().getTimeInMillis();
-	private long firstCallTime = -1L;
+	private static final double _maxTime = OurConfiguration.MAX_TIME_FOR_SERVLET_RESPONSE; 
+	private final long _servletLoadTimeMillis = System.currentTimeMillis();
+	private long _firstCallTimeMillis = -1L;
 
 	private class Fetch2 {
 		public int level;					// client cache level requested
@@ -53,13 +52,13 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 			numFetches = 0;
 			this.cachePipeline = cachePipeline;
 		}
-		public PersonLI get(long id, WebReadPolicy policy, long timeBoundMillis) {
-			double start = Statistics.getInstance().getCurrentTime();
-			PersonLI person = this.cachePipeline.get(id, policy, timeBoundMillis);
+		public PersonLI get(long id, WebReadPolicy policy, double timeBoundSec) {
+			double start = Statistics.getCurrentTime();
+			PersonLI person = this.cachePipeline.get(id, policy, timeBoundSec);
 			++this.numFetches;
 			String whence = "none";
 			if (person != null) {
-				double end = Statistics.getInstance().getCurrentTime();
+				double end = Statistics.getCurrentTime();
 				person.setFetchDuration(Statistics.round3(end-start));
 				whence = person.getWhence();
 				if (whence != null) {
@@ -151,11 +150,13 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 	 * @param levels - client cache levels of the requestedUniqueIDs
 	 * @param clientSequenceNumber - Number of high-level requests from this client
 	 * @param sequenceNumber - tracks client requests
+	 * @param currentTime - Time of call in seconds
 	 * @return list of persons fetched from the data store
    */
 	@Override
 	public PersonClientGroup getPeople(long[] requestedUniqueIDs, int[] requestedLevels, 
-			long clientSequenceNumber, int numCallsForThisClientSequenceNumber, long sequenceNumber) {
+			long clientSequenceNumber, int numCallsForThisClientSequenceNumber, long sequenceNumber,
+			double callTime) {
 		
 		logger.info(MiscCollections.arrayToString(requestedUniqueIDs));
 		Statistics.createInstance("getPeople");
@@ -165,6 +166,7 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 		resultsMain.requestedUniqueIDs = requestedUniqueIDs;
 		resultsMain.requestedLevels = requestedLevels;
 		resultsMain.sequenceNumber = sequenceNumber;
+		resultsMain.callTime = callTime;
 		
 		resultsMain = getPeople_(resultsMain, requestedUniqueIDs, requestedLevels, clientSequenceNumber, numCallsForThisClientSequenceNumber, sequenceNumber);
 		
@@ -205,17 +207,16 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 		
 		List<Fetch2> fetchList = new ArrayList<Fetch2>();
 		
-		final long maxTime1 = maxTime / 2;
-//		final long maxTime2 = (maxTime*3)/4;
-		long start = Calendar.getInstance().getTimeInMillis();
-		long end = 0L;
+		final double maxTime1 = _maxTime / 2;
+		double start = Statistics.getCurrentTime(); // !@#$ Change all times to double sec Statistics.getCurrentTime()
+		double end = 0.0;
 		
-		if (this.firstCallTime < 0L)
-			this.firstCallTime  = start;
+		if (this._firstCallTimeMillis < 0L)
+			this._firstCallTimeMillis = System.currentTimeMillis();
 	
 		//First look at the people requested
 		for (int i = 0; i < requestedUniqueIDs.length; ++i) {
-			end = Calendar.getInstance().getTimeInMillis();
+			end =  Statistics.getCurrentTime();
 			if (end - start > maxTime1)
 				break;
 			long liUniqueID = requestedUniqueIDs[i];
@@ -251,17 +252,17 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 		logger.info("outta there!");
 		
 		Statistics.getInstance().recordEvent("responseDuration1");
-		resultsMain.responseDuration1 = Statistics.getInstance().getLastTime();
+		resultsMain.responseDuration1 = Statistics.round3(Statistics.getCurrentTime() - start);
 
 		Statistics.getInstance().recordEvent("responseDuration2");
-		resultsMain.responseDuration2 = Statistics.getInstance().getLastTime();
+		resultsMain.responseDuration2 = Statistics.round3(Statistics.getCurrentTime() - start);
 		
 		logger.info("* fetchList size = " + fetchList.size());
 		// Convert running list to output result
 		if (fetchList.size() > 0) { 
 			showPersonList(fetchList, "start");
 			Statistics.getInstance().recordEvent("responseDuration3");
-			resultsMain.responseDuration3 = Statistics.getInstance().getLastTime();
+			resultsMain.responseDuration3 = Statistics.round3(Statistics.getCurrentTime() - start);
 			PersonFetch[] fetches = new PersonFetch[fetchList.size()];
 			for (int i = 0; i < fetches.length; ++i) {
 				Fetch2 fetch2 = fetchList.get(i);
@@ -275,14 +276,13 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 			logger.info("num fetches = " + fetches.length);
 		}
 			
-		resultsMain.servletLoadTime = this.servletLoadTime + this.firstCallTime; // This is the most unique signature I can synthesize
+		resultsMain.timeSignatureMillis = this._servletLoadTimeMillis + this._firstCallTimeMillis; // This is the most unique signature I can synthesize
 		resultsMain.clientSequenceNumber = clientSequenceNumber;
 		resultsMain.numCallsForThisClientSequenceNumber = numCallsForThisClientSequenceNumber;
 		resultsMain.sequenceNumber = sequenceNumber;
 		
 		Statistics.getInstance().recordEvent("responseDuration");
-		resultsMain.responseDuration = Statistics.getInstance().getLastTime();
-		//logger.warning("Servlet load time = " + resultsMain.servletLoadTime);
+		resultsMain.responseDuration = Statistics.round3(Statistics.getCurrentTime() - start);
 		
 		//Statistics.getInstance().showAllEvents();	
 		

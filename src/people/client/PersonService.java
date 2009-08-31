@@ -16,10 +16,12 @@ public interface PersonService extends RemoteService {
 	 * @param clientSequenceNumber - Number of high-level requests from this client
 	 * @param numCallsForThisClientSequenceNumber - Number of calls for this clientSequenceNumber
 	 * @param sequenceNumber - tracks client requests
+	 * @param callTime - Time function was called in seconds
 	 * @return list of persons fetched from the data store
 	 */
 	PersonClientGroup getPeople(long[] requestedUniqueIDs, int[] levels, 
 				long clientSequenceNumber,	
 				int  numCallsForThisClientSequenceNumber,
-				long sequenceNumber);		
+				long sequenceNumber,
+				double callTime);		
 }

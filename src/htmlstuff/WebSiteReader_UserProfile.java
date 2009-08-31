@@ -49,11 +49,11 @@ import datatypes.PersonLI;
 public class WebSiteReader_UserProfile {
 	private static final Logger logger = Logger.getLogger(WebSiteReader_UserProfile.class.getName());
 	
-	private long _timeBoundMillis = 0L;  // For time-bound best-effort operation
+	private double _timeBoundSec = 0.0;  // For time-bound best-effort operation
 	
 	
-	public WebSiteReader_UserProfile(long timeBoundMillis) {
-		_timeBoundMillis = timeBoundMillis;
+	public WebSiteReader_UserProfile(double timeBoundSec) {
+		_timeBoundSec = timeBoundSec;
 	}
 	
 	
@@ -283,7 +283,7 @@ public class WebSiteReader_UserProfile {
 		setHasMoreConnections(_person, false);  // Until proven otherwise
 	
 		try { 
-			Parser parser = WebSiteReader_Common.setupParser(target, Force.ON, _timeBoundMillis );
+			Parser parser = WebSiteReader_Common.setupParser(target, Force.ON, _timeBoundSec );
 			if (parser != null) {
 				if (fetchWholePage) {
 					// Save whole page of HTML
@@ -315,11 +315,11 @@ public class WebSiteReader_UserProfile {
 	 * 	doGetLiUserProfile() gets a summary of the person
 	 * 	doGetLiUserProfilePage() fetches the whole page
 	 */
-	public static PersonLI doGetLiUserProfile(long liUniqueID, long timeBoundMillis)  {
+	public static PersonLI doGetLiUserProfile(long liUniqueID, double timeBoundSec)  {
 		PersonLI person = null;
 		boolean fetchWholePage = false;
 		try {
-			WebSiteReader_UserProfile wsr = new WebSiteReader_UserProfile(timeBoundMillis);
+			WebSiteReader_UserProfile wsr = new WebSiteReader_UserProfile(timeBoundSec);
 			wsr.doMakeLiUserProfile(liUniqueID,true, fetchWholePage) ;
 			person = wsr._outPerson;
 		} 
@@ -328,8 +328,8 @@ public class WebSiteReader_UserProfile {
 		}
 		return person;
 	}
-	public static String doGetLiUserProfilePage(long liUniqueID, long timeBoundMillis)  {
-		WebSiteReader_UserProfile wsr = new WebSiteReader_UserProfile(timeBoundMillis);
+	public static String doGetLiUserProfilePage(long liUniqueID, double timeBoundSec)  {
+		WebSiteReader_UserProfile wsr = new WebSiteReader_UserProfile(timeBoundSec);
 		wsr.doMakeLiUserProfile(liUniqueID, false, true) ;
 		return wsr._wholePageBuffer;
 	}

@@ -13,8 +13,8 @@ Add Gears support
 Tune performance
 	Stop discarding old requests
 	Optimise number of simultaneous server calls in progress. Probably two.
-	Add more instrumentatation
-		Client-side person fetch time
+	Add more instrumentation
+		Client-side person fetch time  Done 2009/08/31
 		Client-side total fetch time
 Remove anchor from client cache. No need for it.
 Replace arrays and null checks with lists and empty lists
@@ -39,10 +39,10 @@ Make UI usable
 Command line client
 Cron jobs to update more records
 Generalise to m-clicks?
-Use Statistics.getCurrentTime() for all timings
+Use Statistics.getCurrentTime() for all timings Done 2009/08/31
 Test on all browsers and OSes
 	Vista + Chrome, Opera, IE, Safari, Firefox ok
-	
+Inject server bugs and test client recovery	
 Add Google Maps support to show geographical spread
 Do Matthew UI of line to line connections on screen. Shows clusters of connections
 Do David UI of a sphere.

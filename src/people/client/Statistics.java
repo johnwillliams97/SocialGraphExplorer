@@ -1,9 +1,9 @@
-package misc;
+package people.client;
 
 import java.util.ArrayList;
 //import java.util.Calendar;
 import java.util.List;
-import java.util.logging.Logger;
+//import java.util.logging.Logger;
 
 
 
@@ -11,7 +11,7 @@ import java.util.logging.Logger;
  * Profiling
  */
 public class Statistics {
-	private static final Logger logger = Logger.getLogger(Statistics.class.getName());
+//	private static final Logger logger = Logger.getLogger(Statistics.class.getName());
 	
 	private static Statistics _instance = null;
 	private static int        _instanceCount = 0;
@@ -43,7 +43,7 @@ public class Statistics {
 		}
 	}
 	
-	private long _callStartTime = 0L;
+//	private long _callStartTime = 0L;
 	private int  _sequenceNumber = 0;
 	
 	//Need to synchronise access to _events since this list is shared across servlets
@@ -51,13 +51,15 @@ public class Statistics {
 	
 	private Statistics() {
 		//this._callStartTime = Calendar.getInstance().getTimeInMillis();
-		this._callStartTime = System.nanoTime();
+		//this._callStartTime = System.nanoTime();
 		this._sequenceNumber = 0;
 		this._events = new ArrayList<Event>();
 	}
-	public double getCurrentTime() {
+	static public double getCurrentTime() {
 	//	return (double)(Calendar.getInstance().getTimeInMillis() - _callStartTime)/1000.0;
-		return (double)(System.nanoTime() - _callStartTime)/10.0e9;
+	//	return (double)(System.nanoTime() - _callStartTime)/1.0e9;
+		//return ((double)System.nanoTime())/1.0e9; // !@#$ Would like this for server
+		return ((double)System.currentTimeMillis())/1.0e3;
 	}
 	
 	public double getLastTime() {
@@ -80,17 +82,20 @@ public class Statistics {
 	}
 	
 	public void showAllEvents() {
-		logger.info("=============== All events ============");
+		System.err.println("=============== All events ============");
 		synchronized(this) {
 			for (Event event: this._events) {
-				logger.warning(event.describe());
+				System.err.println(event.describe());
 			}
 		}
-		logger.info("=============== ---------- ============");
+		System.err.println("=============== ---------- ============");
 	}
 	
 	static private double roundBy(double x, double multiplier) {
 		return ((double)Math.round(x*multiplier))/multiplier;
+	}
+	static public double round1(double x) {
+		return roundBy(x, 10.0);
 	}
 	static public double round3(double x) {
 		return roundBy(x, 1000.0);

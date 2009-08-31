@@ -20,10 +20,10 @@ public class WebSiteReader_Connections {
 	/* For time-bound best-effort operation
 	 * Searches give up at this time and return partial results
 	 */
-	private long _timeBoundMillis = 0L;  
+	private double _timeBoundSec = 0.0;  
 	
-	private WebSiteReader_Connections(long timeBoundMillis) {
-		_timeBoundMillis = timeBoundMillis;
+	private WebSiteReader_Connections(double timeBoundSec) {
+		_timeBoundSec = timeBoundSec;
 	}
 	
 	static private String _linkedInBase = "http://www.linkedin.com";
@@ -206,7 +206,7 @@ public class WebSiteReader_Connections {
 		_target = target; // for debugging
 	
 		try { 
-			Parser parser = WebSiteReader_Common.setupParser(target, Force.ON, _timeBoundMillis);
+			Parser parser = WebSiteReader_Common.setupParser(target, Force.ON, _timeBoundSec);
 			if (parser != null) {
 				_connected = true;
 				if (_fetchWholePage) {
@@ -239,7 +239,7 @@ public class WebSiteReader_Connections {
 			>0 = number of pages read
 			need to distinguish between no attempt to read and failure
 	 */
-	public static ConnectionsReaderState  doGetLiConnections(long liUniqueID, long lastPageNumRead, long timeBoundMillis)  {
+	public static ConnectionsReaderState  doGetLiConnections(long liUniqueID, long lastPageNumRead, double timeBoundSec)  {
 		assert(lastPageNumRead != PersonLI.PROGRESS_COMPLETED);  // This function should not be called if the person's connection list is complete
 		assert(lastPageNumRead == PersonLI.PROGRESS_NOT_STARTED || lastPageNumRead > 0);
 
@@ -253,7 +253,7 @@ public class WebSiteReader_Connections {
 		int numPasses = 0;
 		
 		do {
-			WebSiteReader_Connections wsr = new WebSiteReader_Connections(timeBoundMillis);
+			WebSiteReader_Connections wsr = new WebSiteReader_Connections(timeBoundSec);
 			wsr.doMakeLiConnectionsOneSplit(nextPage);
 			if (!wsr._connected)
 				break;
@@ -280,8 +280,8 @@ public class WebSiteReader_Connections {
 		return readerState.connected ? readerState : null;
 	}
 	
-	public static String doGetLiConnectionsPage(long liUniqueID, long lastPageNumRead, long timeBoundMillis)  {
-		WebSiteReader_Connections wsr = new WebSiteReader_Connections(timeBoundMillis);
+	public static String doGetLiConnectionsPage(long liUniqueID, long lastPageNumRead, double timeBoundSec)  {
+		WebSiteReader_Connections wsr = new WebSiteReader_Connections(timeBoundSec);
 		wsr._fetchWholePage = true;
 		String nextPage = makeLiConnectionsUrl(liUniqueID,  lastPageNumRead);
 		wsr.doMakeLiConnectionsOneSplit(nextPage) ;

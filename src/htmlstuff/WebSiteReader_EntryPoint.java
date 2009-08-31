@@ -1,6 +1,6 @@
 package htmlstuff;
 
-import misc.Statistics;
+import people.client.Statistics;
 import datatypes.PersonLI;
 
 public class WebSiteReader_EntryPoint {
@@ -20,7 +20,7 @@ public class WebSiteReader_EntryPoint {
 				long     key,
 				PersonLI partPerson,    // whatever we got in previous fetches, null if no prev fetches
 				boolean  forceLiRead,	// forces a LI read
-				long timeBoundMillis)	// request must complete before this time
+				double timeBoundSec)	// request must complete before this time
 	{
 		WebSiteReader_Common.startNewHttpRequest();
 
@@ -34,12 +34,12 @@ public class WebSiteReader_EntryPoint {
 		   (forceLiRead && person != null && !person.getIsChildConnectionInProgress()) // Forced to read
 		   ) {
 			
-			person = WebSiteReader_UserProfile.doGetLiUserProfile(key, timeBoundMillis);
+			person = WebSiteReader_UserProfile.doGetLiUserProfile(key, timeBoundSec);
 			Statistics.getInstance().recordEvent("getPersonFromLI: Got summary");
 		}
 		// Second fetch of this person: Get details
 		else if (person != null && person.getHtmlPage() == null) {
-			htmlPage = WebSiteReader_UserProfile.doGetLiUserProfilePage(key, timeBoundMillis);
+			htmlPage = WebSiteReader_UserProfile.doGetLiUserProfilePage(key, timeBoundSec);
 			Statistics.getInstance().recordEvent("getPersonFromLI: Got details");
 			person.setHtmlPage(htmlPage);
 		}
@@ -52,7 +52,7 @@ public class WebSiteReader_EntryPoint {
 							WebSiteReader_Connections.doGetLiConnections(
 									person.getLiUniqueID(), 
 									person.getChildConnectionProgress(connType),
-									timeBoundMillis); 
+									timeBoundSec); 
 					}
 					if (connectionsReaderState != null) {
 						person.addConnectionIDs(connectionsReaderState.connectionKeys);

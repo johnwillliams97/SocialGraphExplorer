@@ -20,11 +20,8 @@ import javax.jdo.annotations.NotPersistent;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
-
-import misc.Statistics;
-
 import com.google.appengine.api.datastore.Text;
-
+import people.client.Statistics;
 import people.client.PersonPublic;
 import db.PMF;
 
@@ -626,7 +623,7 @@ public class PersonLI  implements Serializable, PersonPublic {
   			pm.close();
   		}
    	}
-  	// Incomplete fetch
+  
   	public static void insert(String nameFirst, 
 						  		String nameLast, 
 						  		long   liUniqueID,

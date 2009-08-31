@@ -16,7 +16,7 @@ public class OurConfiguration {
 	public static final  int MAX_SERVER_CALLS_PER_REQUEST = 9;
 	
 	// For Server PersonServiceImpl
-	public static final long MAX_TIME_FOR_SERVLET_RESPONSE = 10*1000; // * 1000;  // 10,000 sec for debugging, 10 sec for production // %^&*
+	public static final double MAX_TIME_FOR_SERVLET_RESPONSE = 10.0; //  // 10,000 sec for debugging, 10 sec for production // %^&*
 
 	// Debugging
 	public static final boolean DEBUG_MODE = true;
@@ -31,7 +31,7 @@ public class OurConfiguration {
 	*/
 	// For ClientCache
 	public static final int INVISIBLE_FETCH_DELAY_CLICK1 = 100;  	// msec
-	public static final int INVISIBLE_FETCH_DELAY_CLICK2 = 200;	// msec
+	public static final int INVISIBLE_FETCH_DELAY_CLICK2 = 200;		// msec
 	
 
 }

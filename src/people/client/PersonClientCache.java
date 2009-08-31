@@ -5,10 +5,7 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-//import java.util.logging.Logger;
-
 import com.google.gwt.user.client.Timer;
-
 import people.client.PersonClientCacheEntry.CacheEntryState;
 import people.client.RPCWrapper.IDsAtLevel;
 import people.client.RPCWrapper.PersonsAcceptor;
@@ -512,7 +509,7 @@ public class PersonClientCache {
 				  	 idsAtLevel, clientSequenceNumber, numCallsForThisClientSequenceNumber,
 	  				"callServerToFetchPersons");
 	  }	 
-	  
+	 
 	  private AcceptorUpdateCache _acceptorUpdateCache  = new AcceptorUpdateCache();
 	  class AcceptorUpdateCache implements PersonsAcceptor {
 		  /*
@@ -527,7 +524,7 @@ public class PersonClientCache {
 		   */
 	  		@Override
 			public void accept(List<Integer> requestedLevels, PersonFetch[] fetches,
-					          long clientSequenceNumber) {
+					          long clientSequenceNumber, double callTime) {
 	  			SocialGraphExplorer.get().log("accept", clientSequenceNumber + ": "
 	  					+ requestsInProgress.getNumCalls(clientSequenceNumber) + " - "
 	  					+ (fetches != null ? fetches.length : 0) + " fetches, " 
@@ -544,7 +541,8 @@ public class PersonClientCache {
 		  			}
 	  			}
 	  			else {
-		  			// Update the cache!
+		  			recordCallDurations(fetches, callTime);
+	  			   // Update the cache!
 		  			List<Long> misses = addToCache(fetches);
 		  			if (misses.size() > 0) {
 		  				SocialGraphExplorer.get().showError("Could not add " + clientSequenceNumber + "(misses = "  + misses + ") to cache" );
@@ -568,7 +566,7 @@ public class PersonClientCache {
 		  						+ "+ " + RPCWrapper.getTotalNumberOfIDs(incompletePersonIDsVisible) + " visible incomplete "
 		  						+ "+ " + RPCWrapper.getTotalNumberOfIDs(incompletePersonIDsInvisible) + " invisible incomplete "
 		  						+ "= " + RPCWrapper.getTotalNumberOfIDs(idsToFetch) + " total " 
-		  						+ ", ids = " + idsToFetch.get(0).ids
+		  						+ ", ids = " + idsToFetch.get(0).ids 
 		  					);
 		  				
 		  				// Call server again from the response callback
@@ -580,6 +578,15 @@ public class PersonClientCache {
 	  			}
 			}
 	  	}
+	  
+	  private void recordCallDurations(PersonFetch[] fetches, double callTime) {
+		  double duration = Statistics.getCurrentTime() - callTime;
+		  if (fetches != null) {
+			  for (PersonFetch fetch: fetches) {
+				  fetch.person.setFetchDurationFull(Statistics.round1(duration));
+			  }
+		  }
+	  }
 	  
 	  	private boolean hasVisibleLevel(List<Integer> requestedLevels) {
 	  		Integer anchor = CACHE_LEVEL_ANCHOR;

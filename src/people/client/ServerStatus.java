@@ -10,7 +10,7 @@ import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 /**
- * A composite for displaying the details of an email message.
+ * Displays debug info on client UI
  */
 public class ServerStatus extends Composite {
 
@@ -73,6 +73,8 @@ public class ServerStatus extends Composite {
 	  if (this.unflushedEntries > 0) {
 		  this.unflushedEntries = 0;
 		  this.history.add(this.line);
+		  // Echo to console
+		 // System.err.println("$>" + this.line);
 		  this.line = "";
 		  if (this.history.size() > this.numBufferLines) {
 			 this.history.remove(0);

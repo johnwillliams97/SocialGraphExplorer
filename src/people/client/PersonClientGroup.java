@@ -20,16 +20,17 @@ public class PersonClientGroup  implements IsSerializable {
 	public double responseDuration2;
 	public double responseDuration3;
 	
-	//Cache stats
+	//Cache statistics
 	public int  numCacheFetches;
 	public int  numMemCacheFetches;
 	public int  numDBCacheFetches;
 	
 	// Request tracking
-	public long servletLoadTime;        // Used to distinguish servlets sending responses
+	public long timeSignatureMillis;        // Used to distinguish servlets sending responses
 	public long clientSequenceNumber = -1L;	// Number of high-level requests
 	public int  numCallsForThisClientSequenceNumber = -1;  
 	public long sequenceNumber = -1L;		// Number of requests sent to server
 	public boolean hadDeadlineExceededException = false; // Timed out while serving response
+	public double callTime = 0.0;			// Time when client called server
 	
 }

@@ -45,7 +45,7 @@ public class CacheCache implements CacheActual<Long, PersonLI> {
 	}
 */
 	@Override
-	public PersonLI get(Long key, WebReadPolicy policy, long timeBoundMillis) {
+	public PersonLI get(Long key, WebReadPolicy policy, double timeBoundSec) {
 		PersonLI person = (PersonLI)theCache.get(key);
 		//logger.info(key + ":" + (person != null ? person.getNameFull() : "not found"));
 		return person;

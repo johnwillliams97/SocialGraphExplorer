@@ -256,7 +256,7 @@ public class PersonList extends Composite implements ClickHandler {
 	        		styleRow(selectedRow, false);
 	        		// Set anchor state to desired state. Will be invalid until this.state.anchorFetched is set to true.
 	        		// This is a signal that cache state is invalid.
-	        		long oldID = this.state.anchorUniqueID;
+	        	//	long oldID = this.state.anchorUniqueID;
 	        		/*
 	        		this.state.startIndex = 0;
 	        		updateAnchor(getPersonForRow(row), true); // Make this person the anchor
@@ -707,7 +707,8 @@ public class PersonList extends Composite implements ClickHandler {
 	        			+ person.getWhence() + ",  " 
 	        			+ (person.getIsChildConnectionInProgress() ? "in progress" : "..") + ","
 	        			+ (person.getHtmlPage() != null ? person.getHtmlPage().length()/1024 : 0) + "kb, " 
-	        			+ person.getFetchDuration() + " sec"
+	        			+ person.getFetchDuration() + " sec, "
+	        			+ person.getFetchDurationFull() + " sec"
 	        			);
 	        	table.setText(i+1 , 1, squeeze(person.getDescription(), 60) + " - " + numConnections);
 	        	table.setText(i+1 , 2, person.getLocation() + " - " + person.getLiUniqueID());
@@ -786,7 +787,7 @@ public class PersonList extends Composite implements ClickHandler {
 	    		
 	    		//state.visibleFetched = false;   updateAnchor() sets anchorFetched false   // A change of anchor invalidates the visible state
 	    			    	
-	    		assert(entries[PersonClientCache.CACHE_LEVEL_ANCHOR]!= null);
+	    		assert(entries[PersonClientCache.CACHE_LEVEL_ANCHOR] != null);
 	    		assert(entries[PersonClientCache.CACHE_LEVEL_ANCHOR].length > 0);
   				PersonClientCacheEntry newAnchorEntry = entries[PersonClientCache.CACHE_LEVEL_ANCHOR][0];
   				PersonClient newAnchor = newAnchorEntry.getPerson();

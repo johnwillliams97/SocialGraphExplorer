@@ -34,13 +34,13 @@ public class CacheStage<K,V> {
 		this.sequence = sequence;
 	}
 	
-	public V get(K key, WebReadPolicy policy, long timeBoundMillis) {
+	public V get(K key, WebReadPolicy policy, double timeBoundSec) {
 		++cacheStats.numGets;
 		//Statistics.getInstance().recordEvent("CacheStage.get(" + key + ", " + identify() +")");
 
 		V value = null; // RPC server
 		try {
-			value = cacheActual.get(key, policy, timeBoundMillis);
+			value = cacheActual.get(key, policy, timeBoundSec);
 		}
 		catch (Exception e) {
 			// Best effort response to an exception
@@ -57,7 +57,7 @@ public class CacheStage<K,V> {
 				if (incomplete) {
 					incomplete = true;
 				}
-				value = nextStage.get(key, policy,  timeBoundMillis);
+				value = nextStage.get(key, policy,  timeBoundSec);
 				if (value != null) {
 					cacheActual.put(key, value); // Don't call this.put() !
 				}
@@ -75,13 +75,13 @@ public class CacheStage<K,V> {
 		return value;
 	}
 	
-	public void put(K key, V value, long timeBoundMillis) {
+	public void put(K key, V value, double timeBoundSec) {
 		++cacheStats.numPuts;
-		V val = cacheActual.get(key, WebReadPolicy.AUTO,  timeBoundMillis);
+		V val = cacheActual.get(key, WebReadPolicy.AUTO,  timeBoundSec);
 		if (!(val != null && val.equals(value))) {
 			cacheActual.put(key, value);
 			if (nextStage != null) {
-				nextStage.put(key, value,  timeBoundMillis);
+				nextStage.put(key, value,  timeBoundSec);
 			}
 		}
 	}

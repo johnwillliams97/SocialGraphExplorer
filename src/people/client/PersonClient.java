@@ -164,12 +164,19 @@ public class PersonClient implements IsSerializable, PersonPublic {
 	public double getFetchDuration() {
 		return this.fetchDuration;
 	}
-	
-	
+	// Full client server round trip duration 
+	double fetchDurationFull = 0.0;
+	public void setFetchDurationFull(double fetchDuration) {
+		this.fetchDurationFull = fetchDuration;
+	}
+	public double getFetchDurationFull() {
+		return this.fetchDurationFull;
+	}
 	
 	public boolean isIncomplete(boolean noDetail, boolean connectionsInProgress)  {
 		return 
 			((noDetail && (this.htmlPage == null)) ||
 			 (connectionsInProgress && this.isChildConnectionInProgress));
 	}
+	
 }

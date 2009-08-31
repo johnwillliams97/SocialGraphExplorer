@@ -75,11 +75,11 @@ public class CachePipeline<K,V> {
 		return status;
 	}
 	
-	public /*synchronized */ V get(K key, WebReadPolicy policy, long timeBoundMillis) {
+	public /*synchronized */ V get(K key, WebReadPolicy policy, double timeBoundSec) {
 		V value = null;
 		
 		try {
-			value = firstStage.get(key, policy, timeBoundMillis);
+			value = firstStage.get(key, policy, timeBoundSec);
 		}
 		catch (Exception e) {
 			// Best effort response to an exception
@@ -93,8 +93,8 @@ public class CachePipeline<K,V> {
 		//log.info(this.identify()); !@#$ Debugging
 		return value;
 	}
-	public synchronized void put(K key, V value, long timeBoundMillis) {
-		firstStage.put(key, value,  timeBoundMillis);
+	public synchronized void put(K key, V value, double timeBoundSec) {
+		firstStage.put(key, value,  timeBoundSec);
 	}
 	
 }

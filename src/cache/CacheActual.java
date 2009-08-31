@@ -5,7 +5,7 @@ public interface CacheActual<K,V> {
 //	public boolean containsKey(K key);
 	public boolean isIncomplete(V value);
 	public V       setWhence(V value);
-	public V       get(K key, WebReadPolicy policy, long timeBoundMillis); 
+	public V       get(K key, WebReadPolicy policy, double timeBoundSec); 
 	public void    put(K key, V value);
 	String         identify();
 }

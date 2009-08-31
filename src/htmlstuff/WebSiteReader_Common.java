@@ -1,12 +1,14 @@
 package htmlstuff;
 
-import java.util.Calendar;
+
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import org.htmlparser.Parser;
 import org.htmlparser.http.ConnectionManager;
 import org.htmlparser.http.Cookie;
 import org.htmlparser.util.ParserException;
+
+import people.client.Statistics;
 
 public class WebSiteReader_Common {
 	private static final Logger log = Logger.getLogger(WebSiteReader_Common.class.getName());
@@ -64,26 +66,26 @@ public class WebSiteReader_Common {
 	/*
 	 * Parsing
 	 */
-	private long _minWaitMilli = 1000L;
-	private long _lastTime = 0L;
+	private double _minWaitSec = 1.0;
+	private double _lastTime = 0L;
 	public enum Force { AUTO, OFF, ON }
 	
-	public static Parser setupParser(String target, Force force, long timeBoundMillis) 
+	public static Parser setupParser(String target, Force force, double timeBoundSec) 
 		throws ParserException {
 		Parser parser =  null;
 		WebSiteReader_Common wsrc = getInstance();
 		
 		if (force == Force.AUTO || force == Force.ON)
 			wsrc.setupCookies(force == Force.ON);
-		long now = 0;
-		long timeLeft = 0;
+		double now = 0.0;
+		double timeLeft = 0;
 		while (true) {
-			now = Calendar.getInstance().getTimeInMillis();
-			timeLeft = wsrc._lastTime + wsrc._minWaitMilli - now;
-			if (timeLeft <= 0)
+			now = Statistics.getCurrentTime();
+			timeLeft = wsrc._lastTime + wsrc._minWaitSec - now;
+			if (timeLeft <= 0.0)
 				break;
 			try {
-				Thread.sleep(timeLeft);
+				Thread.sleep((long)(timeLeft*1000.0));
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -98,11 +100,11 @@ public class WebSiteReader_Common {
 			}
 			if (parser != null)
 				break;
-			now = Calendar.getInstance().getTimeInMillis();
-			if (now >= timeBoundMillis)
+			now = Statistics.getCurrentTime();
+			if (now >= timeBoundSec)
 				break;
 		}
-		wsrc._lastTime = Calendar.getInstance().getTimeInMillis();
+		wsrc._lastTime = Statistics.getCurrentTime();
 	
 		return parser;
 	}

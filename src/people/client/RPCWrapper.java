@@ -4,18 +4,11 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.InvocationException;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.DialogBox;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.VerticalPanel;
 
 
 /*
@@ -79,7 +72,7 @@ public class RPCWrapper {
 	 * Callback triggered on server responses	    
 	 */
 	public interface PersonsAcceptor {
-		public void accept(List<Integer> uniqueRequestedLevels, PersonFetch[] fetches, long clientSequenceNumber);
+		public void accept(List<Integer> uniqueRequestedLevels, PersonFetch[] fetches, long clientSequenceNumber, double callTime);
 	};
 	
 	/*
@@ -204,7 +197,7 @@ public class RPCWrapper {
     	
     	if (idsAtLevelList.size() > 0) {
 	       	System.err.println("getPersonsFromServer(" + description + ", " + getTotalNumberOfIDs(idsAtLevelList) + ")" );
-		
+	       	SocialGraphExplorer.get().log("getPersonsFromServer", description + ", " + getTotalNumberOfIDs(idsAtLevelList));
 	       	// Fetch the data remotely.
 		    // This is an async call that returns immediately 
 	    	// Do a best-effort (time limited) fetch. If partial list is returned then 
@@ -216,6 +209,7 @@ public class RPCWrapper {
 	        	clientSequenceNumber,
 	        	numCallsForThisClientSequenceNumber,
 	        	this.sequenceNumber,
+	        	Statistics.getCurrentTime(),
 	        	new AsyncCallback<PersonClientGroup>() {
 	        		public void onFailure(Throwable caught) {
 	        			onFailureCallback(caught);
@@ -243,7 +237,7 @@ public class RPCWrapper {
 		
 		// Update the cache !!!! , call back to UI 
 		// getPersonsFromServer() will get called again if data incomplete
-		this.theAcceptor.accept(uniqueLevels, result.fetches, result.clientSequenceNumber);
+		this.theAcceptor.accept(uniqueLevels, result.fetches, result.clientSequenceNumber, result.callTime);
  	}
 
     private static void myAssert(boolean test) {
@@ -264,7 +258,7 @@ public class RPCWrapper {
     	
     	// House keeping
     	if (baseServletLoadTime < 0)	
-			baseServletLoadTime = result.servletLoadTime;
+			baseServletLoadTime = result.timeSignatureMillis;
 		int numFetches = result.fetches != null ? result.fetches.length : 0;
 		totalFetches += numFetches;
 		int numRequestedIDs = (result.requestedUniqueIDs != null) ? result.requestedUniqueIDs.length : 0; //!@#$ use empty collections instead of null
@@ -293,7 +287,7 @@ public class RPCWrapper {
 					+ " Levels: " + uniqueLevelsString
 					+ " <" + result.requestedUniqueIDs.length + " requested, " + numFetches + " fetched> "
 					+ "(" + totalFetches + " total) "
-					+ " (servlet " + getServletIndex(result.servletLoadTime - baseServletLoadTime) 	+ " of " + getNumServlets() +")" 
+					+ " (servlet " + getServletIndex(result.timeSignatureMillis - baseServletLoadTime) 	+ " of " + getNumServlets() +")" 
 				//	+ arrayToString(result.requestedUniqueIDs)
 					);
 			SocialGraphExplorer.get().showStatus("Fetches", 
