@@ -1,0 +1,32 @@
+LIST OF WORK TO DO (x = Complete. ? = May not be an issue. * Fix next)
+------------------
+
+
+WORK LOG
+========
+
+2009/09/01
+----------
+Call server enough times to populate client cache at startup  
+
+2009/08/31
+----------
+Does not get whole screen of data every time 2009/08/31 Fixed
+Add back button  Added 2009/08/31 . Has some bugs
+	See  History.newItem(this.state.getAsString()); 
+Instrumented client-side person fetch time 
+Give visual feedback when on-screen data is being fetched (e.g. grey out people)
+Use Statistics.getCurrentTime() for all timings 
+
+2009/08/30
+----------
+x whence=='nowhere' Fixed 2009/08/30
+Does not always get details. whence=='CacheDB' Fixed 2009/08/30
+Clicking on a partial record does not initiate extra fetches Fixed 2009/08/30
+Grey non-anchor persons when moving between screens Fixed 2009/08/30
+Don't mark anchor changed in updatePersonList_() when it is not. rewind! Fixed 2009/08/30
+
+2009/08/28
+----------
+Does not get whole screen of data every time.  Partly fixed by clearing out all pending 
+requests to ensure cache coherency 	with clearPendingCacheEntries()
