@@ -71,16 +71,27 @@ public class SocialGraphExplorer
   	}
   
   	public void showStatus(String hdr, String msg) {
-  		serverStatus.showStatus(hdr, msg);
+  		serverStatus.showStatus(hdr, msg, false);
   	}
+  	
+  	public void showStatus(String hdr, String msg, boolean bold) {
+  		serverStatus.showStatus(hdr, msg, bold);
+  	}
+  	
   	public void statusFlush() {
   		serverStatus.flush();
   	}
+  	
   	public void log(String header, String msg) {
+  		log(header, msg, false);
+  	}
+  	
+  	public void log(String header, String msg, boolean bold) {
   		statusFlush();
-  		showStatus(header, msg);
+  		showStatus(header, msg, bold);
   		statusFlush();
   	}
+  	
   	public void showError(String msg) {
   		log("Error",  msg);
   	}

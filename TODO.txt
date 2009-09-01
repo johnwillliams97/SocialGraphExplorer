@@ -1,6 +1,6 @@
 LIST OF WORK TO DO (x = Complete. ? = May not be an issue. * Fix next)
 ------------------
-x Call server enough times to populate client cache at startup 
+x Call server enough times to populate client cache at startup  Fixes 2009/09/01
 ? Add back button  Added 2009/08/31 . Has some bugs
 	See  History.newItem(this.state.getAsString()); 
 Honour URL args e.g.	http://localhost:59310/SocialGraphExplorer.html#1960788,99
@@ -10,7 +10,7 @@ Add authentication.
 Remove my LI cookies from  git so people cannot access my account
 Add cookies to save state between uses (anchor:start)
 Add Gears support
-Tune performance
+* Tune performance
 	Stop discarding old requests
 	Optimise number of simultaneous server calls in progress. Probably two.
 	Add more instrumentation
@@ -23,11 +23,19 @@ Do stuff from
 	http://code.google.com/apis/socialgraph/ (Google social graph)
 		XFN and FOAF
 		'me' and 'friend' links
-Sort on 
+Sort connection on 
 	#connections
 	location
 	name
+	Could do this by building indexes on server 
+		One index per search type
+		Array of int. Apply to connections then fetch from server
+		Index generation will take time
+			Maybe use Cron Jobs http://code.google.com/appengine/docs/java/config/cron.html
+			Maybe use Task Queues http://code.google.com/appengine/kb/general.html#taskqueue
+		
 Handle &#x260  as in "? Adrian Cotterill ?"  
+Remove "&amp;" etc from all strings
 Add build from scratch script
 Give visual feedback when on-screen data is being fetched (e.g. grey out people) Added 2009/08/31
 Make UI usable

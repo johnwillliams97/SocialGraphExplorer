@@ -168,13 +168,13 @@ public class PersonClientCache {
 	public void updateCacheAndGetVisible(long[][] uniqueIDsList, GetPersonsFromCacheCallback callback) {
 		 
  		SocialGraphExplorer.get().showInstantStatus("updateCacheAndGetVisible(" 
- 				+ (uniqueIDsList != null) +  ")" );
+ 				+ (uniqueIDsList != null) +  ")" , true);
  		if (uniqueIDsList[CACHE_LEVEL_VISIBLE] != null)
  			SocialGraphExplorer.get().log("updateCacheAndGetVisible", 
  					"[" + CACHE_LEVEL_VISIBLE + "]: " +
  					+ this._clientSequenceNumber + " - "
  					+ MiscCollections.arrayToString(uniqueIDsList[CACHE_LEVEL_VISIBLE]) + " "
- 					+ getCacheLevels(uniqueIDsList[CACHE_LEVEL_VISIBLE]));
+ 					+ getCacheLevels(uniqueIDsList[CACHE_LEVEL_VISIBLE]), true);
  		
  		// Record the IDs that MUST be returned !@#$
  		this._currentVisibleRequest = uniqueIDsList[CACHE_LEVEL_VISIBLE] ;
