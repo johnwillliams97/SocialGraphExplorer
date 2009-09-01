@@ -53,7 +53,7 @@ public class ServerStatus extends Composite {
   }
 
    
-  private final int  entriesPerLine = 3;
+  private final int  entriesPerLine = 4;
   private final int  numBufferLines = 200;
   private final int  numInstantStatuses = 40;
   

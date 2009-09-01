@@ -4,14 +4,14 @@ package people.client;
 /*
  * This UI is a list. First item in the list is the 'anchor'.
  * The following items are indexes in anchor's connections list
- * anchorUniqueID, startIndex and selectedRow completely describe the state of this clss; 
+ * anchorUniqueID, startIndex and selectedRow completely describe the state of this class; 
  */
 public class CanonicalState {
 	public long      anchorUniqueID;   // The ID of the anchor person
 	public int       startIndex;
 	public boolean   anchorFetched;
 	public boolean   visibleFetched; 
-//	public boolean _firstFetch = true;
+
 	public CanonicalState() {
 		init();
 	}

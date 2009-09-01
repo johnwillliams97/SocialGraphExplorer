@@ -8,8 +8,8 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * calls.
  */
 public class PersonFetch implements IsSerializable {
-	public long requestedUniqueID;		// persons requested
-	public PersonClient person;		// persons returned
-	public int level;					// client cache level
+	public long 		requestedUniqueID;		// persons requested
+	public PersonClient person;					// persons returned
+	public int 			level;					// client cache level
 }
 	

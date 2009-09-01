@@ -19,19 +19,18 @@ public class OurConfiguration {
 	public static final double MAX_TIME_FOR_SERVLET_RESPONSE = 10.0; //  // 10,000 sec for debugging, 10 sec for production // %^&*
 
 	// Debugging
-	public static final boolean DEBUG_MODE = true;
+	public static final boolean DEBUG_MODE = false;
 	public static final boolean SHORT_LIST = false;
 	
 	// For PersonList
-	public static final  int VISIBLE_PERSONS_COUNT = SHORT_LIST ? 3 : 10; // 10 // %^&*
-	public static final  int ANCHOR_HISTORY_COUNT  = SHORT_LIST ? 2 : 20;
- /*
-	public static final  int VISIBLE_PERSONS_COUNT = 3;  // %^&*
-	public static final  int ANCHOR_HISTORY_COUNT = 2;
-	*/
+	public static final  int VISIBLE_PERSONS_COUNT = SHORT_LIST ?  3 : 10; 
+	public static final  int ANCHOR_HISTORY_COUNT  = SHORT_LIST ?  2 : 20;
+	public static final  int CACHE_SIZE_LRU        = SHORT_LIST ? 10 : 200;
+ 
 	// For ClientCache
 	public static final int INVISIBLE_FETCH_DELAY_CLICK1 = 100;  	// msec
 	public static final int INVISIBLE_FETCH_DELAY_CLICK2 = 200;		// msec
+
 	
 
 }

@@ -107,6 +107,7 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 	public PersonServiceImpl() {
 		assert(cachePipeline == null);
 		cachePipeline = makeCachePipeline();
+		logger.warning("Hi there!");
 	}
 	
 	

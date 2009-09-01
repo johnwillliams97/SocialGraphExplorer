@@ -196,8 +196,8 @@ public class RPCWrapper {
     //	this.theLevels = levels;
     	
     	if (idsAtLevelList.size() > 0) {
-	       	System.err.println("getPersonsFromServer(" + description + ", " + getTotalNumberOfIDs(idsAtLevelList) + ")" );
-	       	SocialGraphExplorer.get().log("getPersonsFromServer", description + ", " + getTotalNumberOfIDs(idsAtLevelList));
+	       	System.err.println("getPersonsFromServer(" + description + ", " + getTotalNumberOfIDs(idsAtLevelList) + ") " + MiscCollections.arrayToString(getArrayOfIDs(idsAtLevelList)));
+	       	SocialGraphExplorer.get().log("getPersonsFromServer", description + ", " + getTotalNumberOfIDs(idsAtLevelList) + ": " + MiscCollections.arrayToString(getArrayOfIDs(idsAtLevelList)));
 	       	// Fetch the data remotely.
 		    // This is an async call that returns immediately 
 	    	// Do a best-effort (time limited) fetch. If partial list is returned then 
@@ -280,7 +280,7 @@ public class RPCWrapper {
 			
 			// Report status  - for debugging
 			String uniqueLevelsString = uniqueLevels.toString();
-			SocialGraphExplorer.get().showStatus("Request" ,
+			SocialGraphExplorer.get().showStatus("response" ,
 					+ result.clientSequenceNumber + ":"
 					+ result.numCallsForThisClientSequenceNumber 
 					+ " (" + result.sequenceNumber + ")"
@@ -303,11 +303,12 @@ public class RPCWrapper {
 			 		+ result.responseDuration3 + ", "
 			 		+ result.responseDuration  + ": "
 			 		+ _maxDuration );
+			SocialGraphExplorer.get().showStatus("IDs", "" + result.getFetchedIDs() );
 		}
 		
 		SocialGraphExplorer.get().statusFlush();
 				
-		//personCache.dumpCache();
+		//personCache.dumpCache();hinted PersonsInCache
     }
   	
 	/*

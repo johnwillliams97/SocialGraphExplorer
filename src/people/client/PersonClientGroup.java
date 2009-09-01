@@ -2,6 +2,9 @@ package people.client;
 
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
@@ -32,5 +35,14 @@ public class PersonClientGroup  implements IsSerializable {
 	public long sequenceNumber = -1L;		// Number of requests sent to server
 	public boolean hadDeadlineExceededException = false; // Timed out while serving response
 	public double callTime = 0.0;			// Time when client called server
+	public List<Long> getFetchedIDs() {
+		List<Long> fetchedIDs = new ArrayList<Long>();
+		if (this.fetches != null) {
+			for (PersonFetch fetch: fetches) {
+				fetchedIDs.add(fetch.person.getLiUniqueID());
+			}
+		}
+		return fetchedIDs;
+	}
 	
 }

@@ -12,7 +12,7 @@ import people.client.RPCWrapper.PersonsAcceptor;
 
 
 /*
- * PersonClient client side cache and server connection
+ * PersonClient client-side cache and server connection
  * 
  * Main function: updateCacheAndGetVisible
  * 
@@ -50,7 +50,7 @@ Client cache
         UI change
         Hint 
         Update cache levels
-        From highest to lowest level
+        From highest to lowest level !@#$ see new flow in hintPersonsInCache
             Search for missing entries in lower levels
             Evict old entries to fetched level
             Request all entries @ level from server asynchronously  (Should we block here until previous level returned?)
@@ -60,7 +60,6 @@ Client cache
  */
 public class PersonClientCache {
 		 
-	public static final int NUM_VISIBLE = OurConfiguration.VISIBLE_PERSONS_COUNT;
 	public static final int CACHE_LEVEL_ANCHOR = 0;
 	public static final int CACHE_LEVEL_VISIBLE = 1;
 	public static final int CACHE_LEVEL_CLICK1 = 2;
@@ -70,7 +69,6 @@ public class PersonClientCache {
 	public static final int CACHE_LEVEL_RECENT = 4;
 	public static final int CACHE_LEVEL_NUMBER_LEVELS = 5;
 
-	
 	PersonClientCacheEntry[][] _theClientCache = null;
 	RPCWrapper _rpcWrapper = null;
 	
@@ -79,38 +77,19 @@ public class PersonClientCache {
 	
 	// All calls from before this number are discarded.
 	private long _clientSequenceNumberCutoff = -1L;
+	
 	// The visible persons currently requested !@#$ Probably should not return until these are fetched
 	private long[] _currentVisibleRequest = null;
 		  
-	public PersonClientCache(int[] cacheLevelSizeIn) {
+	public PersonClientCache(int[] cacheLevelSize) {
 	 	
-	  	/*
-	  	 * Set up the cache defaults
-	  	 */
-		/*
-		cacheLevelSize = new int[CACHE_LEVEL_NUMBER_LEVELS];
-		cacheLevelSize[CACHE_LEVEL_ANCHOR] = 10;
-		cacheLevelSize[CACHE_LEVEL_VISIBLE] = 10;
-		cacheLevelSize[CACHE_LEVEL_CLICK1] = (4 + NUM_VISIBLE - 1) * NUM_VISIBLE;
-		cacheLevelSize[CACHE_LEVEL_CLICK2] = (2) * NUM_VISIBLE;
-		cacheLevelSize[CACHE_LEVEL_RECENT] = 100;
-		*/
-		int[] cacheLevelSize = null; // !@#$ redundant - remove
-		if (cacheLevelSizeIn != null) {
-			assert(cacheLevelSizeIn.length == CACHE_LEVEL_NUMBER_LEVELS);
-			cacheLevelSize = new int[CACHE_LEVEL_NUMBER_LEVELS];
-			for (int i = 0; i < CACHE_LEVEL_NUMBER_LEVELS; ++i) {
-				assert(cacheLevelSizeIn[i] > 0);
-				cacheLevelSize[i] = cacheLevelSizeIn[i];
-			}
-		}
-		_theClientCache = new PersonClientCacheEntry[CACHE_LEVEL_NUMBER_LEVELS][];
-		for (int i = 0; i < CACHE_LEVEL_NUMBER_LEVELS; ++i) {
-			_theClientCache[i] = new PersonClientCacheEntry[cacheLevelSize[i]];
-		}
+		assert(cacheLevelSize != null) ;
+		assert(cacheLevelSize.length == CACHE_LEVEL_NUMBER_LEVELS);
 		
+		_theClientCache = new PersonClientCacheEntry[CACHE_LEVEL_NUMBER_LEVELS][];
 		for (int level = 0; level < CACHE_LEVEL_NUMBER_LEVELS; ++level) {
-			  for (int j = 0; j < cacheLevelSize[level]; ++j) {
+			_theClientCache[level] = new PersonClientCacheEntry[cacheLevelSize[level]];
+			for (int j = 0; j < cacheLevelSize[level]; ++j) {
 				  _theClientCache[level][j] = new PersonClientCacheEntry();
 			  }
 		}
@@ -119,8 +98,7 @@ public class PersonClientCache {
 	  }
 	  
 	  
-	
-	  
+	 
 	  /*
 	   *   Call sequence
 	   *	hintPersonsInCache(long[] uniqueIDs, int level) sets up the client cache state but does not call the server
@@ -155,24 +133,12 @@ public class PersonClientCache {
 	  private static List<Integer> INVISIBLE_CACHE_LEVEL_LIST = Arrays.asList(new Integer[] {INVISIBLE_FETCH_DELAY_CLICK1, INVISIBLE_FETCH_DELAY_CLICK2});
 	  private Timer fetcherTimerClick1 = new Timer() {
 		  public void run() {
-			  //If there are unfetched visible persons then restart timer, else fetch
-			 /*  long[][] idsToFetch = getIdLists(VISIBLE_CACHE_LEVEL_LIST, CacheEntryState.PENDING);
-			   if (MiscCollections.sizeOfArray(idsToFetch) > 0) 
-				   fetcherTimerClick1.schedule(INVISIBLE_FETCH_DELAY_EXTRA);
-			   else
-			   */
-				   fetchPersonsFromServer(Arrays.asList(new Integer[] {CACHE_LEVEL_CLICK1}), false);
+			   fetchPersonsFromServer(Arrays.asList(new Integer[] {CACHE_LEVEL_CLICK1}), false);
 		  }
  	  };
  	  private Timer fetcherTimerClick2 = new Timer() {
 		  public void run() {
-			  //If there are unfectched visible persons then restart timer, else fetch
-			/*   long[][] idsToFetch = getIdLists(VISIBLE_CACHE_LEVEL_LIST, CacheEntryState.PENDING);
-			   if (MiscCollections.sizeOfArray(idsToFetch) > 0) 
-				   fetcherTimerClick2.schedule(INVISIBLE_FETCH_DELAY_EXTRA);
-			   else
-			   */
-			   	fetchPersonsFromServer(Arrays.asList(new Integer[] {CACHE_LEVEL_CLICK2}), false);
+			 fetchPersonsFromServer(Arrays.asList(new Integer[] {CACHE_LEVEL_CLICK2}), false);
 		  }
 	  };
 	  
@@ -182,7 +148,7 @@ public class PersonClientCache {
  	interface GetPersonsFromCacheCallback {
   		public void handleReturn(PersonClientCacheEntry[][] entries,  String description);
  	}
-    
+  
 	private GetPersonsFromCacheCallback cb_params_callback;
 	
 	
@@ -199,13 +165,10 @@ public class PersonClientCache {
 	 *    http://code.google.com/webtoolkit/doc/1.6/DevGuideServerCommunication.html#DevGuideGettingUsedToAsyncCalls
 	 
 	 */
-	public void updateCacheAndGetVisible(long[][] uniqueIDsList, 
- 			  long[][] remainingIDs, // !@#$ vestigal
-			  GetPersonsFromCacheCallback callback) {
+	public void updateCacheAndGetVisible(long[][] uniqueIDsList, GetPersonsFromCacheCallback callback) {
 		 
  		SocialGraphExplorer.get().showInstantStatus("updateCacheAndGetVisible(" 
- 				+ (uniqueIDsList != null) + ", " 
- 				+ (remainingIDs != null) +  ")" );
+ 				+ (uniqueIDsList != null) +  ")" );
  		if (uniqueIDsList[CACHE_LEVEL_VISIBLE] != null)
  			SocialGraphExplorer.get().log("updateCacheAndGetVisible", 
  					"[" + CACHE_LEVEL_VISIBLE + "]: " +
@@ -220,7 +183,7 @@ public class PersonClientCache {
  		 * !@#$ Naively discard all old fetches in progress to guarantee cache coherency
  		 * 		(Smarter to filter out PENDING fetches currently in progress from new request list
  		 * 		Make this change later)
- 		 * Clear out all pending requests to ensure cache coherency Bad result from server
+ 		 * Clear out all pending requests to ensure cache coherency 
  		 */
  		this._clientSequenceNumberCutoff = this._clientSequenceNumber;
  		fetcherTimerClick1.cancel();
@@ -235,6 +198,12 @@ public class PersonClientCache {
 		  for (int level = CACHE_LEVEL_ANCHOR; level <= CACHE_LEVEL_CLICK2; ++level) {
 			  hintPersonsInCache(uniqueIDsList[level], level);
 		  }
+		  // Set LRUs for visible entries
+		  for (int level = CACHE_LEVEL_ANCHOR; level <= CACHE_LEVEL_VISIBLE; ++level) {
+			  PersonClientCacheEntry[] cache = this._theClientCache[level];
+			  for (PersonClientCacheEntry entry: cache)
+				  entry.touchLastReference();
+		  }
 		  if (uniqueIDsList[CACHE_LEVEL_VISIBLE] != null)
 	 			SocialGraphExplorer.get().log("hinted PersonsInCache", 
 	 					"[" + CACHE_LEVEL_VISIBLE + "]: " +
@@ -243,6 +212,7 @@ public class PersonClientCache {
 	 					+ getCacheLevels(uniqueIDsList[CACHE_LEVEL_VISIBLE]));
 		  
 		  dumpCache("hintPersonsInCache");
+		  
 		  // Kick off timers to do low priority requests. Logically, this follows
 		  // fetchPersonsFromServer(), but we do it first to avoid weird race conditions
 		  fetcherTimerClick1.schedule(INVISIBLE_FETCH_DELAY_CLICK1);
@@ -254,16 +224,11 @@ public class PersonClientCache {
 	}
 	/*
 	   * Get a list of persons from the cache
-	   * If persons have not been fetched then wait for them to be fetched
 	   * 
 	   * Result is returned via the callback function. Can't help this since the function contains a 
 	   * timer callback.
 	   * 
-	   * @param uniqueIDs - list of ids to hint (for consistency only since hintPersonsInCache()
-	   * 					determines which ids are availabe.
-	   * @param level   - level to hint the ids at
-	   */
-
+	  */
 	interface WaitForCacheToFillCallback {
 		// @param visibleCacheEntries - visible cache entries
 		public void handleReturn(PersonClientCacheEntry[][] visibleCacheEntries);
@@ -287,8 +252,7 @@ public class PersonClientCache {
 	  		if (idsToFetch.size() > 0) {
 			  ++this._clientSequenceNumber;
 			  requestsInProgress.startRequest(this._clientSequenceNumber);
-			//  SocialGraphExplorer.get().log("fetchPersonsFromServer", requestedLevels + ", " + RPCWrapper.getTotalNumberOfIDs(idsToFetch));
-			  dumpCache("fetchPersonsFromServer");
+			  
 			  // Actual call hidden among all the instrumentation
 			  callServerToFetchPersons(idsToFetch, this._clientSequenceNumber, requestsInProgress.getNumCalls(this._clientSequenceNumber));
 			  changeCacheStates(requestedLevels, CacheEntryState.NEED_TO_FETCH, CacheEntryState.PENDING);
@@ -302,28 +266,9 @@ public class PersonClientCache {
 	  	}
 	  
 	  	  	
+	  
 	  /*
-	   * Filter out IDs from 'uniqueIDs' that are already in the 'cache'
-	   */
-	  private List<Long> pruneExistingEntries(List<Long> uniqueIDs, PersonClientCacheEntry[] cache) {
-		  List<Long> prunedUniqueIDs = new ArrayList<Long>();
-		  for (int i = 0; i < uniqueIDs.size(); ++i) {
-			  long id = uniqueIDs.get(i);
-			  boolean inCache = false;
-			  for (int j = 0; j < cache.length; ++j) {
-				  if (id == cache[j].getRequestedUniqueID() || id == cache[j].getUniqueID()) {
-					  inCache = true;
-					  break;
-				  }
-			  }
-			  if (!inCache) {
-				  prunedUniqueIDs.add(id);
-			  }
-		  }
-		  return prunedUniqueIDs;
-	  }
-	  /*
-	   * Clear the cache of entries of a given state, typically PENDING
+	   * Clear the cache of PENDING and NEED_TO_FETCH entries
 	   */
 	  private void clearPendingCacheEntries() {
 		  for (int level = 0; level < CACHE_LEVEL_NUMBER_LEVELS; ++level) {
@@ -335,8 +280,12 @@ public class PersonClientCache {
 			  }
 		  }  
 	  }
-	  
-	  private List<Integer> getEmptyEntryIndexes(PersonClientCacheEntry[] cache) {
+	  /*
+	   * Return the indexes of all the empty slots in a cache
+	   * @param cache - the cache
+	   * @return - list of empty slot indexes
+	   */
+	  static private List<Integer> getEmptyEntryIndexes(PersonClientCacheEntry[] cache) {
 		  List<Integer> emptyIndexes = new ArrayList<Integer>();
 		  for (int i = 0; i < cache.length; ++i) {
 			  if (cache[i].getState() == CacheEntryState.EMPTY)
@@ -344,19 +293,30 @@ public class PersonClientCache {
 		  }
 		  return emptyIndexes;
 	  }
+	 
+		
 	  /*
-	   * Move all found uniqueIDs from other levels to 'level'
+	   * Find 'uniqueID' from any cache level except 'notThisLevel'
+	   * @param uniqueID - id to match
+	   * @param notThisLevel - level to avoid
+	   * @return - (level,index) pair on match, null otherwise
 	   */
-	  private void moveUniqueIDsToLevel(List<Long> neededIDs, int level) { 
-		  for (int i = 0; i < neededIDs.size(); ++i) {
-			  CacheIndex resident = findInCacheAtOtherLevels(neededIDs.get(i), level);  // Not at level
-			  if (resident != null) {
-				  _theClientCache[level][i] = _theClientCache[resident.level][resident.index];
-				  _theClientCache[resident.level][resident.index] = new PersonClientCacheEntry();
+	  private CacheIndex findInCacheAtOtherLevels(long uniqueID, int notThisLevel) {
+		  CacheIndex cacheIndex = null;
+		  int index = -1;
+		  for (int level = 0; level < CACHE_LEVEL_NUMBER_LEVELS; ++level) {
+			  if (level != notThisLevel) {
+				  index = findInCacheAtLevel(uniqueID, level);
+				  if (index >= 0) {
+					  cacheIndex = new CacheIndex();  
+					  cacheIndex.level = level;
+					  cacheIndex.index = index;
+					  break;
+				  }
 			  }
 		  }
+		  return cacheIndex;
 	  }
-		
 	  
 	  /*
 	   * Hint list of persons to  be fetched
@@ -367,7 +327,16 @@ public class PersonClientCache {
 	   * This function sets up the cache to reflect this, including moving objects
 	   * to other levels and ejecting victims
 	   * 
-	   * Strategy: Look for empty slots first then for victims
+	   * Strategy: 
+	   * 	Needed IDs are one of
+	   * 		in cache at this level
+	   * 		in cache at another level
+	   * 		not in cache
+	   * 	Therefore
+	   * 		evict (recycle) unneeded IDs from this level of cache
+	   * 		leave needed IDs that are already at this level
+	   * 		look for missing needed IDs in other levels of cache
+	   * 		fetch still missing needed IDs from server 
 	   * 
 	   * @param uniqueIDs - list of ids to hint
 	   * @param level   - level to hint the ids at
@@ -378,49 +347,30 @@ public class PersonClientCache {
 		  
 		  if (uniqueIDs != null) {
 			  assert(uniqueIDs.length <= cache.length);
-			  List<Long> neededIDs = MiscCollections.arrayToListLong(uniqueIDs);
+			 
+			  // Evict the unneeded IDS
+			  recycleUnneededIDs(uniqueIDs, level);
 			  
-			  // Prune the  entries that are already in the cache
-			  neededIDs = pruneExistingEntries(neededIDs, cache);
+			  // Now all unneeded slots are empty
 			  // Try to find replacements from within the other cache levels
-			  moveUniqueIDsToLevel(neededIDs, level); 
-			  // Re-Prune the  entries that are already in the cache
-			  neededIDs = pruneExistingEntries(neededIDs, cache);
+			  moveUniqueIDsToLevel(uniqueIDs, level); 
 			  
-			  // Do we need to add any IDs to cache?
-			  if (neededIDs.size() > 0) {
-			  	  //  Find empty slots 
-				  List<Integer> emptyIndexes = getEmptyEntryIndexes(cache);
-				  // Number of evictions needed
-				  int numVictims = Math.max(0, neededIDs.size() - emptyIndexes.size());
-		 		  if (numVictims > 0) {
-		 			  // Move victims to the "recently used" list
-		 			  List<Integer> recycledIndexes = recycleNEntries(numVictims, level);
-		 			  emptyIndexes.addAll(recycledIndexes);
-		 		  }
-			
-				  // Finally there are sufficient EMPTY entries
-		 		  // !@#$ This assumes there are no PENDING entries. How do we guarantee that?
-		 		  if (!(emptyIndexes.size() >= neededIDs.size()))
-		 			  assert(emptyIndexes.size() >= neededIDs.size());
-				  // Fill them
-				  for (int i = 0; i < neededIDs.size(); ++i) {
-					  int index = emptyIndexes.get(i);
-					  assert(0 <= index && index < cache.length);
-					  cache[index].setRequestedUniqueID(neededIDs.get(i));
-					  cache[index].setState(CacheEntryState.NEED_TO_FETCH);
-				  }
-			  }
+			 // The still needed IDs
+			  long[] neededIDs = getNeededIDs(uniqueIDs, cache);
+			  
+			  // Mark all the still needed IDs as NEED_TO_FETCH
+			  markAsNeeded(neededIDs, cache);
 		  }
 	  }
+	  
 	  /*
-	   * Return a set of ids of persons in cache at level 'cacheLevel' and state 'cacheEntryState'
+	   * Return a set of IDs of persons in cache at level 'cacheLevel' and state 'cacheEntryState'
 	   * Does not call server
 	   * Does not change cache
 	   * 
-	   * @param cacheLevel - cache level
+	   * @param level - cache level
 	   * @param cacheEntryState - cache state
-	   * @return list of ids or null if there are no ids
+	   * @return - set of IDs or null if there are no IDs
 	   */
 	  private Set<Long> getIdList(int level, CacheEntryState cacheEntryState) {
 		  Set<Long> ids = new LinkedHashSet<Long>();
@@ -431,9 +381,18 @@ public class PersonClientCache {
 		  }
 		  return ids;
 	  }
-	  private List<IDsAtLevel> getIncompletePersonsIDs(PersonFetch[] fetches, 
-			  					boolean noDetail, boolean connectionsInProgress,
-			  					List<Integer> targetLevels) {
+	  
+	  /*
+	   * Extract a list of incompletely fetched person from the fetches array returned by a server call
+	   * @param fetches - persons fetched from server
+	   * @param noDetail - return persons missing detail (full html)
+	   * @param connectionInProgress - return persons with partially complete connections list
+	   * @param targetLevels - return only these levels
+	   * @return - list of incompletely fetched persons
+	   */
+	  static private List<IDsAtLevel> getIncompletePersonsIDs(PersonFetch[] fetches, 
+			  						boolean noDetail, boolean connectionsInProgress,
+			  						List<Integer> targetLevels) {
 		  List<IDsAtLevel> list = new ArrayList<IDsAtLevel>();
 		  int numFetches = fetches != null ? fetches.length : 0;
 		  for (int i = 0; i < numFetches; ++i) {
@@ -460,6 +419,12 @@ public class PersonClientCache {
 		  return list;
 	  }
 	  
+	  /*
+	   * get IDs of cache entries with the specified state from the specified cache levels
+	   * @param levels - list of cache levels to search
+	   * @param cacheEntryState - cache state to match
+	   * @return - list of IDs at the specified levels
+	   */
 	  private List<IDsAtLevel> getIdLists(List<Integer> levels, CacheEntryState cacheEntryState) {
 		  List<IDsAtLevel>  idsAtLevel = new ArrayList<IDsAtLevel> ();
 		  for (int i = 0; i < levels.size(); ++i) {
@@ -471,6 +436,13 @@ public class PersonClientCache {
 		  }
 		  return idsAtLevel;
 	  }
+	  
+	  /*
+	   * Change cache entry states at the specified level and state
+	   * @param level - cache level to search
+	   * @param oldState - cache state to match
+	   * @param newState - cache state to change to
+	   */
 	  private void changeCacheStatesAtLevel(int level, CacheEntryState oldState, CacheEntryState newState) {
 		  PersonClientCacheEntry[] cache = _theClientCache[level];
 		  for (int i = 0; i < cache.length; ++i) {
@@ -478,6 +450,13 @@ public class PersonClientCache {
 				  cache[i].setState(newState);
 		  }
 	  }
+	  
+	  /*
+	   * Change cache entry states at the specified levels and state
+	   * @param levels - cache levels to search
+	   * @param oldState - cache state to match
+	   * @param newState - cache state to change to
+	   */
 	  private void changeCacheStates(List<Integer> levels, CacheEntryState oldState, CacheEntryState newState) {
 		   for (int i = 0; i < levels.size(); ++i) {
 			  changeCacheStatesAtLevel(levels.get(i), oldState, newState);
@@ -495,16 +474,18 @@ public class PersonClientCache {
 	   *  calls cb_params_callback.handleReturn();
 	   * The continued fetching is implemented here.
 	   */
-//	  static List<Integer> theLevels = null;
 	  private RequestsInProgress requestsInProgress = new RequestsInProgress();
 	  
 	  private void callServerToFetchPersons(List<IDsAtLevel> idsAtLevel,
 			  long clientSequenceNumber, int numCallsForThisClientSequenceNumber) {
 		  
 		  SocialGraphExplorer.get().log("callServerToFetchPersons", 
-				  "[" + idsAtLevel.get(0).level + "]: " + idsAtLevel.get(0).ids);
+				  "[" + clientSequenceNumber + ":" + numCallsForThisClientSequenceNumber + "]"
+				  + "(" + idsAtLevel.get(0).level + "): " + idsAtLevel.get(0).ids);
+		  
 		  dumpCache("callServerToFetchPersons");
 		  
+		  // The actual call
 		  _rpcWrapper.getPersonsFromServer(_acceptorUpdateCache, 
 				  	 idsAtLevel, clientSequenceNumber, numCallsForThisClientSequenceNumber,
 	  				"callServerToFetchPersons");
@@ -530,7 +511,7 @@ public class PersonClientCache {
 	  					+ (fetches != null ? fetches.length : 0) + " fetches, " 
 	  					+ requestedLevels + " levels, "
 	  					);
-	  			// Throw away old requests ?
+	  			// Throw away old requests 
 	  			if (clientSequenceNumber <= _clientSequenceNumberCutoff) {
 	  				SocialGraphExplorer.get().log("Discarding old request", 
 	  						  "clientSequenceNumber = " + clientSequenceNumber
@@ -547,6 +528,7 @@ public class PersonClientCache {
 		  			if (misses.size() > 0) {
 		  				SocialGraphExplorer.get().showError("Could not add " + clientSequenceNumber + "(misses = "  + misses + ") to cache" );
 		  			}
+		  			dumpCache("accept");
 		  			
 		  			// Update UI if visible changes
 		  			if (hasVisibleLevel(requestedLevels)) {  //!@#$ Need to update on invisible fetches?
@@ -579,7 +561,12 @@ public class PersonClientCache {
 			}
 	  	}
 	  
-	  private void recordCallDurations(PersonFetch[] fetches, double callTime) {
+	  /*
+	   * Mark the round-trip durations in persons
+	   * @param fetches - list of persons fetched from server
+	   * @param callTime - the time the call was made
+	   */
+	  static private void recordCallDurations(PersonFetch[] fetches, double callTime) {
 		  double duration = Statistics.getCurrentTime() - callTime;
 		  if (fetches != null) {
 			  for (PersonFetch fetch: fetches) {
@@ -588,14 +575,20 @@ public class PersonClientCache {
 		  }
 	  }
 	  
-	  	private boolean hasVisibleLevel(List<Integer> requestedLevels) {
+	  /*
+	   * Tells whether levels are visible in UI
+	   * @param levels - list of cache levels
+	   * @return - true if any level is visible in UO
+	   */
+	  static private boolean hasVisibleLevel(List<Integer> levels) {
 	  		Integer anchor = CACHE_LEVEL_ANCHOR;
 	  		Integer visible = CACHE_LEVEL_VISIBLE;
-	  		return (requestedLevels.contains(anchor) || requestedLevels.contains(visible));
+	  		return (levels.contains(anchor) || levels.contains(visible));
 	  	}
+	  
 	  	/*
-		  * @return - all visible FILLED cache entries
-		   */
+	  	 * @return - all visible FILLED cache entries
+		 */
 	  	private PersonClientCacheEntry[][] getVisibleCacheEntries() {
 	  		PersonClientCacheEntry[][] visibleCacheEntries = new PersonClientCacheEntry[2][];
   			visibleCacheEntries[0] = getFilledCacheEntriesAtLevel(CACHE_LEVEL_ANCHOR);
@@ -616,7 +609,7 @@ public class PersonClientCache {
 			  for (Long id: fetchedIDs) {
 				  entries[i++] = getPersonCacheEntryAtLevel(id, level);
 			  }
-			  return entries; // ??
+			  return entries; 
 		  }
 		  
 		  /*
@@ -691,46 +684,74 @@ public class PersonClientCache {
 			  return index;
 	  	}
 		  
+	  	static private void myAssert(boolean condition) {
+	  		if (!condition) {
+	  			assert(condition);
+	  		}
+	  	}
+	  	/*
+	  	 * Add neededIDs to cache and mark them as needed
+	  	 */
+	  	static private void markAsNeeded(long[] neededIDs, PersonClientCacheEntry[] cache) {
+	  		List<Integer> emptyIndexes = getEmptyEntryIndexes(cache);
+	  		myAssert(emptyIndexes.size() >= neededIDs.length);
+	  		
+	  		for (int i = 0; i < neededIDs.length; ++i) {
+	  			PersonClientCacheEntry entry = cache[emptyIndexes.get(i)];
+	  			entry.setRequestedUniqueID(neededIDs[i]);
+	  			entry.setState(CacheEntryState.NEED_TO_FETCH);
+	  		}
+	  	}
+	  	static private long[] getNeededIDs(long[] uniqueIDs, PersonClientCacheEntry[] cache) {
+	  		 List<Long> prunedUniqueIDs = new ArrayList<Long>();
+			  for (int i = 0; i < uniqueIDs.length; ++i) {
+				  long id = uniqueIDs[i];
+				  boolean inCache = false;
+				  for (int j = 0; j < cache.length; ++j) {
+					  if (id == cache[j].getRequestedUniqueID() || id == cache[j].getUniqueID()) {
+						  inCache = true;
+						  break;
+					  }
+				  }
+				  if (!inCache) {
+					  prunedUniqueIDs.add(id);
+				  }
+			  }
+			  long[] neededIDs = MiscCollections.listToArrayLong(prunedUniqueIDs);
+			  return neededIDs;
+	  	}
+	  	 /*
+		   * Move all found uniqueIDs from other levels to 'level'
+		   */
+		  private void moveUniqueIDsToLevel(long[] neededIDs, int level) { 
+			  PersonClientCacheEntry[] cache = _theClientCache[level];
+			  List<Integer> emptyIndexes = getEmptyEntryIndexes(cache);
+			  myAssert(emptyIndexes.size() >= neededIDs.length);
+			  for (int i = 0; i < neededIDs.length; ++i) {
+				  CacheIndex resident = findInCacheAtOtherLevels(neededIDs[i], level);  // Not at level
+				  if (resident != null) {
+					  cache[emptyIndexes.get(i)] = _theClientCache[resident.level][resident.index];
+					  _theClientCache[resident.level][resident.index] = new PersonClientCacheEntry();
+				  }
+			  }
+		  }
 	  	/*
 	  	 * Recycle 'numVictims' FILLED entries at cache level 'level'
 	  	 * Move the entry to the recently used level and mark the entry's original place as EMPTY
-	  	 *
-	  	 * Doubts:
-	  	 *  Need to recycle all non-EMPTY slot to guarantee success
-	  	 *		FILLED then PENDING then NEED_TO_FETCH.
-	  	 *  !@#$ This is ugly, but I currently think this will give a better user experience than
-	  	 *  blocking while the PENDING requests complete.
-	  	 *  I think that NEED_TO_FETCH should never be used but I am uncertain about Javascript callback
-	  	 *  ordering.
-	  	*/ 
-	  	List<Integer> recycleNEntries(int numVictims, int level) {
+	  	 */ 
+	  	private void recycleUnneededIDs(long[] neededIDs, int level) {
 	  		assert(level < CACHE_LEVEL_SETTABLE_LEVELS);
 	  		PersonClientCacheEntry[] cache = this._theClientCache[level];
-	  		assert(numVictims <= cache.length);
-	  		List<Integer> recycledIndexes = new ArrayList<Integer>();
-	  		PersonClientCacheEntry entry = null;
-	  		int victimNum = 0;
-	  		CacheEntryState[] statesToCheck = 
-	  			{ CacheEntryState.FILLED, CacheEntryState.PENDING, CacheEntryState.NEED_TO_FETCH };
-out:	  	for (CacheEntryState state: statesToCheck) {
-				assert(state !=  CacheEntryState.NEED_TO_FETCH); // !@#$ Wish I knew
-		  		for (int index = 0; index < cache.length; ++index) {
-	  				entry = cache[index];
-	  				if (entry.getState() == state) {
-	  					if (entry.getState() == CacheEntryState.FILLED) {
-	  						copyToRecent(entry);
-	  					}
-	  		  			entry.setState(CacheEntryState.EMPTY);
-	  		  			recycledIndexes.add(index);
-	  		  			++victimNum;
-	  		  			if (victimNum >= numVictims)
-	  		  				break out;
-	  				}
-	  			} 
-	  		}
-	  		assert(recycledIndexes.size() == numVictims);
-	  		return recycledIndexes;
-	  	}
+	  		myAssert(neededIDs.length <= cache.length);
+	  
+			for (int index = 0; index < cache.length; ++index) {
+				PersonClientCacheEntry entry = cache[index];
+  				if (entry.getState() != CacheEntryState.EMPTY && !MiscCollections.arrayContains(neededIDs, entry.getUniqueID())) {
+  					copyToRecent(entry);
+  					entry.setState(CacheEntryState.EMPTY);
+  				}
+  			} 
+ 	  	}
 	 	  
 	  /*
 	   * Copy an entry into CACHE_LEVEL_RECENT, replacing the LRU entry there
@@ -758,7 +779,7 @@ out:	  	for (CacheEntryState state: statesToCheck) {
 				  break;
 			  }
 		  }
-		  // If no slots empty then find lru slot
+		  // If no slots empty then find LRU slot
 		  if (lru < 0) {
 			  for (int i = 0; i < cache.length; ++i) {
 				  entry = cache[i];
@@ -770,7 +791,7 @@ out:	  	for (CacheEntryState state: statesToCheck) {
 				  }
 			  }
 		  }
-	//	  System.err.println("lru = " + lru);
+	
 		  assert(0 <= lru && lru < cache.length); 
 		  return lru;
 	  }
@@ -786,26 +807,7 @@ out:	  	for (CacheEntryState state: statesToCheck) {
 		  public int level;
 		  public int index;
 	  }
-	  /*
-	   * Get 'uniqueID' from any cache level except 'notThisLevel'
-	   * @return level,index pair on match, null otherwise
-	   */
-	  private CacheIndex findInCacheAtOtherLevels(long uniqueID, int notThisLevel) {
-		  CacheIndex cacheIndex = null;
-		  int index = -1;
-		  for (int level = 0; level < CACHE_LEVEL_NUMBER_LEVELS; ++level) {
-			  if (level != notThisLevel) {
-				  index = findInCacheAtLevel(uniqueID, level);
-				  if (index >= 0) {
-					  cacheIndex = new CacheIndex();  
-					  cacheIndex.level = level;
-					  cacheIndex.index = index;
-					  break;
-				  }
-			  }
-		  }
-		  return cacheIndex;
-	  }
+	  
 	  /*
 	   * Find a uniqueID in the cache at specified level
 	   * @param uniqueID - match this. This must be in the cache, not merely requested. See 
@@ -853,25 +855,30 @@ out:	  	for (CacheEntryState state: statesToCheck) {
 	  }
 	
 	  public void dumpCache(String location) {
-		  int numOccupied = 0;
-		  String msg = "" ;
-		  for (int level = 0; level < CACHE_LEVEL_NUMBER_LEVELS; ++level) {
-	  			PersonClientCacheEntry[] cache = _theClientCache[level];
-	  			msg += "Level " + level + ": ";
-		  		for (PersonClientCacheEntry cacheEntry: cache) {
-			    	if (cacheEntry.getRequestedUniqueID() != PersonClient.UNIQUE_ID_NOT_FOUND) {
-			    		msg +=  "" + numOccupied
-									+   "{" + cacheEntry.getRequestedUniqueID()
-							        +   "," + cacheEntry.getState()
-							        +   "}, ";
-			    		++numOccupied;
-			    	}
-		  		}
-		  		msg += ";;; ";
+		  if (OurConfiguration.DEBUG_MODE) {
+			  int numOccupied = 0;
+			  String msg = "" ;
+			  for (int level = 0; level < CACHE_LEVEL_NUMBER_LEVELS; ++level) {
+		  			PersonClientCacheEntry[] cache = _theClientCache[level];
+		  			msg += "Level " + level + " [" + cache.length + "]: ";
+		  			int index = 0;
+			  		for (PersonClientCacheEntry cacheEntry: cache) {
+				    	if (cacheEntry.getRequestedUniqueID() != PersonClient.UNIQUE_ID_NOT_FOUND) {
+				    		msg +=  "" + index
+										+   "{" + cacheEntry.getRequestedUniqueID()
+								        +   "," + cacheEntry.getState()
+								        +   "}, ";
+				    		++numOccupied;
+				    		++index;
+				    	}
+			  		}
+			  		msg += ";; ";
+			  }
+			  SocialGraphExplorer.get().log("dumpCache(" + location + ")", msg);
+			  System.err.println("dumpCache(" + location + ")" + ": " + msg);
 		  }
-		//  SocialGraphExplorer.get().log("dumpCache(" + location + ")", msg);
 	  }
-	  
+	 
 	  
 }
 

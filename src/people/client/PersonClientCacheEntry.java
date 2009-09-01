@@ -17,7 +17,7 @@ public class PersonClientCacheEntry {
 	private PersonClient    person = null;		// Actual value returned from server
 	private long 			requestedUniqueID = PersonClient.UNIQUE_ID_NOT_FOUND;  // uniqueID of person to be requested from server
 	private long            lastReference = 0L;  // For LRU
-		
+	static private long 	globalLastReference = 0L;	
 	
 	public CacheEntryState getState() {
 		return this.state;
@@ -45,8 +45,9 @@ public class PersonClientCacheEntry {
 		this.requestedUniqueID = requestedUniqueID;
 	}
 	
-	public void bumpLastReference() {
-		++this.lastReference;
+	public void touchLastReference() {
+		this.lastReference = globalLastReference;
+		++globalLastReference;
 	}
 	public long getLastReference() {
 		return this.lastReference;

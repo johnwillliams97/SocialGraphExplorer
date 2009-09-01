@@ -93,5 +93,18 @@ public class MiscCollections {
 	  	dbgIDs += "]";
 	  	return dbgIDs;
 	}
+
+	public static boolean arrayContains(long[] containerIDs, long anID) {
+		boolean contains = false;
+		if (containerIDs != null) {
+			for (Long id: containerIDs) {
+				if (id == anID) {
+					contains = true;
+					break;
+				}
+			}
+		}
+		return contains;
+	}
 	
 }

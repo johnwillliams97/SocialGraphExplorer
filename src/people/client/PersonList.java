@@ -107,7 +107,7 @@ public class PersonList extends Composite implements ClickHandler {
 		cacheLevelSize[PersonClientCache.CACHE_LEVEL_VISIBLE] = VISIBLE_PERSONS_COUNT - 1;
 		cacheLevelSize[PersonClientCache.CACHE_LEVEL_CLICK1] = (4 + VISIBLE_PERSONS_COUNT - 1) * VISIBLE_PERSONS_COUNT;
 		cacheLevelSize[PersonClientCache.CACHE_LEVEL_CLICK2] = (2) * VISIBLE_PERSONS_COUNT;
-		cacheLevelSize[PersonClientCache.CACHE_LEVEL_RECENT] = 100;
+		cacheLevelSize[PersonClientCache.CACHE_LEVEL_RECENT] = OurConfiguration.CACHE_SIZE_LRU;
 		personClientCache = new PersonClientCache(cacheLevelSize);
 	
 		// Setup the table UI.
@@ -627,7 +627,7 @@ public class PersonList extends Composite implements ClickHandler {
 		  // cacheCallbackUpdateList() will call redrawUII() to re-enable the buttons after the server fetch
 		  if (!this.state.anchorFetched || !this.state.visibleFetched) {
 			  disableNavigation();
-			  personClientCache.updateCacheAndGetVisible(fetchList, null, this.cacheCallbackUpdateList);
+			  personClientCache.updateCacheAndGetVisible(fetchList, this.cacheCallbackUpdateList);
 		  }
 
   	}
