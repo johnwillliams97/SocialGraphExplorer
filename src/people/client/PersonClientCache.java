@@ -510,7 +510,7 @@ public class PersonClientCache {
 	  					+ requestsInProgress.getNumCalls(clientSequenceNumber) + " - "
 	  					+ (fetches != null ? fetches.length : 0) + " fetches, " 
 	  					+ requestedLevels + " levels, "
-	  					);
+	  					+ PersonFetch.getFetchIDs(fetches));
 	  			// Throw away old requests 
 	  			if (clientSequenceNumber <= _clientSequenceNumberCutoff) {
 	  				SocialGraphExplorer.get().log("Discarding old request", 
