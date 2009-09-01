@@ -636,18 +636,22 @@ public class PersonList extends Composite implements ClickHandler {
   			int dbgNumVisible = entries[PersonClientCache.CACHE_LEVEL_VISIBLE].length;
   			SocialGraphExplorer.get().showInstantStatus(
   					 "handleReturn(" + description + ", " + dbgNumAnchors + ", " + dbgNumVisible+ ", " + state.anchorFetched+")", true);
-	    		    	
+  			SocialGraphExplorer.get().log("handleReturn", 
+  	 					"[" + PersonClientCache.CACHE_LEVEL_ANCHOR +  ", " + PersonClientCache.CACHE_LEVEL_VISIBLE + "]: " 
+  	 					+ PersonClientCache.getIdListForEntries(entries[PersonClientCache.CACHE_LEVEL_ANCHOR]) + ", "
+  	 					+ PersonClientCache.getIdListForEntries(entries[PersonClientCache.CACHE_LEVEL_VISIBLE]),
+  	 					false);    	
   			// Update anchorUniqueID in case there have been fetches from database
   			// How to handle missing data?? !@#$
 	    	// More persons to fetch? Happens when last fetch was to update anchor  ^&*
 	    	// This only gets called <=2 times since we set 2nd set of IDs to null here
   	
 	    	if (!state.anchorFetched) {
-	       		assert(entries[PersonClientCache.CACHE_LEVEL_ANCHOR] != null);
-	    		assert(entries[PersonClientCache.CACHE_LEVEL_ANCHOR].length > 0);
+	       		PersonClientCache.myAssert(entries[PersonClientCache.CACHE_LEVEL_ANCHOR] != null);
+	       		PersonClientCache.myAssert(entries[PersonClientCache.CACHE_LEVEL_ANCHOR].length > 0);
   				PersonClientCacheEntry newAnchorEntry = entries[PersonClientCache.CACHE_LEVEL_ANCHOR][0];
   				PersonClient newAnchor = newAnchorEntry.getPerson();
-  				assert(newAnchor != null);
+  				PersonClientCache.myAssert(newAnchor != null);
   				updateAnchor(newAnchor, true);
  			}
 	    	else {

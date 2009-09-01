@@ -155,7 +155,7 @@ public class PersonClientCache {
 	/*
 	 * Main function
 	 * @param uniqueIDsList - list of hints for all levels
-	 * @param callback - this function returns through this callback.The callback returns the 
+	 * @param callback - this function returns through this callback. The callback returns the 
 	 * 					_visible_ cache entries
 	 * 
 	 * !@#$ Need to optimise number of calls
@@ -169,13 +169,12 @@ public class PersonClientCache {
  		myAssert(!MiscCollections.arrayContains(uniqueIDsList[CACHE_LEVEL_VISIBLE], uniqueIDsList[CACHE_LEVEL_ANCHOR][0]));
  			
  		SocialGraphExplorer.get().showInstantStatus("updateCacheAndGetVisible(" + (uniqueIDsList != null) +  ")" , true);
- 		if (uniqueIDsList[CACHE_LEVEL_VISIBLE] != null)
- 			SocialGraphExplorer.get().log("updateCacheAndGetVisible", 
+ 		SocialGraphExplorer.get().log("updateCacheAndGetVisible", 
  					"[" + CACHE_LEVEL_ANCHOR +  ", " + CACHE_LEVEL_VISIBLE + "]: " +
  					+ this._clientSequenceNumber + " - "
  					+ MiscCollections.arrayToString(uniqueIDsList[CACHE_LEVEL_ANCHOR]) + ", "
  					+ MiscCollections.arrayToString(uniqueIDsList[CACHE_LEVEL_VISIBLE]) + " - "
- 					+ getCacheLevels(uniqueIDsList[CACHE_LEVEL_VISIBLE]) + ", "
+ 					+ getCacheLevels(uniqueIDsList[CACHE_LEVEL_ANCHOR]) + ", "
  					+ getCacheLevels(uniqueIDsList[CACHE_LEVEL_VISIBLE]),
  					true);
  		
@@ -382,11 +381,30 @@ public class PersonClientCache {
 		  Set<Long> ids = new LinkedHashSet<Long>();
 		  PersonClientCacheEntry[] cache = _theClientCache[level];
 		  for (int i = 0; i < cache.length; ++i) {
-			  if (cache[i].getState() == cacheEntryState) 
-				  ids.add(cache[i].getRequestedUniqueID());
+			  if (cache[i].getState() == cacheEntryState) {
+				  long uniqueID = cache[i].getUniqueID();
+				  if (uniqueID == PersonClient.UNIQUE_ID_NOT_FOUND) // Handle case where person has not been fetched yet.
+					  uniqueID = cache[i].getRequestedUniqueID();
+				  ids.add(uniqueID);
+			  }
 		  }
 		  return ids;
 	  }
+	  /*
+	   * Get the IDs for an array of entries
+	   * @param entries - an array of cache entries
+	   * @return the IDs of the cache entries
+	   */
+	  static public List<Long> getIdListForEntries(PersonClientCacheEntry[] entries) {
+		  List<Long> ids = new ArrayList<Long>();
+		  if (entries != null) {
+			  for (int i = 0; i < entries.length; ++i) {
+				  ids.add(entries[i].getUniqueID());
+			  }
+		  }
+		  return ids;
+	  }
+	  
 	  
 	  /*
 	   * Extract a list of incompletely fetched person from the fetches array returned by a server call
@@ -599,7 +617,8 @@ public class PersonClientCache {
 	  		PersonClientCacheEntry[][] visibleCacheEntries = new PersonClientCacheEntry[2][];
   			visibleCacheEntries[0] = getFilledCacheEntriesAtLevel(CACHE_LEVEL_ANCHOR);
   			visibleCacheEntries[1] = getFilledCacheEntriesAtLevel(CACHE_LEVEL_VISIBLE);
-  			assert(visibleCacheEntries[0] != null);
+  			myAssert(visibleCacheEntries[0] != null);
+  			myAssert(visibleCacheEntries[0].length > 0);
   			return visibleCacheEntries;
 	  	}
 	  	
@@ -660,12 +679,13 @@ public class PersonClientCache {
 					int level = fetches[i].level;
 					PersonClient person = fetches[i].person;
 					PersonClientCacheEntry[] cache = _theClientCache[level];
-					int index = getIndexInCache(person, level);
+					int index = getIndexInCache(person, cache);
 					if (index >= 0) {
 						cache[index].setPerson(person);
 						cache[index].setState(CacheEntryState.FILLED);
 					}
 					else {
+						myAssert("Can't happen because clearPendingCacheEntries()" == null);
 						misses.add(person.getRequestedID());
 					}
 				}
@@ -678,8 +698,7 @@ public class PersonClientCache {
 	     * Should only be called when server returns data and person is in cache
 	     * Will fail when PENDING entries are pushed out of cache
 	     */
-	  	private int getIndexInCache(PersonClient person, int level)  {
-			  PersonClientCacheEntry[] cache = _theClientCache[level];
+	  	static private int getIndexInCache(PersonClient person, PersonClientCacheEntry[] cache)  {
 			  int index = -1;
 			  for (int i = 0; i < cache.length; ++i) {
 				  if (cache[i].getRequestedUniqueID() == person.getRequestedID()) {
@@ -690,7 +709,7 @@ public class PersonClientCache {
 			  return index;
 	  	}
 		  
-	  	static private void myAssert(boolean condition) {
+	  	static void myAssert(boolean condition) {
 	  		if (!condition) {
 	  			assert(condition);
 	  		}
@@ -860,8 +879,18 @@ public class PersonClientCache {
 		  return levels;
 	  }
 	
+	  static private boolean anchor_has_been_filled = false;
 	  public void dumpCache(String location) {
 		  if (OurConfiguration.DEBUG_MODE) {
+			  // Once anchor has been filled it has to stay filled
+			  if (!anchor_has_been_filled) {
+				  if (_theClientCache[CACHE_LEVEL_ANCHOR][0] != null)
+					  anchor_has_been_filled = true;
+			  }
+			  else {
+				  myAssert(_theClientCache[CACHE_LEVEL_ANCHOR][0] != null);
+			  }
+			  
 			  int numOccupied = 0;
 			  String msg = "" ;
 			  for (int level = 0; level < CACHE_LEVEL_NUMBER_LEVELS; ++level) {
