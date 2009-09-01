@@ -99,13 +99,15 @@ public class PersonList extends Composite implements ClickHandler {
   	 * Set up the list UI
   	 */
 	public PersonList() {
+		// GWT sometimes calls this twice in hosted mode.
 		++debug_num_calls;
 		if (debug_num_calls > 1) {
 			assert(debug_num_calls <= 1);
 		}
+		
 		// Setup the cache
 		int[] cacheLevelSize = new int[PersonClientCache.CACHE_LEVEL_NUMBER_LEVELS];
-		cacheLevelSize[PersonClientCache.CACHE_LEVEL_ANCHOR] = 1 + 2*ANCHOR_HISTORY_COUNT;
+		cacheLevelSize[PersonClientCache.CACHE_LEVEL_ANCHOR] = 1 /*+ 2*ANCHOR_HISTORY_COUNT*/;
 		cacheLevelSize[PersonClientCache.CACHE_LEVEL_VISIBLE] = VISIBLE_PERSONS_COUNT - 1;
 		cacheLevelSize[PersonClientCache.CACHE_LEVEL_CLICK1] = (4 + VISIBLE_PERSONS_COUNT - 1) * VISIBLE_PERSONS_COUNT;
 		cacheLevelSize[PersonClientCache.CACHE_LEVEL_CLICK2] = (2) * VISIBLE_PERSONS_COUNT;
@@ -428,20 +430,16 @@ public class PersonList extends Composite implements ClickHandler {
    * !@#$ We can optimise this later by keeping old anchor persons
    */
   public void updatePersonListExtern(String stringRep, boolean isRewind) {
+	  SocialGraphExplorer.get().showInstantStatus("updatePersonListExtern(" + stringRep + ")", true);
+	  
 	  long  oldID = this.state.anchorUniqueID;
 	  int	oldStartIndex = this.state.startIndex;
 	  
 	  CanonicalState newState = new CanonicalState(stringRep);
-	//  this.state.anchorUniqueID = newState.anchorUniqueID;
-	 // this.state.startIndex = newState.startIndex;
 	  this.state = newState; // This case is just like startup
 	  _needs2ndCacheCall = true;    // Exactly like startup
-	 
+	 	 
 	  //handleReturn() will call updateAnchor()
-	 // updateAnchor(getPersonForRow(row), true); // Make this person the anchor
-   	 // selectedRow = -1;
-	  SocialGraphExplorer.get().showInstantStatus("updatePersonListExtern(" + stringRep + ")", true);
-   	 
 	  updatePersonList_("updatePersonListExtern(" + stringRep +") from " + oldID + ":" + oldStartIndex, isRewind);
   }
   private void updatePersonList(String dbgMsg) {
@@ -482,7 +480,6 @@ public class PersonList extends Composite implements ClickHandler {
 		  else if (!this.state.visibleFetched) {
 			  this.uniqueIDsList = Interval.getAnchorAndConnectionsIDs(this.state, this.getAnchor().getConnectionIDs(), VISIBLE_PERSONS_COUNT-1);
 			  fetchList = this.uniqueIDsList;
-			//  this.oldState = this.state;  now done in this.cacheCallbackUpdateList
 		  }
 		   	 
 		  // Fetch data from server
@@ -566,7 +563,7 @@ public class PersonList extends Composite implements ClickHandler {
         	person = getPersonForRow(i);
         	if (person != null) {
         		int numConnections = (person.getConnectionIDs() != null) ? person.getConnectionIDs().size() : 0;
-    		   	table.setText(i+1 , 0, squeeze(person.getNameFull(), 40) + " - " + (i+ this.state.startIndex+1) + ",  " 
+    		   	table.setText(i+1 , 0, squeeze(person.getNameFull(), 20) + " - " + (i+ this.state.startIndex+1) + ",  " 
 	        			+ person.getWhence() + ",  " 
 	        			+ (person.getIsChildConnectionInProgress() ? "in progress" : "..") + ","
 	        			+ (person.getHtmlPage() != null ? person.getHtmlPage().length()/1024 : 0) + "kb, " 
@@ -644,13 +641,9 @@ public class PersonList extends Composite implements ClickHandler {
   			// How to handle missing data?? !@#$
 	    	// More persons to fetch? Happens when last fetch was to update anchor  ^&*
 	    	// This only gets called <=2 times since we set 2nd set of IDs to null here
-  	//		boolean needSecondUpdate = false;
+  	
 	    	if (!state.anchorFetched) {
-	    		//state.anchorFetched = true; updateAnchor() sets anchorFetched true
-	    		
-	    		//state.visibleFetched = false;   updateAnchor() sets anchorFetched false   // A change of anchor invalidates the visible state
-	    			    	
-	    		assert(entries[PersonClientCache.CACHE_LEVEL_ANCHOR] != null);
+	       		assert(entries[PersonClientCache.CACHE_LEVEL_ANCHOR] != null);
 	    		assert(entries[PersonClientCache.CACHE_LEVEL_ANCHOR].length > 0);
   				PersonClientCacheEntry newAnchorEntry = entries[PersonClientCache.CACHE_LEVEL_ANCHOR][0];
   				PersonClient newAnchor = newAnchorEntry.getPerson();

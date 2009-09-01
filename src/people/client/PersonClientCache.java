@@ -155,26 +155,29 @@ public class PersonClientCache {
 	/*
 	 * Main function
 	 * @param uniqueIDsList - list of hints for all levels
-	 * @param remainingIDs - list of hints for all levels on follow-up call. 
-	 *     Needed for 2 part calls where some IDs depend on the persons fetched for other IDs
-	 *     So far the only case of this is the anchorID
-	 * Should return visible cache entries but has to use a callback to do this
+	 * @param callback - this function returns through this callback.The callback returns the 
+	 * 					_visible_ cache entries
 	 * 
 	 * !@#$ Need to optimise number of calls
 	 *    Max 2 RPC calls in progress at once
 	 *    http://code.google.com/webtoolkit/doc/1.6/DevGuideServerCommunication.html#DevGuideGettingUsedToAsyncCalls
-	 
 	 */
 	public void updateCacheAndGetVisible(long[][] uniqueIDsList, GetPersonsFromCacheCallback callback) {
-		 
- 		SocialGraphExplorer.get().showInstantStatus("updateCacheAndGetVisible(" 
- 				+ (uniqueIDsList != null) +  ")" , true);
+		myAssert(uniqueIDsList != null);
+ 		myAssert(uniqueIDsList[CACHE_LEVEL_ANCHOR] != null);
+ 	//	myAssert(uniqueIDsList[CACHE_LEVEL_VISIBLE] != null); Will be null when anchor fetched for first time
+ 		myAssert(!MiscCollections.arrayContains(uniqueIDsList[CACHE_LEVEL_VISIBLE], uniqueIDsList[CACHE_LEVEL_ANCHOR][0]));
+ 			
+ 		SocialGraphExplorer.get().showInstantStatus("updateCacheAndGetVisible(" + (uniqueIDsList != null) +  ")" , true);
  		if (uniqueIDsList[CACHE_LEVEL_VISIBLE] != null)
  			SocialGraphExplorer.get().log("updateCacheAndGetVisible", 
- 					"[" + CACHE_LEVEL_VISIBLE + "]: " +
+ 					"[" + CACHE_LEVEL_ANCHOR +  ", " + CACHE_LEVEL_VISIBLE + "]: " +
  					+ this._clientSequenceNumber + " - "
- 					+ MiscCollections.arrayToString(uniqueIDsList[CACHE_LEVEL_VISIBLE]) + " "
- 					+ getCacheLevels(uniqueIDsList[CACHE_LEVEL_VISIBLE]), true);
+ 					+ MiscCollections.arrayToString(uniqueIDsList[CACHE_LEVEL_ANCHOR]) + ", "
+ 					+ MiscCollections.arrayToString(uniqueIDsList[CACHE_LEVEL_VISIBLE]) + " - "
+ 					+ getCacheLevels(uniqueIDsList[CACHE_LEVEL_VISIBLE]) + ", "
+ 					+ getCacheLevels(uniqueIDsList[CACHE_LEVEL_VISIBLE]),
+ 					true);
  		
  		// Record the IDs that MUST be returned !@#$
  		this._currentVisibleRequest = uniqueIDsList[CACHE_LEVEL_VISIBLE] ;
@@ -338,8 +341,8 @@ public class PersonClientCache {
 	   * 		look for missing needed IDs in other levels of cache
 	   * 		fetch still missing needed IDs from server 
 	   * 
-	   * @param uniqueIDs - list of ids to hint
-	   * @param level   - level to hint the ids at
+	   * @param uniqueIDs - list of IDs to hint
+	   * @param level   - level to hint the IDs at
 	   */
 	  private void hintPersonsInCache(long[] uniqueIDs, int level) {
 		  assert(CACHE_LEVEL_ANCHOR <= level && level < CACHE_LEVEL_RECENT);
@@ -348,15 +351,18 @@ public class PersonClientCache {
 		  if (uniqueIDs != null) {
 			  assert(uniqueIDs.length <= cache.length);
 			 
-			  // Evict the unneeded IDS
+			  // Evict the unneeded IDs
 			  recycleUnneededIDs(uniqueIDs, level);
 			  
 			  // Now all unneeded slots are empty
-			  // Try to find replacements from within the other cache levels
-			  moveUniqueIDsToLevel(uniqueIDs, level); 
-			  
-			 // The still needed IDs
+			  // Compute the still needed IDs
 			  long[] neededIDs = getNeededIDs(uniqueIDs, cache);
+			  
+			  // Try to find replacements from within the other cache levels
+			  moveUniqueIDsToLevel(neededIDs, level); 
+			  
+			  // Re-compute the still needed IDs
+			  neededIDs = getNeededIDs(uniqueIDs, cache);
 			  
 			  // Mark all the still needed IDs as NEED_TO_FETCH
 			  markAsNeeded(neededIDs, cache);
