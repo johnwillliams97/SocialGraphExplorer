@@ -8,6 +8,7 @@ WORK LOG
 2009/09/01
 ----------
 Call server enough times to populate client cache at startup  
+Moved Interval class from PersonList.java to a separate .java file
 
 2009/08/31
 ----------

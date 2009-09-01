@@ -1,8 +1,5 @@
 LIST OF WORK TO DO (x = Complete. ? = May not be an issue. * Fix next)
 ------------------
-x Call server enough times to populate client cache at startup  Fixes 2009/09/01
-? Add back button  Added 2009/08/31 . Has some bugs
-	See  History.newItem(this.state.getAsString()); 
 Honour URL args e.g.	http://localhost:59310/SocialGraphExplorer.html#1960788,99
 Clean up 'details' person html.
 	Check if html is in messy format and delete it if it is.
@@ -57,7 +54,7 @@ Do David UI of a sphere.
 * Remove '*' from controls
 * Remove commented code
 Make all potentially static functions static
-Move Interval to a separate .java file
+
 
 BUGS
 ----
@@ -73,7 +70,6 @@ Remap URLs in HTML scraped from social networks (may be better to parse HTML)
 Level 0 of client cache is empty
 Moving between screens should maintain row position on screen
 * RPC error (onFailureCallback()) when using back button
-x whence=='nowhere' Fixed 2009/08/30
 Does not always get details. whence=='CacheDB' Fixed 2009/08/30
 Clicking on a partial record does not initiate extra fetches Fixed 2009/08/30
 Grey non-anchor persons when moving between screens Fixed 2009/08/30

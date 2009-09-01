@@ -2,7 +2,6 @@ package people.client;
 
 import java.util.ArrayList;
 import java.util.List;
-import people.client.PersonClientCache.GetPersonsFromCacheCallback;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.History;
@@ -11,6 +10,9 @@ import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.HTMLTable.Cell;
+
+import people.client.PersonClientCache.GetPersonsFromCacheCallback;
+import people.client.Interval;
 
 
 /**
@@ -418,148 +420,9 @@ public class PersonList extends Composite implements ClickHandler {
 	    }
 	  }
   
-  /*
-   * n0..n1-1
-   */
-  	static class Interval {
-	  int n0;
-	  int n1;
-	  public Interval(int n0, int n1,  int max) {
-		  assert(n1 >= n0);
-		  assert(max > 0);
-		  if (n0 < 0)
-			 n0 = 0;
-		  if (n1 > max)
-			 n1 = max;
-		  if (n1 < n0)
-			 n1 = n0;
-		 
-		 this.n0 = n0;
-		 this.n1 = n1;
-		 assert(n1 >= n0);
-	  }
-	  public int length() {
-		  return (n1 - n0);
-	  }
-  	};
-  	static private Interval remove(Interval removee, Interval remover) {
-	  // Fully enclosed => empty
-	  if (remover.n0 <= removee.n0 && removee.n1 <= remover.n1)
-		  removee.n1 = removee.n0;
-	  // left end is intersected => move right
-	  else if (remover.n0 <= removee.n0 && removee.n0 <= remover.n1)
-		  removee.n0 = remover.n1;
-	  // right end is intersected move left
-	  else if (remover.n0 <= removee.n1 && removee.n1 <= remover.n1)
-		  removee.n1 = remover.n0;
-	  assert(removee.n1 >= removee.n0);
-	  if (removee.n1 < removee.n0)
-		  removee.n1 = removee.n0;
-	  assert(removee.n1 >= removee.n0);
-	  return removee;
-  	}
-  	static int[] intervalsToArray(Interval[] intervals) {
-	  System.err.println("intervalsToArray(" + intervals.length + " intervals)");
-	  int len = 0;
-	  for (int i = 0; i < intervals.length; i++) {
-		  len += intervals[i].length();
-	  }
-	  System.err.println("  array will have " + len + " elements)");
-	  int[] out = null;
-	  if (len > 0) {
-		  out = new int[len];
-	 	  int count = 0;
-		  for (int i = 0; i < intervals.length; i++) {
-			  for (int j = intervals[i].n0; j < intervals[i].n1; j++) {
-				  out[count++] = j;
-			  }
-		  }
-	  }
-	  return out;
-  	}
-  	static long[] indexesToUniqueIDs(List<Long> connections, int[] indexes) {
-	  System.err.println("indexesToUniqueIDs(" + (indexes != null ? indexes.length : 0) + " indexes)");
-	  long[] uniqueIDs = null;
-	  if (indexes != null) {
-		  assert(indexes.length <= connections.size());
-		  uniqueIDs = new long[indexes.length];
-		  for (int i = 0; i < indexes.length; ++i) {
-			  uniqueIDs[i] = connections.get(indexes[i]);
-		  }
-		  System.err.println("  " + uniqueIDs.length + " IDs");
-	  }
-	  return uniqueIDs;
-  	}
   
-  /*
-   * Get the set of visible and about to be visible IDs for the current UI state
-   * @return - list of IDs
-   * 
-   * Note. This depends on anchorUniqueID, startIndex from this UI state and 
-   *       the anchor person having been fetched from the cache
-   */
-  static private long[][] getAnchorAndConnectionsIDs(CanonicalState state_, PersonClient anchor) {
-	  
-	  long[][] uniqueIDsList = new long[PersonClientCache.CACHE_LEVEL_SETTABLE_LEVELS][];
-	  uniqueIDsList[PersonClientCache.CACHE_LEVEL_ANCHOR] = new long[1];
-	  uniqueIDsList[PersonClientCache.CACHE_LEVEL_ANCHOR][0] = state_.anchorUniqueID;
-	  
-	  int numConnections = 0;
-	//  PersonClient anchor = getAnchor();
-	  
-	  if (anchor != null) {
-		  List<Long> connectionIDs = anchor.getConnectionIDs();
-		  if (connectionIDs != null) {
-			  numConnections = anchor.getConnectionIDs().size();
-		  
-			  /* Anchor = anchorUniqueID
-			   * Visible =  connections[<N>..<N>+VISIBLE_PERSONS_COUNT-2] N=startIndex
-			   * Visible+1= connections[<N>..<N>+VISIBLE_PERSONS_COUNT-1] 
-			   * 			N=0, N=numConnections-VISIBLE_PERSONS_COUNT,
-			   * 			N=startIndex+VISIBLE_PERSONS_COUNT
-			   * 			N=startIndex-VISIBLE_PERSONS_COUNT
-			   * Visible+2= connections[<N>..<N>+VISIBLE_PERSONS_COUNT-1] 
-			   * 			N=startIndex+2*VISIBLE_PERSONS_COUNT
-			   * 			N=startIndex-2*VISIBLE_PERSONS_COUNT
-			   */
-			  int screenFull = VISIBLE_PERSONS_COUNT-1;
-			  
-			  /* 
-			   * Raw regions 
-			   * 	v=visible
-			   * 	c=start+end = 1 click
-			   * 	d=+-1 screen = 1 click
-			   * 	e=+-2 screens = 2 clicks
-			   */
-			  Interval v  = new Interval(state_.startIndex, state_.startIndex + screenFull, numConnections);
-			  Interval c1 = new Interval(0, screenFull, numConnections); 
-			  Interval c2 = new Interval(numConnections - screenFull, numConnections, numConnections); 
-			  Interval d1 = new Interval(state_.startIndex - 2*screenFull, state_.startIndex - 1*screenFull, numConnections); 
-			  Interval d2 = new Interval(state_.startIndex + 1*screenFull, state_.startIndex + 2*screenFull, numConnections); 
-			  Interval e1 = new Interval(state_.startIndex - 3*screenFull, state_.startIndex - 2*screenFull, numConnections); 
-			  Interval e2 = new Interval(state_.startIndex + 2*screenFull, state_.startIndex + 3*screenFull, numConnections); 
-			  
-			  // Remove intersections
-			  Interval[] intervals = { v, c1, c2, d1, d2, e1, e2 };
-			  for (int i = 1; i < intervals.length; ++i) {
-				  for (int j = 0; j < i; ++j) {
-					 intervals[i] = remove(intervals[i], intervals[j]) ;
-				  }
-			  }
-			  System.err.println("<<< " + intervals.length + " intervals");
-			  Interval[] intervalVisible = {v};
-			  Interval[] intervalClick1  = { c1, c2, d1, d2 };
-			  Interval[] intervalClick2  = { e1, e2 };
-			  int[] idxVisible = intervalsToArray(intervalVisible);
-			  int[] idxClick1  = intervalsToArray(intervalClick1);
-			  int[] idxClick2  = intervalsToArray(intervalClick2);
-			  uniqueIDsList[PersonClientCache.CACHE_LEVEL_VISIBLE]= indexesToUniqueIDs(connectionIDs, idxVisible);
-			  uniqueIDsList[PersonClientCache.CACHE_LEVEL_CLICK1] = indexesToUniqueIDs(connectionIDs, idxClick1);
-			  uniqueIDsList[PersonClientCache.CACHE_LEVEL_CLICK2] = indexesToUniqueIDs(connectionIDs, idxClick2);
-		  }
-	  } 
-	  return uniqueIDsList;
-  }
+  
+  
   /*
    * External call to set state.
    * !@#$ We can optimise this later by keeping old anchor persons
@@ -613,11 +476,11 @@ public class PersonList extends Composite implements ClickHandler {
 		  // The callback will call again after this with anchorFetched set true ^&*
 		  if (!this.state.anchorFetched) {
 			  this.state.visibleFetched = false;
-			  fetchList = getAnchorAndConnectionsIDs(this.state, null);
+			  fetchList = Interval.getAnchorAndConnectionsIDs(this.state, null, VISIBLE_PERSONS_COUNT-1);
 		  }
 		  // Anchor is correct so fetch the full list
 		  else if (!this.state.visibleFetched) {
-			  this.uniqueIDsList = getAnchorAndConnectionsIDs(this.state, this.getAnchor());
+			  this.uniqueIDsList = Interval.getAnchorAndConnectionsIDs(this.state, this.getAnchor().getConnectionIDs(), VISIBLE_PERSONS_COUNT-1);
 			  fetchList = this.uniqueIDsList;
 			//  this.oldState = this.state;  now done in this.cacheCallbackUpdateList
 		  }
