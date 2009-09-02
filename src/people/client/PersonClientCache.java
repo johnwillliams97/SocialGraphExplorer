@@ -895,10 +895,12 @@ public class PersonClientCache {
 	  }
 	  
 	  public void dumpCache(String location, boolean validate) {
-		  if (OurConfiguration.DEBUG_MODE) {
+		  if (OurConfiguration.VALIDATION_MODE) {
 			  if (validate) {
 				 validateCache();
 			  }
+		  }  
+		  if (OurConfiguration.DEBUG_MODE) {
 			  int numOccupied = 0;
 			  String msg = "" ;
 			  for (int level = 0; level < CACHE_LEVEL_NUMBER_LEVELS; ++level) {

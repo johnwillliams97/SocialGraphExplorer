@@ -57,6 +57,7 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 		public PersonLI get(long id, WebReadPolicy policy, double timeBoundSec) {
 			double start = Statistics.getCurrentTime();
 			PersonLI person = this.cachePipeline.get(id, policy, timeBoundSec);
+			cleanPersonConnections(person);
 			++this.numFetches;
 			String whence = "none";
 			if (person != null) {
@@ -138,25 +139,27 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 	
 	
 	static private void cleanPersonConnections(PersonLI person) {
-		List<Long> connectionIDs = person.getConnectionIDs();
-		if (connectionIDs != null) {
-			Long id = person.getLiUniqueID();
-			boolean removed = false;
-			int  numRemoved = 0;
-			while (true) {
-				removed = connectionIDs.remove(id);
-				if (!removed)
-					break;
-				++numRemoved;
+		if (person != null) {
+			List<Long> connectionIDs = person.getConnectionIDs();
+			if (connectionIDs != null) {
+				Long id = person.getLiUniqueID();
+				boolean removed = false;
+				int  numRemoved = 0;
+				while (true) {
+					removed = connectionIDs.remove(id);
+					if (!removed)
+						break;
+					++numRemoved;
+				}
+				if (numRemoved > 0) // !@#$ fix data in database
+					logger.warning(person.getNameFull() 
+							+ " [" + person.getLiUniqueID() + "] " 
+							+ numRemoved + " connections are unique ID");
+				connectionIDs = removeDuplicates(connectionIDs); // !@#$ fix data in database
+				person.setConnectionIDs(connectionIDs);
 			}
-			if (numRemoved > 0) // !@#$ fix data in database
-				logger.warning(person.getNameFull() 
-						+ " [" + person.getLiUniqueID() + "] " 
-						+ numRemoved + " connections are unique ID");
-			connectionIDs = removeDuplicates(connectionIDs); // !@#$ fix data in database
-			person.setConnectionIDs(connectionIDs);
+			PersonClient.debugValidate(person);
 		}
-		PersonClient.debugValidate(person);
 	}
 	private static List<Long> removeDuplicates(List<Long> list) {
 	    Set<Long>  noDupsSet = new LinkedHashSet<Long>(list);
@@ -265,7 +268,6 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 			}
 			*/
 			if (person != null) {
-				cleanPersonConnections(person);
 				Fetch2 fetch = new Fetch2();
 				fetch.person = person;
 				fetch.requestedUniqueID = requestedUniqueIDs[i];

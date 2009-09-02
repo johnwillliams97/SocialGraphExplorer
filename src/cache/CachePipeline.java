@@ -8,13 +8,13 @@ import java.util.logging.Logger;
 import cache.CacheActual.WebReadPolicy;
 
 
-public class CachePipeline<K,V> {
+public class CachePipeline<K, V extends CacheTrait> {
 	private static final Logger logger = Logger.getLogger(CachePipeline.class.getName());
 	
 	private Set<CacheStage<K,V>> pipeline = null;
 	private CacheStage<K,V> firstStage = null;
 		
-	public  CachePipeline(List<CacheActual<K, V>> stagesActual) {
+	public  CachePipeline(List<CacheActual<K, V >> stagesActual) {
 		setPipeline(stagesActual);
 	}
 	public void setPipeline(List<CacheActual<K, V>> stagesActual) {

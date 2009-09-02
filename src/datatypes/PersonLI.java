@@ -20,13 +20,16 @@ import javax.jdo.annotations.NotPersistent;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
+
+import cache.CacheTrait;
+
 import com.google.appengine.api.datastore.Text;
 import people.client.Statistics;
 import people.client.PersonPublic;
 import db.PMF;
 
 @PersistenceCapable(identityType=IdentityType.APPLICATION)
-public class PersonLI  implements Serializable, PersonPublic {
+public class PersonLI  implements Serializable, PersonPublic, CacheTrait {
 	
 	//private static final long serialVersionUID = 1L;
 //	private static final long serialVersionUID = 6745964760100019554L;
@@ -739,5 +742,14 @@ public class PersonLI  implements Serializable, PersonPublic {
 		return this.fetchDuration;
 	}
 	
-	
+	@Override
+	public boolean isIncomplete() {
+		boolean incomplete = getIsChildConnectionInProgress() || getHtmlPage() == null;// 
+		long uniqueID = getLiUniqueID();
+		String nameFull = getNameFull();
+		String compl = incomplete ? "INCOMPLETE" : "complete";
+		if (incomplete)
+			logger.warning(uniqueID + ":" + nameFull + " - " + compl);
+		return incomplete;
+	}
 }

@@ -180,7 +180,7 @@ public class PersonClient implements IsSerializable, PersonPublic {
 	}
 	
 	static public void debugValidate(PersonPublic person) {
-		 if (OurConfiguration.DEBUG_MODE && person != null) {
+		 if (OurConfiguration.VALIDATION_MODE && person != null) {
 			 List<Long> connectionIDs = person.getConnectionIDs();
 			 long uniqueID = person.getLiUniqueID();
 			 if (connectionIDs != null)  {

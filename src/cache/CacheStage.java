@@ -5,7 +5,7 @@ import java.util.logging.Logger;
 import cache.CacheActual.WebReadPolicy;
 
 
-public class CacheStage<K,V> {
+public class CacheStage<K, V extends CacheTrait> {
 	private static final Logger logger = Logger.getLogger(CacheStage.class.getName());
 	
 	public class CacheStats {
@@ -36,20 +36,20 @@ public class CacheStage<K,V> {
 	
 	public V get(K key, WebReadPolicy policy, double timeBoundSec) {
 		++cacheStats.numGets;
-		//Statistics.getInstance().recordEvent("CacheStage.get(" + key + ", " + identify() +")");
-
-		V value = null; // RPC server
+	
+		V value = null; 
 		try {
 			value = cacheActual.get(key, policy, timeBoundSec);
+			if (value != null && value.getWhence() == null)
+				value.setWhence(cacheActual.identify());
 		}
 		catch (Exception e) {
 			// Best effort response to an exception
 			logger.warning("+Exception for person "+ key + ", " + this.identify() + ": " + e.getMessage() + "," + e.toString()); 
 			e.printStackTrace();
 		}
-		logger.info("CacheStage.get(" + key + ", " + identify() +") = " + (value != null));
-		value = cacheActual.setWhence(value);
-		boolean incomplete = cacheActual.isIncomplete(value);
+		
+		boolean incomplete = (value != null && value.isIncomplete());
 		
 		if (value == null || policy == WebReadPolicy.ALWAYS || incomplete) {
 			++cacheStats.numMisses;

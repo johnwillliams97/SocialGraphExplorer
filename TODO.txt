@@ -1,5 +1,6 @@
 LIST OF WORK TO DO (x = Complete. ? = May not be an issue. * Fix next)
 ------------------
+Add versioning to database (e.g. Long version) and fix data problems such as duplicate connections
 Honour URL args e.g.	http://localhost:59310/SocialGraphExplorer.html#1960788,99
 Clean up 'details' person html.
 	Check if html is in messy format and delete it if it is.

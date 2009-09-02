@@ -21,6 +21,7 @@ public class OurConfiguration {
 	// Debugging
 	public static final boolean DEBUG_MODE = false;
 	public static final boolean SHORT_LIST = false;
+	public static final boolean VALIDATION_MODE = false;
 	
 	// For PersonList
 	public static final  int VISIBLE_PERSONS_COUNT = SHORT_LIST ?  3 : 10; 

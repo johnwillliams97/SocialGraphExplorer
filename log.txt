@@ -5,7 +5,7 @@ WORK LOG
 Fixed bug where a whole screen of data was not being every time
 	Duplicate entries in persons' connection lists were breaking assumption is client-cache logic
 	Fixed this by adding code to remove duplicates
-	
+Fixed up generics in cache pipeline:  interface CacheActual<K, V extends CacheTrait>	
 2009/09/01
 ----------
 Call server enough times to populate client cache at startup  

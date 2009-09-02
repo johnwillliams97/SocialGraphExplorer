@@ -21,6 +21,7 @@ public class CacheDB implements CacheActual<Long, PersonLI> {
 	private PersonLI getFromDBandLI(Long key, boolean doCheckLI, WebReadPolicy policy, double timeBoundSec) {
 		
 		PersonLI 	person = PersonLI.findInDBbyUniqueId(key);
+		
 		boolean 	needsLIRead = false;
 		
 		Statistics.getInstance().recordEvent("CacheDB.getFromDBandLI()");
@@ -103,24 +104,8 @@ public class CacheDB implements CacheActual<Long, PersonLI> {
 		return CacheDB.class.getSimpleName();
 	}
 
-	@Override
-	public boolean isIncomplete(PersonLI person) {
-		boolean incomplete = false;
-		if (person != null)
-			incomplete = person.getIsChildConnectionInProgress() || person.getHtmlPage() == null;
-		return incomplete;
-	}
 	
-	@Override
-	public PersonLI setWhence(PersonLI person) {
-		logger.info("setWhence("+this.identify()+") - " + (person != null ? person.getNameFull() : "not found"));
-		if (person != null) {
-			String whence = person.getWhence();
-			if (whence == null) {
-				person.setWhence(this.identify());
-			}
-		}
-		return person;
-	}
+	
+	
 }
 
