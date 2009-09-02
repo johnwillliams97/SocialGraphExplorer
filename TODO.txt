@@ -10,9 +10,6 @@ Add Gears support
 * Tune performance
 	Stop discarding old requests
 	Optimise number of simultaneous server calls in progress. Probably two.
-	Add more instrumentation
-		Client-side person fetch time  Done 2009/08/31
-		Client-side total fetch time
 Remove anchor from client cache. No need for it.
 Replace arrays and null checks with lists and empty lists
 Do stuff from 
@@ -30,7 +27,6 @@ Sort connection on
 		Index generation will take time
 			Maybe use Cron Jobs http://code.google.com/appengine/docs/java/config/cron.html
 			Maybe use Task Queues http://code.google.com/appengine/kb/general.html#taskqueue
-		
 Handle &#x260  as in "? Adrian Cotterill ?"  
 Remove "&amp;" etc from all strings
 Add build from scratch script
@@ -44,7 +40,6 @@ Make UI usable
 Command line client
 Cron jobs to update more records
 Generalise to m-clicks?
-Use Statistics.getCurrentTime() for all timings Done 2009/08/31
 Test on all browsers and OSes
 	Vista + Chrome, Opera, IE, Safari, Firefox ok
 Inject server bugs and test client recovery	
@@ -58,19 +53,9 @@ Make all potentially static functions static
 
 BUGS
 ----
-x Does not get whole screen of data every time
-	2009/08/28 Seem to be evicting invisible cache entries that are about to become visible
-	2009/08/28 Partly fixed by clearing out all pending requests to ensure cache coherency 
-				with clearPendingCacheEntries()
-	2009/08/30 Still getting partial lists 		
-	2009/08/31 Fixed
 Find and fix all !@#$
 Person is sometimes duplicated in his own connections list on UI
 Remap URLs in HTML scraped from social networks (may be better to parse HTML)
 Level 0 of client cache is empty
 Moving between screens should maintain row position on screen
 * RPC error (onFailureCallback()) when using back button
-Does not always get details. whence=='CacheDB' Fixed 2009/08/30
-Clicking on a partial record does not initiate extra fetches Fixed 2009/08/30
-Grey non-anchor persons when moving between screens Fixed 2009/08/30
-Don't mark anchor changed in updatePersonList_() when it is not. rewind! Fixed 2009/08/30

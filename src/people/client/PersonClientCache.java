@@ -353,7 +353,7 @@ public class PersonClientCache {
 			 
 			  // Evict the unneeded IDs
 			  recycleUnneededIDs(uniqueIDs, level);
-			  dumpCache("!@#$ recycleUnneededIDs");
+			  dumpCache("!@#$ recycleUnneededIDs", false);
 			  
 			  // Now all unneeded slots are empty
 			  // Compute the still needed IDs
@@ -887,19 +887,18 @@ public class PersonClientCache {
 		  return levels;
 	  }
 	
-	  static private boolean anchor_has_been_filled = false;
+	 /*
+	  * Debug code
+	  */
 	  public void dumpCache(String location) {
+		  dumpCache(location, false); 
+	  }
+	  
+	  public void dumpCache(String location, boolean validate) {
 		  if (OurConfiguration.DEBUG_MODE) {
-			  // Once anchor has been filled it has to stay filled
-			  boolean gotAnchor = (_theClientCache[CACHE_LEVEL_ANCHOR][0] != null && _theClientCache[CACHE_LEVEL_ANCHOR][0].getPerson() != null);
-			  if (!anchor_has_been_filled) {
-				  if (gotAnchor)
-					  anchor_has_been_filled = true;
+			  if (validate) {
+				 validateCache();
 			  }
-			  else {
-				  myAssert(gotAnchor);
-			  }
-			  
 			  int numOccupied = 0;
 			  String msg = "" ;
 			  for (int level = 0; level < CACHE_LEVEL_NUMBER_LEVELS; ++level) {
@@ -920,6 +919,19 @@ public class PersonClientCache {
 			  }
 			  SocialGraphExplorer.get().log("dumpCache(" + location + ")", msg);
 			  System.err.println("dumpCache(" + location + ")" + ": " + msg);
+		  }
+	  }
+	  
+	  static private boolean anchor_has_been_filled = false;
+	  private void validateCache() {
+		  // Once anchor has been filled it has to stay filled
+		  boolean gotAnchor = (_theClientCache[CACHE_LEVEL_ANCHOR][0] != null && _theClientCache[CACHE_LEVEL_ANCHOR][0].getPerson() != null);
+		  if (!anchor_has_been_filled) {
+			  if (gotAnchor)
+				  anchor_has_been_filled = true;
+		  }
+		  else {
+			  myAssert(gotAnchor);
 		  }
 	  }
 	 
