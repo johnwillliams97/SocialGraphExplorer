@@ -130,7 +130,7 @@ public class PersonClientCache {
 	  private static int INVISIBLE_FETCH_DELAY_CLICK2 = OurConfiguration.INVISIBLE_FETCH_DELAY_CLICK2;
 //	  private static int INVISIBLE_FETCH_DELAY_EXTRA = 5000;
 	  private static List<Integer> VISIBLE_CACHE_LEVEL_LIST   = Arrays.asList(new Integer[] {CACHE_LEVEL_ANCHOR, CACHE_LEVEL_VISIBLE});
-	  private static List<Integer> INVISIBLE_CACHE_LEVEL_LIST = Arrays.asList(new Integer[] {INVISIBLE_FETCH_DELAY_CLICK1, INVISIBLE_FETCH_DELAY_CLICK2});
+	  private static List<Integer> INVISIBLE_CACHE_LEVEL_LIST = Arrays.asList(new Integer[] {CACHE_LEVEL_CLICK1, CACHE_LEVEL_CLICK2});
 	  private static boolean do_three_simultaneous_fetches = false;
 	  private Timer fetcherTimerClick1 = new Timer() {
 		  public void run() {
@@ -352,7 +352,7 @@ public class PersonClientCache {
 	   * @param level   - level to hint the IDs at
 	   */
 	  private void hintPersonsInCache(long[] uniqueIDs, int level) {
-		  assert(CACHE_LEVEL_ANCHOR <= level && level < CACHE_LEVEL_RECENT);
+		  assert(CACHE_LEVEL_ANCHOR <= level && level < CACHE_LEVEL_SETTABLE_LEVELS);
 		  PersonClientCacheEntry[] cache = this._theClientCache[level];
 		  
 		  if (uniqueIDs != null) {
@@ -360,7 +360,7 @@ public class PersonClientCache {
 			 
 			  // Evict the unneeded IDs
 			  recycleUnneededIDs(uniqueIDs, level);
-			  dumpCache("!@#$ recycleUnneededIDs", false);
+			 // dumpCache("!@#$ recycleUnneededIDs", false);
 			  
 			  // Now all unneeded slots are empty
 			  // Compute the still needed IDs
@@ -368,14 +368,14 @@ public class PersonClientCache {
 			  
 			  // Try to find replacements from within the other cache levels
 			  moveUniqueIDsToLevel(neededIDs, level); 
-			  dumpCache("!@#$ moveUniqueIDsToLevel");
+			//  dumpCache("!@#$ moveUniqueIDsToLevel");
 			  
 			  // Re-compute the still needed IDs
 			  neededIDs = getNeededIDs(uniqueIDs, cache);
 			  
 			  // Mark all the still needed IDs as NEED_TO_FETCH
 			  markAsNeeded(neededIDs, cache);
-			  dumpCache("!@#$ markAsNeeded");
+			//  dumpCache("!@#$ markAsNeeded");
 		  }
 	  }
 	  
@@ -390,6 +390,7 @@ public class PersonClientCache {
 	   */
 	  private Set<Long> getIdList(int level, CacheEntryState cacheEntryState) {
 		  Set<Long> ids = new LinkedHashSet<Long>();
+		  myAssert(CACHE_LEVEL_ANCHOR <= level && level < CACHE_LEVEL_SETTABLE_LEVELS);
 		  PersonClientCacheEntry[] cache = _theClientCache[level];
 		  for (int i = 0; i < cache.length; ++i) {
 			  if (cache[i].getState() == cacheEntryState) {
@@ -722,11 +723,7 @@ public class PersonClientCache {
 			  return index;
 	  	}
 		  
-	  	static void myAssert(boolean condition) {
-	  		if (!condition) {
-	  			assert(condition);
-	  		}
-	  	}
+	  	
 	  	/*
 	  	 * Add neededIDs to cache and mark them as needed
 	  	 */
@@ -773,7 +770,7 @@ public class PersonClientCache {
 				  if (resident != null) {
 					  cache[emptyIndexes.get(i)] = _theClientCache[resident.level][resident.index];
 					  _theClientCache[resident.level][resident.index] = new PersonClientCacheEntry();
-					  dumpCache("!@#$ moveUniqueIDsToLevel("+ level + ":" + emptyIndexes.get(i)+ ") " + i);
+				//	  dumpCache("!@#$ moveUniqueIDsToLevel("+ level + ":" + emptyIndexes.get(i)+ ") " + i);
 				  }
 			  }
 		  }
@@ -946,6 +943,11 @@ public class PersonClientCache {
 		  }
 	  }
 	 
+	  static void myAssert(boolean condition) {
+	  		if (!condition) {
+	  			assert(condition);
+	  		}
+	  	}
 	  
 }
 

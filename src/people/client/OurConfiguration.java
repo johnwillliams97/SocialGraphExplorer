@@ -26,7 +26,7 @@ public class OurConfiguration {
 	// For PersonList
 	public static final  int VISIBLE_PERSONS_COUNT = SHORT_LIST ?  3 : 10; 
 	public static final  int ANCHOR_HISTORY_COUNT  = SHORT_LIST ?  2 : 20;
-	public static final  int CACHE_SIZE_LRU        = SHORT_LIST ? 10 : 200;
+	public static final  int CACHE_SIZE_LRU        = SHORT_LIST ? 5 : 200;
  
 	// For ClientCache
 	public static final int INVISIBLE_FETCH_DELAY_CLICK1 = 100;  	// msec
