@@ -3,6 +3,7 @@ Locations
 Source:  http://github.com/peterwilliams97/SocialGraphExplorer
 Program: http://peterwilliams9798.appspot.com/
 Admin:   http://appengine.google.com/dashboard?&app_id=peterwilliams9798
+Status:  http://code.google.com/status/appengine
 
 Product Definition
 ------------------
