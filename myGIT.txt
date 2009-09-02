@@ -4,12 +4,12 @@ Global setup:
   git config --global user.email peter.williams.97@gmail.com
         
 Next steps:
-  mkdir test1
-  cd test1
+  mkdir SocialGraphExplorer
+  cd SocialGraphExplorer
   git init
-  touch README
-  git add README
-  git commit -m 'first commit'
+  touch README.txt
+  git add README.txt
+  git commit -a -m 'first commit'
   git remote add origin git@github.com:peterwilliams97/SocialGraphExplorer.git
   git push origin master
       
