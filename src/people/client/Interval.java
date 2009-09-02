@@ -1,6 +1,9 @@
 package people.client;
 
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
+
 
 class Interval {
 	  private int n0;
@@ -144,9 +147,65 @@ class Interval {
   			  uniqueIDsList[PersonClientCache.CACHE_LEVEL_VISIBLE]= indexesToUniqueIDs(connectionIDs, idxVisible);
   			  uniqueIDsList[PersonClientCache.CACHE_LEVEL_CLICK1] = indexesToUniqueIDs(connectionIDs, idxClick1);
   			  uniqueIDsList[PersonClientCache.CACHE_LEVEL_CLICK2] = indexesToUniqueIDs(connectionIDs, idxClick2);
-  		  }
+  	  	}
+  	  
+  	  	if (OurConfiguration.VALIDATION_MODE) {
+  	  		validateAnchorAndConnectionsIDs(state, connectionIDs, rowsPerScreen, uniqueIDsList);
+  	  	}
   
-  		  return uniqueIDsList;
+  		return uniqueIDsList;
     }
- 	
+    /*
+  	*  Instrumentation. Validates visible and 1-click entries
+    *  @param state - canonical state of UI     
+    *  @param connectionIDs - list of IDs to predict caching for 
+    *  @param rowsPerScreen - entries per screen of data
+    *  @return - cache hints for this UI state
+    */
+    static void validateAnchorAndConnectionsIDs(CanonicalState state, 
+ 		  		  				List<Long> connectionIDs,
+ 		  		  				int rowsPerScreen,
+ 		  		  			    long[][] uniqueIDsList) {
+	   Set<Long> actual1Clicks = get1ClickPersons(state, connectionIDs, rowsPerScreen);
+	   long[] resultIDs = uniqueIDsList[PersonClientCache.CACHE_LEVEL_CLICK1];
+	   for (Long id: actual1Clicks) {
+		   myAssert(MiscCollections.arrayContains(resultIDs, id));
+	   }
+    }
+    /*
+  	 *  Instrumentation. Validates visible and 1-click entries
+  	 *  @param state - canonical state of UI     
+     *  @param connectionIDs - list of IDs to predict caching for 
+     *  @param rowsPerScreen - entries per screen of data
+     *  @return - persons who are 1 click away
+  	 */
+	static private Set<Long>  get1ClickPersons(
+			CanonicalState state, 
+			List<Long> connectionIDs,
+			int rowsPerScreen) {
+		int numConnections = connectionIDs != null ? connectionIDs.size() : 0;
+		int i0 = Math.max(0, state.startIndex - rowsPerScreen);
+		int i1 = state.startIndex;
+		int i2 = Math.min(numConnections, state.startIndex + rowsPerScreen);
+		int i3 = Math.min(numConnections, state.startIndex + 2*rowsPerScreen);
+		int j0 = Math.min(numConnections, rowsPerScreen);
+		int j1 = Math.max(0, numConnections-1 - rowsPerScreen );
+		Set<Long> conns = new LinkedHashSet<Long>();
+		if (connectionIDs != null) {
+			conns.addAll(MiscCollections.getSubList(connectionIDs, i0, i1-1));
+			conns.addAll(MiscCollections.getSubList(connectionIDs, i1, i2-1));
+			conns.addAll(MiscCollections.getSubList(connectionIDs, i2, i3-1));
+			conns.addAll(MiscCollections.getSubList(connectionIDs,  0, j0 -1));
+			conns.addAll(MiscCollections.getSubList(connectionIDs, j1, numConnections-1));
+		}
+		return conns;
+	}
+	
+	
+	
+	static void myAssert(boolean condition) {
+  		if (!condition) {
+  			assert(condition);
+  		}
+  }
 }

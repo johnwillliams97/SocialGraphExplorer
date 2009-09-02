@@ -5,7 +5,6 @@ import java.util.List;
 
 /*
  * Miscellaneous collection functions
- * loadsoffun.nocache.js
  */
 public class MiscCollections {
 
@@ -107,4 +106,11 @@ public class MiscCollections {
 		return contains;
 	}
 	
+	static<T> List<T> getSubList(List<T> list, int i0, int i1) {
+		List<T> subList = new ArrayList<T>();
+		for (int i = i0; i <= i1; ++i) {
+			subList.add(list.get(i));
+		}
+		return subList;
+	}
 }

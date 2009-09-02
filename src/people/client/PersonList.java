@@ -476,12 +476,19 @@ public class PersonList extends Composite implements ClickHandler {
 		  if (!this.state.anchorFetched) {
 			  this.state.visibleFetched = false;
 			  fetchList = Interval.getAnchorAndConnectionsIDs(this.state, null, VISIBLE_PERSONS_COUNT-1);
+			  // Instrumentation
+			  printPersonList(this.state, null, VISIBLE_PERSONS_COUNT-1);
+			
 		  }
 		  // Anchor is correct so fetch the full list
 		  else if (!this.state.visibleFetched) {
 			  this.uniqueIDsList = Interval.getAnchorAndConnectionsIDs(this.state, this.getAnchor().getConnectionIDs(), VISIBLE_PERSONS_COUNT-1);
 			  fetchList = this.uniqueIDsList;
+			  // Instrumentation
+			  printPersonList(this.state, this.getAnchor().getConnectionIDs(), VISIBLE_PERSONS_COUNT-1);
+			
 		  }
+		  
 		   	 
 		  // Fetch data from server
 		  // Disable navigation buttons while fetching data to give client cache a single state
@@ -570,7 +577,7 @@ public class PersonList extends Composite implements ClickHandler {
 	        			+ (person.getHtmlPage() != null ? person.getHtmlPage().length()/1024 : 0) + "kb, " 
 	        			+ person.getFetchDuration() + " sec, "
 	        			+ person.getFetchDurationFull() + " sec"
-	        			+ ", level " + person.getInitialCacheLevel()
+	        			+ ", level " + person.getCacheLevel()
 	        			);
 	        	table.setText(i+1 , 1, squeeze(person.getDescription(), 60) + " - " + numConnections);
 	        	table.setText(i+1 , 2, person.getLocation() + " - " + person.getLiUniqueID());
@@ -670,7 +677,41 @@ public class PersonList extends Composite implements ClickHandler {
 	    		updatePersonList("2ndCacheCall"); // call server a 2nd time
 	    	}
 		}	
+  	}
+  	
+  	/*
+  	 *  Instrumentation. Prints current visible and 1-click entries
+  	 *  @param state - canonical state of UI     
+     *  @param connectionIDs - list of IDs to predict caching for 
+     *  @param rowsPerScreen - entries per screen of data
+  	 */
+	static private void printPersonList(
+			CanonicalState state, 
+			List<Long> connectionIDs,
+			int rowsPerScreen) {
+		int numConnections = connectionIDs != null ? connectionIDs.size() : 0;
+		String msg = "" + numConnections + ": " + state.anchorUniqueID + ", ";
+		int i0 = Math.max(0, state.startIndex - rowsPerScreen);
+		int i1 = state.startIndex;
+		int i2 = Math.min(numConnections, state.startIndex + rowsPerScreen);
+		int i3 = Math.min(numConnections, state.startIndex + 2*rowsPerScreen);
+		msg += makeIDsString(connectionIDs, i0, i1) + ", ";
+		msg += makeIDsString(connectionIDs, i1, i2) + ", ";
+		msg += makeIDsString(connectionIDs, i2, i3) ;
+		
+		SocialGraphExplorer.get().log("printPersonList", msg, true);
+		System.err.println("printPersonList: " + msg);
 	}
-  
+	
+	static private String makeIDsString(List<Long> connectionIDs, int i0, int i1) {
+		String msg = "" + (i1-i0) + ":[";
+		if (connectionIDs != null) {
+			for (int i = i0; i < i1; ++i) {
+				msg += connectionIDs.get(i) + ",";
+			}
+		}
+		msg += "]";
+		return msg;
+	}
  	
 }

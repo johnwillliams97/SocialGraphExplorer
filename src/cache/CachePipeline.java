@@ -1,6 +1,6 @@
 package cache;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -19,7 +19,7 @@ public class CachePipeline<K, V extends CacheTrait> {
 	}
 	public void setPipeline(List<CacheActual<K, V>> stagesActual) {
 		if (stagesActual != null && stagesActual.size() > 0) {
-			pipeline = new HashSet<CacheStage<K,V>>();
+			pipeline = new LinkedHashSet<CacheStage<K,V>>();
 			int sequence = 0;
 			CacheStage<K,V> previous = null;
 			for (CacheActual<K,V> cacheActual: stagesActual) {

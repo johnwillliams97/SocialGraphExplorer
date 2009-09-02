@@ -41,6 +41,7 @@ Make UI usable
 	Move scroll controls out of table
 Command line client
 Cron jobs to update more records
+	http://code.google.com/appengine/docs/java/config/cron.html
 Generalise to m-clicks?
 Test on all browsers and OSes
 	Vista + Chrome, Opera, IE, Safari, Firefox ok

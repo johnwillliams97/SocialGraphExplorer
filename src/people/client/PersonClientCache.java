@@ -62,6 +62,8 @@ public class PersonClientCache {
 		 
 	public static final int CACHE_LEVEL_ANCHOR = 0;
 	public static final int CACHE_LEVEL_VISIBLE = 1;
+	public static final int CACHE_LEVEL_VISIBLE_LEVELS = 2; 
+	
 	public static final int CACHE_LEVEL_CLICK1 = 2;
 	public static final int CACHE_LEVEL_CLICK2 = 3;
 	public static final int CACHE_LEVEL_SETTABLE_LEVELS = 4; 
@@ -178,7 +180,9 @@ public class PersonClientCache {
  					"[" + CACHE_LEVEL_ANCHOR +  ", " + CACHE_LEVEL_VISIBLE + "]: " +
  					+ this._clientSequenceNumber + " - "
  					+ MiscCollections.arrayToString(uniqueIDsList[CACHE_LEVEL_ANCHOR]) + ", "
- 					+ MiscCollections.arrayToString(uniqueIDsList[CACHE_LEVEL_VISIBLE]) + " - "
+ 					+ MiscCollections.arrayToString(uniqueIDsList[CACHE_LEVEL_VISIBLE]) + ", "
+ 					+ MiscCollections.arrayToString(uniqueIDsList[CACHE_LEVEL_CLICK1]) + ", "
+ 					+ MiscCollections.arrayToString(uniqueIDsList[CACHE_LEVEL_CLICK2]) + " - "
  					+ getCacheLevels(uniqueIDsList[CACHE_LEVEL_ANCHOR]) + ", "
  					+ getCacheLevels(uniqueIDsList[CACHE_LEVEL_VISIBLE]),
  					true);
@@ -197,12 +201,15 @@ public class PersonClientCache {
  		if (do_three_simultaneous_fetches)
  			fetcherTimerClick2.cancel();
  		clearPendingCacheEntries();
+ 		
+ 		// Instrumentation
+ 		markCacheLevels();  
 		  
 		  // fetchPersonsFromServer() calls back through cb_params_callback.handleReturn();
 		  // The timer'd functions call this function as well
 		  cb_params_callback = callback;
 		  
-		  dumpCache("!@#$ before hintPersonsInCache");
+		//  dumpCache("!@#$ before hintPersonsInCache");
 		  // Configure cache
 		  for (int level = CACHE_LEVEL_ANCHOR; level <= CACHE_LEVEL_CLICK2; ++level) {
 			  hintPersonsInCache(uniqueIDsList[level], level);
@@ -220,7 +227,7 @@ public class PersonClientCache {
 	 					+ MiscCollections.arrayToString(uniqueIDsList[CACHE_LEVEL_VISIBLE]) + " "
 	 					+ getCacheLevels(uniqueIDsList[CACHE_LEVEL_VISIBLE]));
 		  
-		  dumpCache("hintPersonsInCache");
+		//  dumpCache("hintPersonsInCache");
 		  
 		  // Kick off timers to do low priority requests. Logically, this follows
 		  // fetchPersonsFromServer(), but we do it first to avoid weird race conditions
@@ -257,7 +264,6 @@ public class PersonClientCache {
 	   * 
 	   */
 	  	private void fetchPersonsFromServer(List<Integer> requestedLevels, boolean needsReturn) {
-	  		//SocialGraphExplorer.get().showInstantStatus("fetchPersonsFromServer(" + requestedLevels + ", " + needsReturn + ")");
 	  		List<IDsAtLevel> idsToFetch = getIdLists(requestedLevels, CacheEntryState.NEED_TO_FETCH);
 	  		if (idsToFetch.size() > 0) {
 			  ++this._clientSequenceNumber;
@@ -519,7 +525,7 @@ public class PersonClientCache {
 				  "[" + clientSequenceNumber + ":" + numCallsForThisClientSequenceNumber + "]"
 				  + "(" + idsAtLevel.get(0).level + "): " + idsAtLevel.get(0).ids);
 		  
-		  dumpCache("callServerToFetchPersons");
+		 // dumpCache("callServerToFetchPersons");
 		  
 		  // The actual call
 		  _rpcWrapper.getPersonsFromServer(_acceptorUpdateCache, 
@@ -690,7 +696,7 @@ public class PersonClientCache {
 		  		for (int i = 0; i < fetches.length; ++i) {
 					int level = fetches[i].level;
 					PersonClient person = fetches[i].person;
-					person.setInitialCacheLevel(level);
+					person.setCacheLevel(level);
 					
 					PersonClientCacheEntry[] cache = _theClientCache[level];
 					int index = getIndexInCache(person, cache);
@@ -947,7 +953,23 @@ public class PersonClientCache {
 	  		if (!condition) {
 	  			assert(condition);
 	  		}
-	  	}
+	  }
+	  /*
+	   * Instrumentation
+	   * Mark current cache levels
+	   */
+	  void markCacheLevels() {
+		  for (int level = CACHE_LEVEL_VISIBLE_LEVELS; level < CACHE_LEVEL_NUMBER_LEVELS; ++level) {
+			  for (int j = 0; j <_theClientCache[level].length; ++j) {
+				  CacheEntryState state = _theClientCache[level][j].getState();
+				  if (state == CacheEntryState.FILLED) {
+					  myAssert(_theClientCache[level][j].getPerson() != null);
+					 _theClientCache[level][j].getPerson().setCacheLevel(level);
+					 myAssert(_theClientCache[level][j].getPerson().getCacheLevel() == level);
+				  }
+			  }
+		  } 
+	  }
 	  
 }
 
