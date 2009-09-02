@@ -178,6 +178,16 @@ public class PersonClient implements IsSerializable, PersonPublic {
 			((noDetail && (this.htmlPage == null)) ||
 			 (connectionsInProgress && this.isChildConnectionInProgress));
 	}
+	/*
+	 * Track which client cache level person was loaded into
+	 */
+	private int initialCacheLevel = -1;
+	public void setInitialCacheLevel(int initialCacheLevel) {
+		this.initialCacheLevel = initialCacheLevel;
+	}
+	public int getInitialCacheLevel() {
+		return this.initialCacheLevel;
+	}
 	
 	static public void debugValidate(PersonPublic person) {
 		 if (OurConfiguration.VALIDATION_MODE && person != null) {

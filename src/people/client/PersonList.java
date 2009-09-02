@@ -52,7 +52,7 @@ public class PersonList extends Composite implements ClickHandler {
 	private final PersonClientCache personClientCache;
 	
 	// UI behaviour
-	static final int VISIBLE_PERSONS_COUNT = OurConfiguration.VISIBLE_PERSONS_COUNT;  // %^&* 10
+	static final int VISIBLE_PERSONS_COUNT = OurConfiguration.VISIBLE_PERSONS_COUNT;  
 	
 	// When a person is first fetched from the cache, a 2nd call will be required to 
 	// fetch all that persons connections.
@@ -107,7 +107,7 @@ public class PersonList extends Composite implements ClickHandler {
 		
 		// Setup the cache
 		int[] cacheLevelSize = new int[PersonClientCache.CACHE_LEVEL_NUMBER_LEVELS];
-		cacheLevelSize[PersonClientCache.CACHE_LEVEL_ANCHOR] = 1 /*+ 2*ANCHOR_HISTORY_COUNT*/;
+		cacheLevelSize[PersonClientCache.CACHE_LEVEL_ANCHOR] = 1;
 		cacheLevelSize[PersonClientCache.CACHE_LEVEL_VISIBLE] = VISIBLE_PERSONS_COUNT - 1;
 		cacheLevelSize[PersonClientCache.CACHE_LEVEL_CLICK1] = (4 + VISIBLE_PERSONS_COUNT - 1) * VISIBLE_PERSONS_COUNT;
 		cacheLevelSize[PersonClientCache.CACHE_LEVEL_CLICK2] = (2) * VISIBLE_PERSONS_COUNT;
@@ -570,6 +570,7 @@ public class PersonList extends Composite implements ClickHandler {
 	        			+ (person.getHtmlPage() != null ? person.getHtmlPage().length()/1024 : 0) + "kb, " 
 	        			+ person.getFetchDuration() + " sec, "
 	        			+ person.getFetchDurationFull() + " sec"
+	        			+ ", level " + person.getInitialCacheLevel()
 	        			);
 	        	table.setText(i+1 , 1, squeeze(person.getDescription(), 60) + " - " + numConnections);
 	        	table.setText(i+1 , 2, person.getLocation() + " - " + person.getLiUniqueID());

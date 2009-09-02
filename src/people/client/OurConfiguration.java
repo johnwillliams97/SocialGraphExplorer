@@ -19,8 +19,8 @@ public class OurConfiguration {
 	public static final double MAX_TIME_FOR_SERVLET_RESPONSE = 10.0; //  // 10,000 sec for debugging, 10 sec for production // %^&*
 
 	// Debugging
-	public static final boolean DEBUG_MODE = false;
-	public static final boolean SHORT_LIST = false;
+	public static final boolean DEBUG_MODE = true;
+	public static final boolean SHORT_LIST = true;
 	public static final boolean VALIDATION_MODE = false;
 	
 	// For PersonList

@@ -129,16 +129,21 @@ public class PersonClientCache {
 	  private static int INVISIBLE_FETCH_DELAY_CLICK1 = OurConfiguration.INVISIBLE_FETCH_DELAY_CLICK1;
 	  private static int INVISIBLE_FETCH_DELAY_CLICK2 = OurConfiguration.INVISIBLE_FETCH_DELAY_CLICK2;
 //	  private static int INVISIBLE_FETCH_DELAY_EXTRA = 5000;
-	  private static List<Integer> VISIBLE_CACHE_LEVEL_LIST = Arrays.asList(new Integer[] {CACHE_LEVEL_ANCHOR, CACHE_LEVEL_VISIBLE});
+	  private static List<Integer> VISIBLE_CACHE_LEVEL_LIST   = Arrays.asList(new Integer[] {CACHE_LEVEL_ANCHOR, CACHE_LEVEL_VISIBLE});
 	  private static List<Integer> INVISIBLE_CACHE_LEVEL_LIST = Arrays.asList(new Integer[] {INVISIBLE_FETCH_DELAY_CLICK1, INVISIBLE_FETCH_DELAY_CLICK2});
+	  private static boolean do_three_simultaneous_fetches = false;
 	  private Timer fetcherTimerClick1 = new Timer() {
 		  public void run() {
-			   fetchPersonsFromServer(Arrays.asList(new Integer[] {CACHE_LEVEL_CLICK1}), false);
+			  if (do_three_simultaneous_fetches)
+				  fetchPersonsFromServer(Arrays.asList(new Integer[] {CACHE_LEVEL_CLICK1}), false);
+			  else
+			   fetchPersonsFromServer(INVISIBLE_CACHE_LEVEL_LIST, false);
 		  }
  	  };
  	  private Timer fetcherTimerClick2 = new Timer() {
 		  public void run() {
-			 fetchPersonsFromServer(Arrays.asList(new Integer[] {CACHE_LEVEL_CLICK2}), false);
+			  if (do_three_simultaneous_fetches)
+				  fetchPersonsFromServer(Arrays.asList(new Integer[] {CACHE_LEVEL_CLICK2}), false);
 		  }
 	  };
 	  
@@ -189,7 +194,8 @@ public class PersonClientCache {
  		 */
  		this._clientSequenceNumberCutoff = this._clientSequenceNumber;
  		fetcherTimerClick1.cancel();
- 		fetcherTimerClick2.cancel();
+ 		if (do_three_simultaneous_fetches)
+ 			fetcherTimerClick2.cancel();
  		clearPendingCacheEntries();
 		  
 		  // fetchPersonsFromServer() calls back through cb_params_callback.handleReturn();
@@ -219,7 +225,8 @@ public class PersonClientCache {
 		  // Kick off timers to do low priority requests. Logically, this follows
 		  // fetchPersonsFromServer(), but we do it first to avoid weird race conditions
 		  fetcherTimerClick1.schedule(INVISIBLE_FETCH_DELAY_CLICK1);
-		  fetcherTimerClick2.schedule(INVISIBLE_FETCH_DELAY_CLICK2);
+		  if (do_three_simultaneous_fetches)
+			  fetcherTimerClick2.schedule(INVISIBLE_FETCH_DELAY_CLICK2);
 		  
 		  // Async fetch from server of visible cache entries
 		  // Returns clunkily through cb_params_callback.handleReturn();
@@ -682,6 +689,8 @@ public class PersonClientCache {
 		  		for (int i = 0; i < fetches.length; ++i) {
 					int level = fetches[i].level;
 					PersonClient person = fetches[i].person;
+					person.setInitialCacheLevel(level);
+					
 					PersonClientCacheEntry[] cache = _theClientCache[level];
 					int index = getIndexInCache(person, cache);
 					if (index >= 0) {

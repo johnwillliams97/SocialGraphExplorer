@@ -16,6 +16,7 @@ Replace arrays and null checks with lists and empty lists
 Do stuff from 
 	http://blog.hivedevelopment.co.uk/2009/08/google-web-toolkit-gwt-mvp-example.html (best practices)
 	http://code.google.com/apis/socialgraph/ (Google social graph)
+	http://code.google.com/apis/socialgraph/docs/testparse.html
 		XFN and FOAF
 		'me' and 'friend' links
 Sort connection on 
@@ -44,6 +45,9 @@ Generalise to m-clicks?
 Test on all browsers and OSes
 	Vista + Chrome, Opera, IE, Safari, Firefox ok
 Inject server bugs and test client recovery	
+	http://easymock.org/EasyMock2_5_1_Documentation.html
+	JUnit
+	Other test frameworks
 Add Google Maps support to show geographical spread
 Do Matthew UI of line to line connections on screen. Shows clusters of connections
 Do David UI of a sphere.
@@ -60,3 +64,16 @@ Remap URLs in HTML scraped from social networks (may be better to parse HTML)
 Level 0 of client cache is empty
 Moving between screens should maintain row position on screen
 * RPC error (onFailureCallback()) when using back button
+
+References
+----------
+http://www.oracle.com/technology/pub/articles/dubois-gwt.html
+http://code.google.com/p/gwtuml/
+http://www.youtube.com/watch?v=sz6txhPT7vQ&feature=channel
+http://code.google.com/p/google-collections/
+http://en.wikipedia.org/wiki/Dependency_injection
+http://martinfowler.com/eaaDev/EventCollaboration.html
+http://onjava.com/pub/a/onjava/2006/05/31/working-with-google-web-toolkit.html?page=4
+
+
+
