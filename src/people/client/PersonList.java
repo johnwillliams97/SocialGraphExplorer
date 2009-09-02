@@ -456,8 +456,9 @@ public class PersonList extends Composite implements ClickHandler {
    * @param dbgMsg - for debugging
 	* @param isRewind - is called from browser fwd and bck buttons?
     */
-  	private void updatePersonList_(String dbgMsg, boolean isRewind) {
-	  
+    private void updatePersonList_(String dbgMsg, boolean isRewind) {
+  		
+    	PersonClient.debugValidate(this.theAnchor);
 		  if (!statesEqual(this.state, this.oldState))
 			  this.state.visibleFetched = false;
 		  

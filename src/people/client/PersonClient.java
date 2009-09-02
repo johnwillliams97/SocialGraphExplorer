@@ -179,4 +179,28 @@ public class PersonClient implements IsSerializable, PersonPublic {
 			 (connectionsInProgress && this.isChildConnectionInProgress));
 	}
 	
+	static public void debugValidate(PersonPublic person) {
+		 if (OurConfiguration.DEBUG_MODE && person != null) {
+			 List<Long> connectionIDs = person.getConnectionIDs();
+			 long uniqueID = person.getLiUniqueID();
+			 if (connectionIDs != null)  {
+				 int numConnections = connectionIDs.size();
+				 long idI, idJ;
+				 for (int i = 0; i < numConnections; ++i) {
+					 idI = connectionIDs.get(i) ;
+					 myAssert(idI != uniqueID);
+					 for (int j = i+1; j < numConnections; ++j) { 
+						 idJ = connectionIDs.get(j) ;
+						 myAssert(idI != idJ);
+					 }
+				 }
+			 }
+		 }
+	}
+	static private void myAssert(boolean condition) {
+		if (!condition) {
+			assert(condition);  // Add breakpoint here
+		}
+	}
+	
 }

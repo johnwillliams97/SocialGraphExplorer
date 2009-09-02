@@ -1,7 +1,9 @@
 package people.server;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Logger;
 //import com.google.apphosting.api.DeadlineExceededException; !@#$ handled in general get() catch(Exception e)
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
@@ -116,6 +118,7 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 	private static PersonClient personServerToPersonClient(PersonLI ps, long requestedID) {
 		PersonClient pc = null;
 		if (ps != null) {
+			PersonClient.debugValidate(ps);
 			pc = new PersonClient();
 			pc.setLiUniqueID(ps.getLiUniqueID());
 			pc.setRequestedID(requestedID);
@@ -128,19 +131,41 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 			pc.setWhence(ps.getWhence());
 			pc.setFetchDuration(ps.getFetchDuration());
 			pc.setHtmlPage(ps.getHtmlPage());
+			PersonClient.debugValidate(pc);
 		}
 		return pc;
 	}
 	
 	
-	private void cleanPersonConnections(PersonLI person) {
+	static private void cleanPersonConnections(PersonLI person) {
 		List<Long> connectionIDs = person.getConnectionIDs();
 		if (connectionIDs != null) {
 			Long id = person.getLiUniqueID();
-			connectionIDs.remove(id);
+			boolean removed = false;
+			int  numRemoved = 0;
+			while (true) {
+				removed = connectionIDs.remove(id);
+				if (!removed)
+					break;
+				++numRemoved;
+			}
+			if (numRemoved > 0) // !@#$ fix data in database
+				logger.warning(person.getNameFull() 
+						+ " [" + person.getLiUniqueID() + "] " 
+						+ numRemoved + " connections are unique ID");
+			connectionIDs = removeDuplicates(connectionIDs); // !@#$ fix data in database
 			person.setConnectionIDs(connectionIDs);
 		}
+		PersonClient.debugValidate(person);
 	}
+	private static List<Long> removeDuplicates(List<Long> list) {
+	    Set<Long>  noDupsSet = new LinkedHashSet<Long>(list);
+	    List<Long> noDupsList = new ArrayList<Long>(noDupsSet);
+	    if (list.size() != noDupsSet.size())
+	    	logger.warning("Removed " + (list.size() - noDupsSet.size()) + " duplicates");
+	    return noDupsList;
+	}
+
 
   /*
    * (non-Javadoc)

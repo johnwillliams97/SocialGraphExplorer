@@ -196,6 +196,7 @@ public class PersonClientCache {
 		  // The timer'd functions call this function as well
 		  cb_params_callback = callback;
 		  
+		  dumpCache("!@#$ before hintPersonsInCache");
 		  // Configure cache
 		  for (int level = CACHE_LEVEL_ANCHOR; level <= CACHE_LEVEL_CLICK2; ++level) {
 			  hintPersonsInCache(uniqueIDsList[level], level);
@@ -352,6 +353,7 @@ public class PersonClientCache {
 			 
 			  // Evict the unneeded IDs
 			  recycleUnneededIDs(uniqueIDs, level);
+			  dumpCache("!@#$ recycleUnneededIDs");
 			  
 			  // Now all unneeded slots are empty
 			  // Compute the still needed IDs
@@ -359,12 +361,14 @@ public class PersonClientCache {
 			  
 			  // Try to find replacements from within the other cache levels
 			  moveUniqueIDsToLevel(neededIDs, level); 
+			  dumpCache("!@#$ moveUniqueIDsToLevel");
 			  
 			  // Re-compute the still needed IDs
 			  neededIDs = getNeededIDs(uniqueIDs, cache);
 			  
 			  // Mark all the still needed IDs as NEED_TO_FETCH
 			  markAsNeeded(neededIDs, cache);
+			  dumpCache("!@#$ markAsNeeded");
 		  }
 	  }
 	  
@@ -745,8 +749,11 @@ public class PersonClientCache {
 			  long[] neededIDs = MiscCollections.listToArrayLong(prunedUniqueIDs);
 			  return neededIDs;
 	  	}
-	  	 /*
-		   * Move all found uniqueIDs from other levels to 'level'
+	  	 /* !@#$ findInCacheAtOtherLevels() could be for only lower levels since unneeeded IDs are evicted
+	  	  *      to the LRU level before this function is called!
+		   * Move cache entries with specified IDs from other cache levels to specified level
+		   * @param  neededIDs - the IDs that are needed at this cache level
+		   * @param  level - the cache level the IDs are needed at
 		   */
 		  private void moveUniqueIDsToLevel(long[] neededIDs, int level) { 
 			  PersonClientCacheEntry[] cache = _theClientCache[level];
@@ -757,6 +764,7 @@ public class PersonClientCache {
 				  if (resident != null) {
 					  cache[emptyIndexes.get(i)] = _theClientCache[resident.level][resident.index];
 					  _theClientCache[resident.level][resident.index] = new PersonClientCacheEntry();
+					  dumpCache("!@#$ moveUniqueIDsToLevel("+ level + ":" + emptyIndexes.get(i)+ ") " + i);
 				  }
 			  }
 		  }
@@ -883,12 +891,13 @@ public class PersonClientCache {
 	  public void dumpCache(String location) {
 		  if (OurConfiguration.DEBUG_MODE) {
 			  // Once anchor has been filled it has to stay filled
+			  boolean gotAnchor = (_theClientCache[CACHE_LEVEL_ANCHOR][0] != null && _theClientCache[CACHE_LEVEL_ANCHOR][0].getPerson() != null);
 			  if (!anchor_has_been_filled) {
-				  if (_theClientCache[CACHE_LEVEL_ANCHOR][0] != null)
+				  if (gotAnchor)
 					  anchor_has_been_filled = true;
 			  }
 			  else {
-				  myAssert(_theClientCache[CACHE_LEVEL_ANCHOR][0] != null);
+				  myAssert(gotAnchor);
 			  }
 			  
 			  int numOccupied = 0;
