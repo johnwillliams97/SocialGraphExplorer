@@ -17,10 +17,11 @@ public class OurConfiguration {
 	public static final boolean VALIDATION_MODE = false;
 	public static final boolean NO_SERVER_TIME_LIMIT = false;
 	public static final boolean SUPRESS_ERRORS = true;
+	public static final boolean SHORT_SERVER_RESPONSE = true;
 	
 	// For RequestsInProgress
 	public static final  int MAX_REQUESTS_IN_PROGRESS = 20;
-	public static final  int MAX_SERVER_CALLS_PER_REQUEST = 9;
+	public static final  int MAX_SERVER_CALLS_PER_REQUEST = SHORT_SERVER_RESPONSE ? 3 : 9;
 	
 	// For Server PersonServiceImpl
 	public static final double MAX_TIME_FOR_SERVLET_RESPONSE = NO_SERVER_TIME_LIMIT ? 1000.0 : 10.0; // seconds

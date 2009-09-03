@@ -105,7 +105,7 @@ public class PersonList extends Composite implements ClickHandler {
 		// GWT sometimes calls this twice in hosted mode.
 		++debug_num_calls;
 		if (debug_num_calls > 1) {
-			assert(debug_num_calls <= 1);
+			Misc.myAssert(debug_num_calls <= 1);
 		}
 		
 		// Setup the cache
@@ -543,7 +543,7 @@ public class PersonList extends Composite implements ClickHandler {
      * @return person cache entry for row or null if there is no cache entry 
      */
   	private PersonClient getPersonForRow(int row) {
-  		assert(0 <= row && row < VISIBLE_PERSONS_COUNT);
+  		Misc.myAssert(0 <= row && row < VISIBLE_PERSONS_COUNT);
   		PersonClient person = null;
   		
   		if (row == 0) {

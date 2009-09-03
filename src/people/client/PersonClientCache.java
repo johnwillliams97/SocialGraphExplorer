@@ -85,8 +85,8 @@ public class PersonClientCache {
 		  
 	public PersonClientCache(int[] cacheLevelSize) {
 	 	
-		assert(cacheLevelSize != null) ;
-		assert(cacheLevelSize.length == CACHE_LEVEL_NUMBER_LEVELS);
+		Misc.myAssert(cacheLevelSize != null) ;
+		Misc.myAssert(cacheLevelSize.length == CACHE_LEVEL_NUMBER_LEVELS);
 		
 		_theClientCache = new PersonClientCacheEntry[CACHE_LEVEL_NUMBER_LEVELS][];
 		for (int level = 0; level < CACHE_LEVEL_NUMBER_LEVELS; ++level) {
@@ -248,7 +248,7 @@ public class PersonClientCache {
 	 					+ getCacheLevels(uniqueIDsList[CACHE_LEVEL_VISIBLE]));
 		  
 		  SocialGraphExplorer.get().showInstantStatus("updateCacheAndGetVisible:4");
-		 dumpCache("hintPersonsInCache");
+		 //dumpCache("hintPersonsInCache");
 		  
 		  // Kick off timers to do low priority requests. Logically, this follows
 		  // fetchPersonsFromServer(), but we do it first to avoid weird race conditions
@@ -382,11 +382,11 @@ public class PersonClientCache {
 	   * @param level   - level to hint the IDs at
 	   */
 	  private void hintPersonsInCache(long[] uniqueIDs, int level) {
-		  assert(CACHE_LEVEL_ANCHOR <= level && level < CACHE_LEVEL_SETTABLE_LEVELS);
+		  Misc.myAssert(CACHE_LEVEL_ANCHOR <= level && level < CACHE_LEVEL_SETTABLE_LEVELS);
 		  PersonClientCacheEntry[] cache = this._theClientCache[level];
 		  
 		  if (uniqueIDs != null) {
-			  assert(uniqueIDs.length <= cache.length);
+			  Misc.myAssert(uniqueIDs.length <= cache.length);
 			 
 			  // Evict the unneeded IDs
 			  recycleUnneededIDs(uniqueIDs, level);
@@ -549,8 +549,6 @@ public class PersonClientCache {
 				  "[" + clientSequenceNumber + ":" + numCallsForThisClientSequenceNumber + "]"
 				  + "(" + idsAtLevel.get(0).level + "): " + idsAtLevel.get(0).ids);
 		  
-		 // dumpCache("callServerToFetchPersons");
-		  
 		  // The actual call
 		  _rpcWrapper.getPersonsFromServer(_acceptorUpdateCache, 
 				  	 idsAtLevel, clientSequenceNumber, numCallsForThisClientSequenceNumber,
@@ -594,7 +592,7 @@ public class PersonClientCache {
 		  			if (misses.size() > 0) {
 		  				SocialGraphExplorer.get().showError("Could not add " + clientSequenceNumber + "(misses = "  + misses + ") to cache" );
 		  			}
-		  			dumpCache("accept");
+		  			//dumpCache("accept");
 		  			
 		  			// Update UI if visible changes
 		  			if (hasVisibleLevel(requestedLevels)) {  //!@#$ Need to update on invisible fetches?
@@ -607,8 +605,8 @@ public class PersonClientCache {
 		  			List<IDsAtLevel> incompletePersonIDsInvisible = getIncompletePersonsIDs(fetches, true, true, INVISIBLE_CACHE_LEVEL_LIST);
 		  			List<IDsAtLevel> incompletePersonIDs = RPCWrapper.meldIDsAtLevelLists(incompletePersonIDsVisible, incompletePersonIDsInvisible);
 		  			List<IDsAtLevel> idsToFetch = RPCWrapper.meldIDsAtLevelLists(unfetchedIDs, incompletePersonIDs);
-		  			int numCalls = requestsInProgress.getNumCalls(clientSequenceNumber);
-		  			if (idsToFetch.size() > 0 && numCalls <= RequestsInProgress.MAX_SERVER_CALLS_PER_REQUEST) {
+		  			int numCallsForThisClientSequenceNumber = requestsInProgress.getNumCalls(clientSequenceNumber);
+		  			if (idsToFetch.size() > 0 && numCallsForThisClientSequenceNumber <= RequestsInProgress.MAX_SERVER_CALLS_PER_REQUEST) {
 		  				SocialGraphExplorer.get().log("Incomplete fetch ", clientSequenceNumber 
 		  						+ ": " + RPCWrapper.getTotalNumberOfIDs(unfetchedIDs) + " unfetched "
 		  						+ "+ " + RPCWrapper.getTotalNumberOfIDs(incompletePersonIDsVisible) + " visible incomplete "
@@ -619,7 +617,7 @@ public class PersonClientCache {
 		  				
 		  				// Call server again from the response callback
 		  				// The actual call!! hidden amongst logging code
-		  				callServerToFetchPersons(idsToFetch, clientSequenceNumber, numCalls);
+		  				callServerToFetchPersons(idsToFetch, clientSequenceNumber, numCallsForThisClientSequenceNumber);
 		  				
 						requestsInProgress.increment(clientSequenceNumber);
 					}
@@ -809,7 +807,7 @@ public class PersonClientCache {
 	  	 * Move the entry to the recently used level and mark the entry's original place as EMPTY
 	  	 */ 
 	  	private void recycleUnneededIDs(long[] neededIDs, int level) {
-	  		assert(level < CACHE_LEVEL_SETTABLE_LEVELS);
+	  		Misc.myAssert(level < CACHE_LEVEL_SETTABLE_LEVELS);
 	  		PersonClientCacheEntry[] cache = this._theClientCache[level];
 	  		Misc.myAssert(neededIDs.length <= cache.length);
 	  
@@ -842,7 +840,7 @@ public class PersonClientCache {
 		  // Check for empty slots first.
 		  for (int i = 0; i < cache.length; ++i) {
 			  entry = cache[i];
-			  assert(entry != null);
+			  Misc.myAssert(entry != null);
 			  if (entry.getState() == CacheEntryState.EMPTY) {
 				  lru = i;
 				  break;
@@ -852,7 +850,7 @@ public class PersonClientCache {
 		  if (lru < 0) {
 			  for (int i = 0; i < cache.length; ++i) {
 				  entry = cache[i];
-				  assert(entry != null);
+				  Misc.myAssert(entry != null);
 				  if (entry.getState() == CacheEntryState.FILLED &&
 					  entry.getLastReference() < oldestRef) {
 					  oldestRef = entry.getLastReference();
@@ -861,7 +859,7 @@ public class PersonClientCache {
 			  }
 		  }
 	
-		  assert(0 <= lru && lru < cache.length); 
+		  Misc.myAssert(0 <= lru && lru < cache.length); 
 		  return lru;
 	  }
 	  

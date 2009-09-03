@@ -22,7 +22,7 @@ public class RequestsInProgress {
 	
 	public void startRequest(long clientSequenceNumber) {
 		Request request = find(clientSequenceNumber);
-		assert(request == null);
+		Misc.myAssert(request == null);
 		request = new Request(clientSequenceNumber);
 		if (requestsInProgress.size() >= MAX_REQUESTS_IN_PROGRESS)
 			requestsInProgress.remove(0);;
