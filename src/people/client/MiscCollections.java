@@ -1,6 +1,7 @@
 package people.client;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /*
@@ -29,12 +30,17 @@ public class MiscCollections {
 		}
 		return list;
 	}
-	static public long[] listToArrayLong(List<Long> list) {
+	
+	static public long[] listToArrayLong(Collection<Long> list) {
 		long[] array = null;
 		if (list != null) {
 			array = new long[list.size()];
-			for (int i = 0; i < list.size(); ++i) {
-				array[i] = list.get(i);
+			//for (int i = 0; i < list.size(); ++i) {
+			//	array[i] = list.get(i);
+			//}
+			int i = 0;
+			for (Long e: list) {
+				array[i++] = e;
 			}
 		}
 		return array;
@@ -106,6 +112,10 @@ public class MiscCollections {
 		return contains;
 	}
 	
+	/*
+	 * Return the sublist of list from index i0 to i1
+	 * Collection.sublist() is not implemented on GWT client
+	 */
 	static<T> List<T> getSubList(List<T> list, int i0, int i1) {
 		List<T> subList = new ArrayList<T>();
 		for (int i = i0; i <= i1; ++i) {
@@ -113,4 +123,21 @@ public class MiscCollections {
 		}
 		return subList;
 	}
+	
+	/*
+	 * Remove elements in remover from removee
+	 */
+	static<T> void removeAll(Collection<T> removee, Collection<T> remover) {
+		int  numRemoved = 0; // !@#$ for debugging 
+		for (T e: remover) {
+			boolean removed = false;
+			while (true) {
+				removed = removee.remove(e);
+				if (!removed)
+					break;
+				++numRemoved;
+			}
+		}
+	}
+	
 }

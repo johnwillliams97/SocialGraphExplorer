@@ -4,7 +4,13 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-
+/*
+ * This class is used to setup the client cache for a specified CanonicalState
+ * 
+ * 	getAnchorAndConnectionsIDs() is the function that does this
+ * 
+ * An Interval is a contiguous set of indexes into an array  n0 <= index < n1
+ */
 class Interval {
 	  private int n0;
 	  private int n1;
@@ -12,37 +18,39 @@ class Interval {
 	  private Interval(int n0, int n1,  int max) {
 		  assert(n1 >= n0);
 		  assert(max > 0);
-		  if (n0 < 0)
-			 n0 = 0;
-		  if (n1 > max)
-			 n1 = max;
-		  if (n1 < n0)
-			 n1 = n0;
-		 
-		 this.n0 = n0;
-		 this.n1 = n1;
-		 assert(n1 >= n0);
+		  if (n0 < 0) 	 n0 = 0;
+		  if (n1 > max)	 n1 = max;
+		  if (n1 < n0)	 n1 = n0;
+		  this.n0 = n0;
+		  this.n1 = n1;
+		  assert(this.n1 >= this.n0);
 	  }
 	  private int length() {
 		  return (n1 - n0);
 	  }
   	
-  	static private Interval remove(Interval removee, Interval remover) {
-	  // Fully enclosed => empty
-	  if (remover.n0 <= removee.n0 && removee.n1 <= remover.n1)
-		  removee.n1 = removee.n0;
-	  // left end is intersected => move right
-	  else if (remover.n0 <= removee.n0 && removee.n0 <= remover.n1)
-		  removee.n0 = remover.n1;
-	  // right end is intersected move left
-	  else if (remover.n0 <= removee.n1 && removee.n1 <= remover.n1)
-		  removee.n1 = remover.n0;
-	  assert(removee.n1 >= removee.n0);
-	  if (removee.n1 < removee.n0)
-		  removee.n1 = removee.n0;
-	  assert(removee.n1 >= removee.n0);
-	  return removee;
-  	}
+	  /*
+	   * Remove one interval from another
+	   * @param removee - interval being removed from
+	   * @param remover - interval to be removed from removee
+	   * @return - resulting interval
+	   */
+	  static private Interval remove(Interval removee, Interval remover) {
+		  // Fully enclosed => empty
+		  if (remover.n0 <= removee.n0 && removee.n1 <= remover.n1)
+			  removee.n1 = removee.n0;
+		  // left end is intersected => move right
+		  else if (remover.n0 <= removee.n0 && removee.n0 <= remover.n1)
+			  removee.n0 = remover.n1;
+		  // right end is intersected move left
+		  else if (remover.n0 <= removee.n1 && removee.n1 <= remover.n1)
+			  removee.n1 = remover.n0;
+		  assert(removee.n1 >= removee.n0);
+		  if (removee.n1 < removee.n0)
+			  removee.n1 = removee.n0;
+		  assert(removee.n1 >= removee.n0);
+		  return removee;
+	  }
   	
   	static private int[] intervalsToArray(Interval[] intervals) {
   		//System.err.println("intervalsToArray(" + intervals.length + " intervals)");
@@ -77,6 +85,12 @@ class Interval {
 	  }
 	  return uniqueIDs;
   	}
+  	
+  	 static public long[][] getAnchorAndConnectionsIDs(CanonicalState state, 
+	  				List<Long> connectionIDs,
+	  				int rowsPerScreen) {
+  		 return  getAnchorAndConnectionsIDs2(state, connectionIDs,rowsPerScreen);
+  	 }
   
   	/*
      * Get the set of visible and about to be visible IDs for the current UI state
@@ -89,7 +103,7 @@ class Interval {
      *  @param rowsPerScreen - entries per screen of data
      *  @return - cache hints for this UI state
      */
-    static public long[][] getAnchorAndConnectionsIDs(CanonicalState state, 
+    static public long[][] getAnchorAndConnectionsIDs1(CanonicalState state, 
   		  		  				List<Long> connectionIDs,
   		  		  				int rowsPerScreen) {
   	  
@@ -149,10 +163,10 @@ class Interval {
   			  uniqueIDsList[PersonClientCache.CACHE_LEVEL_CLICK2] = indexesToUniqueIDs(connectionIDs, idxClick2);
   	  	}
   	  
-  	  	if (OurConfiguration.VALIDATION_MODE) {
+  	/*  	if (OurConfiguration.VALIDATION_MODE) {
   	  		validateAnchorAndConnectionsIDs(state, connectionIDs, rowsPerScreen, uniqueIDsList);
   	  	}
-  
+  */
   		return uniqueIDsList;
     }
     /*
@@ -162,16 +176,20 @@ class Interval {
     *  @param rowsPerScreen - entries per screen of data
     *  @return - cache hints for this UI state
     */
+    /*
     static void validateAnchorAndConnectionsIDs(CanonicalState state, 
  		  		  				List<Long> connectionIDs,
  		  		  				int rowsPerScreen,
  		  		  			    long[][] uniqueIDsList) {
+ 		  		  			
+    	
 	   Set<Long> actual1Clicks = get1ClickPersons(state, connectionIDs, rowsPerScreen);
 	   long[] resultIDs = uniqueIDsList[PersonClientCache.CACHE_LEVEL_CLICK1];
 	   for (Long id: actual1Clicks) {
 		   myAssert(MiscCollections.arrayContains(resultIDs, id));
 	   }
     }
+        */
     /*
   	 *  Instrumentation. Validates visible and 1-click entries
   	 *  @param state - canonical state of UI     
@@ -179,26 +197,66 @@ class Interval {
      *  @param rowsPerScreen - entries per screen of data
      *  @return - persons who are 1 click away
   	 */
-	static private Set<Long>  get1ClickPersons(
+/*
+	static long[][]   get1ClickPersons(
 			CanonicalState state, 
 			List<Long> connectionIDs,
 			int rowsPerScreen) {
+		*/
+		 static public long[][] getAnchorAndConnectionsIDs2(CanonicalState state, 
+	  				List<Long> connectionIDs,
+	  				int rowsPerScreen) {
 		int numConnections = connectionIDs != null ? connectionIDs.size() : 0;
-		int i0 = Math.max(0, state.startIndex - rowsPerScreen);
-		int i1 = state.startIndex;
-		int i2 = Math.min(numConnections, state.startIndex + rowsPerScreen);
-		int i3 = Math.min(numConnections, state.startIndex + 2*rowsPerScreen);
-		int j0 = Math.min(numConnections, rowsPerScreen);
-		int j1 = Math.max(0, numConnections-1 - rowsPerScreen );
-		Set<Long> conns = new LinkedHashSet<Long>();
+		
+		int i2b = Math.max(0, state.startIndex - 2*rowsPerScreen);
+		int i1b = Math.max(0, state.startIndex -   rowsPerScreen);
+		int i0  = state.startIndex;
+		int i1f = Math.min(numConnections, state.startIndex +   rowsPerScreen);
+		int i2f = Math.min(numConnections, state.startIndex + 2*rowsPerScreen);
+		int i3f = Math.min(numConnections, state.startIndex + 3*rowsPerScreen);
+		int j1  = Math.min(numConnections,   rowsPerScreen);
+		int j2  = Math.min(numConnections, 2*rowsPerScreen);
+		int k1  = Math.max(0, numConnections-1 -   rowsPerScreen );
+		int k2  = Math.max(0, numConnections-1 - 2*rowsPerScreen );
+		
+		// conns<n> = n-click away list
+		Set<Long> conns0 = new LinkedHashSet<Long>();
+		Set<Long> conns1 = new LinkedHashSet<Long>();
+		Set<Long> conns2 = new LinkedHashSet<Long>();
+		
+		// Populate lists
 		if (connectionIDs != null) {
-			conns.addAll(MiscCollections.getSubList(connectionIDs, i0, i1-1));
-			conns.addAll(MiscCollections.getSubList(connectionIDs, i1, i2-1));
-			conns.addAll(MiscCollections.getSubList(connectionIDs, i2, i3-1));
-			conns.addAll(MiscCollections.getSubList(connectionIDs,  0, j0 -1));
-			conns.addAll(MiscCollections.getSubList(connectionIDs, j1, numConnections-1));
+			conns0.addAll(MiscCollections.getSubList(connectionIDs, i0 , i1f-1));
+			
+			conns1.addAll(MiscCollections.getSubList(connectionIDs, i1b, i0-1));
+			conns1.addAll(MiscCollections.getSubList(connectionIDs, i1f, i2f-1));
+			conns1.addAll(MiscCollections.getSubList(connectionIDs,  0 , j1 -1));
+			conns1.addAll(MiscCollections.getSubList(connectionIDs, k1 , numConnections-1));
+			
+			conns2.addAll(MiscCollections.getSubList(connectionIDs, i2b, i1b-1));
+			conns2.addAll(MiscCollections.getSubList(connectionIDs, i2f, i3f-1));
+			conns2.addAll(MiscCollections.getSubList(connectionIDs, j1 , j2 -1));
+			conns2.addAll(MiscCollections.getSubList(connectionIDs, k2 , k1 -1));
 		}
-		return conns;
+		
+		// conns0a = visible list + anchor
+		Set<Long> conns0a = new LinkedHashSet<Long>(conns0);
+		conns0a.add(state.anchorUniqueID);
+		
+		// Remove duplicates from lower priority lists
+		MiscCollections.removeAll(conns1, conns0a);
+		MiscCollections.removeAll(conns2, conns0a);
+		MiscCollections.removeAll(conns2, conns1);
+		
+		// Convert to required output format  
+		long[][] uniqueIDsList = new long[PersonClientCache.CACHE_LEVEL_SETTABLE_LEVELS][];
+	  	uniqueIDsList[PersonClientCache.CACHE_LEVEL_ANCHOR] = new long[1];
+	  	uniqueIDsList[PersonClientCache.CACHE_LEVEL_ANCHOR][0] = state.anchorUniqueID;
+	  	uniqueIDsList[PersonClientCache.CACHE_LEVEL_VISIBLE]= MiscCollections.listToArrayLong(conns0);
+		uniqueIDsList[PersonClientCache.CACHE_LEVEL_CLICK1] = MiscCollections.listToArrayLong(conns1);
+		uniqueIDsList[PersonClientCache.CACHE_LEVEL_CLICK2] = MiscCollections.listToArrayLong(conns2);
+	  	
+		return uniqueIDsList;
 	}
 	
 	

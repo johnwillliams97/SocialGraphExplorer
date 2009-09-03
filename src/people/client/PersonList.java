@@ -474,18 +474,20 @@ public class PersonList extends Composite implements ClickHandler {
 		  // Anchor changed so fetch a new anchor
 		  // The callback will call again after this with anchorFetched set true ^&*
 		  if (!this.state.anchorFetched) {
-			  this.state.visibleFetched = false;
-			  fetchList = Interval.getAnchorAndConnectionsIDs(this.state, null, VISIBLE_PERSONS_COUNT-1);
 			  // Instrumentation
 			  printPersonList(this.state, null, VISIBLE_PERSONS_COUNT-1);
-			
+		
+			  this.state.visibleFetched = false;
+			  fetchList = Interval.getAnchorAndConnectionsIDs(this.state, null, VISIBLE_PERSONS_COUNT-1);
+				
 		  }
 		  // Anchor is correct so fetch the full list
 		  else if (!this.state.visibleFetched) {
-			  this.uniqueIDsList = Interval.getAnchorAndConnectionsIDs(this.state, this.getAnchor().getConnectionIDs(), VISIBLE_PERSONS_COUNT-1);
-			  fetchList = this.uniqueIDsList;
 			  // Instrumentation
 			  printPersonList(this.state, this.getAnchor().getConnectionIDs(), VISIBLE_PERSONS_COUNT-1);
+		
+			  this.uniqueIDsList = Interval.getAnchorAndConnectionsIDs(this.state, this.getAnchor().getConnectionIDs(), VISIBLE_PERSONS_COUNT-1);
+			  fetchList = this.uniqueIDsList;
 			
 		  }
 		  
