@@ -98,6 +98,8 @@ public class PersonList extends Composite implements ClickHandler {
 	private boolean isNavigationDisabled = false;
 
 	static int debug_num_calls = 0; // !@#$ Why is PersonList() getting called multiple times???
+	
+	private static int[] _cacheLevelSize = null;
   	/*
   	 * Set up the list UI
   	 */
@@ -109,13 +111,13 @@ public class PersonList extends Composite implements ClickHandler {
 		}
 		
 		// Setup the cache
-		int[] cacheLevelSize = new int[PersonClientCache.CACHE_LEVEL_NUMBER_LEVELS];
-		cacheLevelSize[PersonClientCache.CACHE_LEVEL_ANCHOR] = 1;
-		cacheLevelSize[PersonClientCache.CACHE_LEVEL_VISIBLE] = CONNECTIONS_PER_SCREEN;
-		cacheLevelSize[PersonClientCache.CACHE_LEVEL_CLICK1] =  4 * CONNECTIONS_PER_SCREEN;
-		cacheLevelSize[PersonClientCache.CACHE_LEVEL_CLICK2] =  4 * CONNECTIONS_PER_SCREEN;
-		cacheLevelSize[PersonClientCache.CACHE_LEVEL_RECENT] = OurConfiguration.CACHE_SIZE_LRU;
-		personClientCache = new PersonClientCache(cacheLevelSize);
+		_cacheLevelSize = new int[PersonClientCache.CACHE_LEVEL_NUMBER_LEVELS];
+		_cacheLevelSize[PersonClientCache.CACHE_LEVEL_ANCHOR] = 1;
+		_cacheLevelSize[PersonClientCache.CACHE_LEVEL_VISIBLE] = CONNECTIONS_PER_SCREEN;
+		_cacheLevelSize[PersonClientCache.CACHE_LEVEL_CLICK1] =  4 * CONNECTIONS_PER_SCREEN;
+		_cacheLevelSize[PersonClientCache.CACHE_LEVEL_CLICK2] =  4 * CONNECTIONS_PER_SCREEN;
+		_cacheLevelSize[PersonClientCache.CACHE_LEVEL_RECENT] = OurConfiguration.CACHE_SIZE_LRU;
+		personClientCache = new PersonClientCache(_cacheLevelSize);
 	
 		// Setup the table UI.
 		table.setCellSpacing(0);
@@ -481,7 +483,7 @@ public class PersonList extends Composite implements ClickHandler {
 			  printPersonList(this.state, null, CONNECTIONS_PER_SCREEN);
 		
 			  this.state.visibleFetched = false;
-			  fetchList = Interval.getAnchorAndConnectionsIDs(this.state, null, CONNECTIONS_PER_SCREEN);
+			  fetchList = Interval.getAnchorAndConnectionsIDs(this.state, null, CONNECTIONS_PER_SCREEN, _cacheLevelSize);
 				
 		  }
 		  // Anchor is correct so fetch the full list
@@ -489,7 +491,7 @@ public class PersonList extends Composite implements ClickHandler {
 			  // Instrumentation
 			  printPersonList(this.state, this.getAnchor().getConnectionIDs(), CONNECTIONS_PER_SCREEN);
 		
-			  this.uniqueIDsList = Interval.getAnchorAndConnectionsIDs(this.state, this.getAnchor().getConnectionIDs(), CONNECTIONS_PER_SCREEN);
+			  this.uniqueIDsList = Interval.getAnchorAndConnectionsIDs(this.state, this.getAnchor().getConnectionIDs(), CONNECTIONS_PER_SCREEN, _cacheLevelSize);
 			  fetchList = this.uniqueIDsList;
 			
 		  }

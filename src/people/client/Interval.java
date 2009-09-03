@@ -86,13 +86,7 @@ class Interval {
 	  return uniqueIDs;
   	}
   	
-  	public static long[][] getAnchorAndConnectionsIDs(CanonicalState state, 
-	  				List<Long> connectionIDs,
-	  				int rowsPerScreen) {
-  		 return  getAnchorAndConnectionsIDs2(state, connectionIDs,rowsPerScreen);
-  	 }
-  
-  	/*
+ 	/*
      * Get the set of visible and about to be visible IDs for the current UI state
      * 
      * Note. This depends on anchorUniqueID, startIndex from this UI state and 
@@ -101,11 +95,21 @@ class Interval {
      *  @param state - canonical state of UI     
      *  @param connectionIDs - list of IDs to predict caching for 
      *  @param rowsPerScreen - entries per screen of data
+     *  @param cacheLevelSize - for checking that entries will fit
      *  @return - cache hints for this UI state
      */
+  	public static long[][] getAnchorAndConnectionsIDs(CanonicalState state, 
+	  				List<Long> connectionIDs,
+	  				int rowsPerScreen,
+		  			 int[] cacheLevelSize) {
+  		 return  getAnchorAndConnectionsIDs2(state, connectionIDs, rowsPerScreen,  cacheLevelSize);
+  	 }
+  
+ 
     static private long[][] getAnchorAndConnectionsIDs1(CanonicalState state, 
   		  		  				List<Long> connectionIDs,
-  		  		  				int rowsPerScreen) {
+  		  		  				int rowsPerScreen,
+  		  		  			    int[] cacheLevelSize) {
   	  
   	  long[][] uniqueIDsList = new long[PersonClientCache.CACHE_LEVEL_SETTABLE_LEVELS][];
   	  uniqueIDsList[PersonClientCache.CACHE_LEVEL_ANCHOR] = new long[1];
@@ -162,50 +166,14 @@ class Interval {
   			  uniqueIDsList[PersonClientCache.CACHE_LEVEL_CLICK1] = indexesToUniqueIDs(connectionIDs, idxClick1);
   			  uniqueIDsList[PersonClientCache.CACHE_LEVEL_CLICK2] = indexesToUniqueIDs(connectionIDs, idxClick2);
   	  	}
-  	  
-  	/*  	if (OurConfiguration.VALIDATION_MODE) {
-  	  		validateAnchorAndConnectionsIDs(state, connectionIDs, rowsPerScreen, uniqueIDsList);
-  	  	}
-  */
-  		return uniqueIDsList;
+  	  	return uniqueIDsList;
     }
-    /*
-  	*  Instrumentation. Validates visible and 1-click entries
-    *  @param state - canonical state of UI     
-    *  @param connectionIDs - list of IDs to predict caching for 
-    *  @param rowsPerScreen - entries per screen of data
-    *  @return - cache hints for this UI state
-    */
-    /*
-    static void validateAnchorAndConnectionsIDs(CanonicalState state, 
- 		  		  				List<Long> connectionIDs,
- 		  		  				int rowsPerScreen,
- 		  		  			    long[][] uniqueIDsList) {
- 		  		  			
-    	
-	   Set<Long> actual1Clicks = get1ClickPersons(state, connectionIDs, rowsPerScreen);
-	   long[] resultIDs = uniqueIDsList[PersonClientCache.CACHE_LEVEL_CLICK1];
-	   for (Long id: actual1Clicks) {
-		   myAssert(MiscCollections.arrayContains(resultIDs, id));
-	   }
-    }
-        */
-    /*
-  	 *  Instrumentation. Validates visible and 1-click entries
-  	 *  @param state - canonical state of UI     
-     *  @param connectionIDs - list of IDs to predict caching for 
-     *  @param rowsPerScreen - entries per screen of data
-     *  @return - persons who are 1 click away
-  	 */
-/*
-	static long[][]   get1ClickPersons(
-			CanonicalState state, 
-			List<Long> connectionIDs,
-			int rowsPerScreen) {
-		*/
+   
+   
 		 static private long[][] getAnchorAndConnectionsIDs2(CanonicalState state, 
 	  				List<Long> connectionIDs,
-	  				int rowsPerScreen) {
+	  				int rowsPerScreen,
+		  			int[] cacheLevelSize) {
 		int numConnections = connectionIDs != null ? connectionIDs.size() : 0;
 		
 		int i2b = Math.max(0, state.startIndex - 2*rowsPerScreen);
@@ -216,8 +184,8 @@ class Interval {
 		int i3f = Math.min(numConnections, state.startIndex + 3*rowsPerScreen);
 		int j1  = Math.min(numConnections,   rowsPerScreen);
 		int j2  = Math.min(numConnections, 2*rowsPerScreen);
-		int k1  = Math.max(0, numConnections-1 -   rowsPerScreen );
-		int k2  = Math.max(0, numConnections-1 - 2*rowsPerScreen );
+		int k1  = Math.max(0, numConnections -   rowsPerScreen );
+		int k2  = Math.max(0, numConnections - 2*rowsPerScreen );
 		
 		// conns<n> = n-click away list
 		Set<Long> conns0 = new LinkedHashSet<Long>();
@@ -227,16 +195,25 @@ class Interval {
 		// Populate lists
 		if (connectionIDs != null) {
 			conns0.addAll(MiscCollections.getSubList(connectionIDs, i0 , i1f-1));
+			checkSizes(cacheLevelSize, conns0, conns1, conns2);
 			
 			conns1.addAll(MiscCollections.getSubList(connectionIDs, i1b, i0-1));
+			checkSizes(cacheLevelSize, conns0, conns1, conns2);
 			conns1.addAll(MiscCollections.getSubList(connectionIDs, i1f, i2f-1));
+			checkSizes(cacheLevelSize, conns0, conns1, conns2);
 			conns1.addAll(MiscCollections.getSubList(connectionIDs,  0 , j1 -1));
+			checkSizes(cacheLevelSize, conns0, conns1, conns2);
 			conns1.addAll(MiscCollections.getSubList(connectionIDs, k1 , numConnections-1));
+			checkSizes(cacheLevelSize, conns0, conns1, conns2);
 			
 			conns2.addAll(MiscCollections.getSubList(connectionIDs, i2b, i1b-1));
+			checkSizes(cacheLevelSize, conns0, conns1, conns2);
 			conns2.addAll(MiscCollections.getSubList(connectionIDs, i2f, i3f-1));
+			checkSizes(cacheLevelSize, conns0, conns1, conns2);
 			conns2.addAll(MiscCollections.getSubList(connectionIDs, j1 , j2 -1));
+			checkSizes(cacheLevelSize, conns0, conns1, conns2);
 			conns2.addAll(MiscCollections.getSubList(connectionIDs, k2 , k1 -1));
+			checkSizes(cacheLevelSize, conns0, conns1, conns2);
 		}
 		
 		// conns0a = visible list + anchor
@@ -245,8 +222,11 @@ class Interval {
 		
 		// Remove duplicates from lower priority lists
 		MiscCollections.removeAll(conns1, conns0a);
+		checkSizes(cacheLevelSize, conns0, conns1, conns2);
 		MiscCollections.removeAll(conns2, conns0a);
+		checkSizes(cacheLevelSize, conns0, conns1, conns2);
 		MiscCollections.removeAll(conns2, conns1);
+		checkSizes(cacheLevelSize, conns0, conns1, conns2);
 		
 		// Convert to required output format  
 		long[][] uniqueIDsList = new long[PersonClientCache.CACHE_LEVEL_SETTABLE_LEVELS][];
@@ -259,11 +239,14 @@ class Interval {
 		return uniqueIDsList;
 	}
 	
+	private static void checkSizes( int[] cacheLevelSize,
+			Set<Long> conns0,
+			Set<Long> conns1,
+			Set<Long> conns2) {
+		Misc.myAssert(conns0.size() <= cacheLevelSize[PersonClientCache.CACHE_LEVEL_VISIBLE]);
+		Misc.myAssert(conns1.size() <= cacheLevelSize[PersonClientCache.CACHE_LEVEL_CLICK1]);
+		Misc.myAssert(conns2.size() <= cacheLevelSize[PersonClientCache.CACHE_LEVEL_CLICK2]);
 	
+	}
 	
-	static void myAssert(boolean condition) {
-  		if (!condition) {
-  			assert(condition);
-  		}
-  }
 }
