@@ -48,7 +48,7 @@ public class StackLikeContainer<T> {
 		return state;
 	}
 	/*	
-	static public void test() {
+	public static void test() {
 		final int M = 4;
 		final int N = 2*M;
 		StackLikeContainer<Long> stack = new StackLikeContainer<Long>(M);

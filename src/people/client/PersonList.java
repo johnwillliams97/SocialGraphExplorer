@@ -664,11 +664,11 @@ public class PersonList extends Composite implements ClickHandler {
 	    	// This only gets called <=2 times since we set 2nd set of IDs to null here
   	
 	    	if (!state.anchorFetched) {
-	       		PersonClientCache.myAssert(entries[PersonClientCache.CACHE_LEVEL_ANCHOR] != null);
-	       		PersonClientCache.myAssert(entries[PersonClientCache.CACHE_LEVEL_ANCHOR].length > 0);
+	       		Misc.myAssert(entries[PersonClientCache.CACHE_LEVEL_ANCHOR] != null);
+	       		Misc.myAssert(entries[PersonClientCache.CACHE_LEVEL_ANCHOR].length > 0);
   				PersonClientCacheEntry newAnchorEntry = entries[PersonClientCache.CACHE_LEVEL_ANCHOR][0];
   				PersonClient newAnchor = newAnchorEntry.getPerson();
-  				PersonClientCache.myAssert(newAnchor != null);
+  				Misc.myAssert(newAnchor != null);
   				updateAnchor(newAnchor, true);
  			}
 	    	else {

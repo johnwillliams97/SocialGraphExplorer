@@ -2,6 +2,8 @@ package cache;
 
 import java.util.logging.Logger;
 
+import people.client.Misc;
+
 import cache.CacheActual.WebReadPolicy;
 
 
@@ -46,7 +48,7 @@ public class CacheStage<K, V extends CacheTrait> {
 		catch (Exception e) {
 			// Best effort response to an exception
 			logger.warning("+Exception for person "+ key + ", " + this.identify() + ": " + e.getMessage() + "," + e.toString()); 
-			e.printStackTrace();
+			Misc.reportException(e);
 		}
 		
 		boolean incomplete = (value != null && value.isIncomplete());

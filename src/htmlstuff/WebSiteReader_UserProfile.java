@@ -10,6 +10,8 @@ import org.htmlparser.nodes.TagNode;
 import org.htmlparser.util.NodeIterator;
 import org.htmlparser.util.NodeList;
 import org.htmlparser.util.ParserException;
+
+import people.client.Misc;
 import htmlstuff.WebSiteReader_Common.Force;
 import datatypes.PersonLI;
 
@@ -108,7 +110,7 @@ public class WebSiteReader_UserProfile {
 				try {
 					descMeatClean = URLDecoder.decode(descMeat, "UTF-8"); // unescape the description
 				} catch (UnsupportedEncodingException e) {
-					e.printStackTrace();
+					Misc.reportException(e);
 				} 
 				String[] subStrings = descMeatClean.split("[()]"); // ("\\x28\\x29"); // ("\\(\\)");
 				int  numSubStrings = 0;
@@ -304,10 +306,10 @@ public class WebSiteReader_UserProfile {
 			}
 		} 
 		catch (ParserException e) {
-			e.printStackTrace();
+			Misc.reportException(e);
 		}
 		catch (IOException e) {
-			e.printStackTrace();
+			Misc.reportException(e);
 		}  
 	}  
 	/*
@@ -324,7 +326,7 @@ public class WebSiteReader_UserProfile {
 			person = wsr._outPerson;
 		} 
 		catch (Exception e) {
-			e.printStackTrace();
+			Misc.reportException(e);
 		}
 		return person;
 	}

@@ -9,6 +9,8 @@ import org.htmlparser.util.NodeIterator;
 import org.htmlparser.util.NodeList;
 import org.htmlparser.util.ParserException;
 
+import people.client.Misc;
+
 import datatypes.PersonLI;
 import htmlstuff.WebSiteReader_Common.Force;
 
@@ -221,7 +223,7 @@ public class WebSiteReader_Connections {
 			}
 		} 
 		catch (Exception e) {
-			e.printStackTrace();
+			Misc.reportException(e);
 		}
 		 
 		return _split_nextPage;

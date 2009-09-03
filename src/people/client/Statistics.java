@@ -3,7 +3,6 @@ package people.client;
 import java.util.ArrayList;
 //import java.util.Calendar;
 import java.util.List;
-//import java.util.logging.Logger;
 
 
 
@@ -29,7 +28,7 @@ public class Statistics {
 	}
 	
 	public class Event {
-		private double _when; // seconds since construction
+		private double _when; // seconds 
 		public String _name;
 		public int    _sequence;
 		public Event(String name) {
@@ -55,7 +54,7 @@ public class Statistics {
 		this._sequenceNumber = 0;
 		this._events = new ArrayList<Event>();
 	}
-	static public double getCurrentTime() {
+	public static double getCurrentTime() {
 	//	return (double)(Calendar.getInstance().getTimeInMillis() - _callStartTime)/1000.0;
 	//	return (double)(System.nanoTime() - _callStartTime)/1.0e9;
 		//return ((double)System.nanoTime())/1.0e9; // !@#$ Would like this for server
@@ -78,7 +77,6 @@ public class Statistics {
 		synchronized(this) {  // _events exists across getPeople() calls
 			this._events.add(event);
 		}
-		//logger.warning(event.describe());
 	}
 	
 	public void showAllEvents() {
@@ -91,13 +89,13 @@ public class Statistics {
 		System.err.println("=============== ---------- ============");
 	}
 	
-	static private double roundBy(double x, double multiplier) {
+	private static double roundBy(double x, double multiplier) {
 		return ((double)Math.round(x*multiplier))/multiplier;
 	}
-	static public double round1(double x) {
+	public static double round1(double x) {
 		return roundBy(x, 10.0);
 	}
-	static public double round3(double x) {
+	public static double round3(double x) {
 		return roundBy(x, 1000.0);
 	}
 	

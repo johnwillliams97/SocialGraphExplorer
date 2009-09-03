@@ -55,7 +55,9 @@ Do David UI of a sphere.
 * Remove '*' from controls
 * Remove commented code
 Make all potentially static functions static
-
+* Handle faults
+	Missing data from server
+	Time-out from server
 
 BUGS
 ----

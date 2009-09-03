@@ -8,6 +8,7 @@ import org.htmlparser.http.ConnectionManager;
 import org.htmlparser.http.Cookie;
 import org.htmlparser.util.ParserException;
 
+import people.client.Misc;
 import people.client.Statistics;
 
 public class WebSiteReader_Common {
@@ -87,7 +88,7 @@ public class WebSiteReader_Common {
 			try {
 				Thread.sleep((long)(timeLeft*1000.0));
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				Misc.reportException(e);
 			}
 		} 
 		for (int i = 0; i < 5; i++) {
@@ -96,7 +97,7 @@ public class WebSiteReader_Common {
 				parser = new Parser(target);
 			}
 			catch (RuntimeException e)  {
-				e.printStackTrace();
+				Misc.reportException(e);
 			}
 			if (parser != null)
 				break;

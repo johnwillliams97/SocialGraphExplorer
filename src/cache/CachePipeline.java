@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import people.client.Misc;
+
 import cache.CacheActual.WebReadPolicy;
 
 
@@ -84,13 +86,9 @@ public class CachePipeline<K, V extends CacheTrait> {
 		catch (Exception e) {
 			// Best effort response to an exception
 			logger.warning("Exception for person " + key + ", cache pipeline: '" + e.getMessage() + "', " + e.toString()); 
-			e.printStackTrace();
+			Misc.reportException(e);
 		}
-		
-		
-	//	PersonLI person = (PersonLI)value;
-	//	logger.info(key + ":" + (person != null ? person.getNameFull() : "not found"));
-		//log.info(this.identify()); !@#$ Debugging
+	
 		return value;
 	}
 	public synchronized void put(K key, V value, double timeBoundSec) {

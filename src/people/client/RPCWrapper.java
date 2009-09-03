@@ -240,18 +240,14 @@ public class RPCWrapper {
 		this.theAcceptor.accept(uniqueLevels, result.fetches, result.clientSequenceNumber, result.callTime);
  	}
 
-    private static void myAssert(boolean test) {
-    	if (!test) {
-    		assert(test);
-    	}
-    }
+    
     
     /*
      * Report some status. Not critical
      */
     private void onSuccessCallbackReportStatus(PersonClientGroup result, List<Integer> uniqueLevels ) {
     	// Verify some assumptions
-    	myAssert(result != null);
+    	Misc.myAssert(result != null);
     	//myAssert(result.requestedLevels != null);
     	//myAssert(result.requestedUniqueIDs != null);
     	//myAssert(result.fetches != null);

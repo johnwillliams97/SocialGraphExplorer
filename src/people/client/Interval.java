@@ -86,7 +86,7 @@ class Interval {
 	  return uniqueIDs;
   	}
   	
-  	 static public long[][] getAnchorAndConnectionsIDs(CanonicalState state, 
+  	public static long[][] getAnchorAndConnectionsIDs(CanonicalState state, 
 	  				List<Long> connectionIDs,
 	  				int rowsPerScreen) {
   		 return  getAnchorAndConnectionsIDs2(state, connectionIDs,rowsPerScreen);
@@ -103,7 +103,7 @@ class Interval {
      *  @param rowsPerScreen - entries per screen of data
      *  @return - cache hints for this UI state
      */
-    static public long[][] getAnchorAndConnectionsIDs1(CanonicalState state, 
+    static private long[][] getAnchorAndConnectionsIDs1(CanonicalState state, 
   		  		  				List<Long> connectionIDs,
   		  		  				int rowsPerScreen) {
   	  
@@ -203,7 +203,7 @@ class Interval {
 			List<Long> connectionIDs,
 			int rowsPerScreen) {
 		*/
-		 static public long[][] getAnchorAndConnectionsIDs2(CanonicalState state, 
+		 static private long[][] getAnchorAndConnectionsIDs2(CanonicalState state, 
 	  				List<Long> connectionIDs,
 	  				int rowsPerScreen) {
 		int numConnections = connectionIDs != null ? connectionIDs.size() : 0;

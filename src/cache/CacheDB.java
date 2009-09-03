@@ -86,10 +86,6 @@ public class CacheDB implements CacheActual<Long, PersonLI> {
 	@Override
 	public PersonLI get(Long key, WebReadPolicy policy, double timeBoundSec) {
 		PersonLI person = this.getFromDBandLI(key, true, policy, timeBoundSec);
-		
-		//String nameFull = person != null ? person.getNameFull() : "not found";
-		//logger.warning(key + ":" + nameFull);
-		
 		return person;
 	}
 	

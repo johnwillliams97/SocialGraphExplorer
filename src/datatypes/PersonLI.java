@@ -24,6 +24,8 @@ import javax.jdo.annotations.PrimaryKey;
 import cache.CacheTrait;
 
 import com.google.appengine.api.datastore.Text;
+
+import people.client.Misc;
 import people.client.Statistics;
 import people.client.PersonPublic;
 import db.PMF;
@@ -396,7 +398,7 @@ public class PersonLI  implements Serializable, PersonPublic, CacheTrait {
 			try {
 				descClean = URLDecoder.decode(description, "UTF-8");
 			} catch (UnsupportedEncodingException e) {
-				e.printStackTrace();
+				Misc.reportException(e);
 			}
 			while (descClean.contains("&amp;")) {
 				descClean = descClean.replaceAll("&amp;", "&");
@@ -443,8 +445,8 @@ public class PersonLI  implements Serializable, PersonPublic, CacheTrait {
   	        }
   	    } 
   		catch (Exception e) {
-  			logger.warning("exception");
-  			e.printStackTrace();
+  			logger.warning("exception:" + e.getMessage());
+  			Misc.reportException(e);
   		}
   		finally {
   		//	logger.warning("finally");
@@ -484,7 +486,7 @@ public class PersonLI  implements Serializable, PersonPublic, CacheTrait {
   			}
   	    } 
   		catch (Exception e) {
-  			e.printStackTrace();
+  			Misc.reportException(e);
   		}
   		finally {
   	        query.closeAll();
@@ -571,7 +573,7 @@ public class PersonLI  implements Serializable, PersonPublic, CacheTrait {
   			}
   		}
 		catch (Exception e) { // !@#$ Could catch and finally be over both blocks?
-  			e.printStackTrace();
+  			Misc.reportException(e);
   		}
   		finally {
   			pm.close();
@@ -583,7 +585,7 @@ public class PersonLI  implements Serializable, PersonPublic, CacheTrait {
 		  		pm.makePersistent(this);
 	  		}
 	  		catch (Exception e) {
-	  			e.printStackTrace();
+	  			Misc.reportException(e);
 	  		}
 	  		finally {
 	  			pm.close();
@@ -601,7 +603,7 @@ public class PersonLI  implements Serializable, PersonPublic, CacheTrait {
   			p = getPersonByUniqueId_(pm, this.liUniqueID);
   		}
 		catch (Exception e) {
-  			e.printStackTrace();
+  			Misc.reportException(e);
   		}
   		finally {
   			pm.close();
@@ -620,7 +622,7 @@ public class PersonLI  implements Serializable, PersonPublic, CacheTrait {
 	  		}
    		}
   		catch (Exception e) {
-  			e.printStackTrace();
+  			Misc.reportException(e);
   		}
   		finally {
   			pm.close();
@@ -679,7 +681,7 @@ public class PersonLI  implements Serializable, PersonPublic, CacheTrait {
    	  		}
   		} 
   		catch (Exception e) {
-  			e.printStackTrace();
+  			Misc.reportException(e);
   		}
   		finally {
   	//		logger.warning("final");

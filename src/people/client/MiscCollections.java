@@ -9,7 +9,7 @@ import java.util.List;
  */
 public class MiscCollections {
 
-	static public<T> List<T> arrayToList(T[] array) {
+	public static<T> List<T> arrayToList(T[] array) {
 		List<T> list = null;
 		if (array != null) {
 			list = new ArrayList<T>();
@@ -20,7 +20,7 @@ public class MiscCollections {
 		return list;
 	}
 	
-	static public List<Long> arrayToListLong(long[] array) {
+	public static List<Long> arrayToListLong(long[] array) {
 		List<Long> list = null;
 		if (array != null) {
 			list = new ArrayList<Long>();
@@ -31,7 +31,7 @@ public class MiscCollections {
 		return list;
 	}
 	
-	static public long[] listToArrayLong(Collection<Long> list) {
+	public static long[] listToArrayLong(Collection<Long> list) {
 		long[] array = null;
 		if (list != null) {
 			array = new long[list.size()];
@@ -46,7 +46,7 @@ public class MiscCollections {
 		return array;
 	}
 
-	static public List<Integer> arrayToListInt(int[] array) {
+	public static List<Integer> arrayToListInt(int[] array) {
 		List<Integer> list = null;
 		if (array != null) {
 			list = new ArrayList<Integer>();
@@ -57,7 +57,7 @@ public class MiscCollections {
 		return list;
 	}
 	
-	static public  int[] listToArrayInt(List<Integer> list) {
+	public static  int[] listToArrayInt(List<Integer> list) {
 		int[] array = null;
 		if (list != null) {
 			array = new int[list.size()];
@@ -90,7 +90,7 @@ public class MiscCollections {
 		return flattened;
 	}
 	
-	static public String arrayToString(long[] ids) {
+	public static String arrayToString(long[] ids) {
  		int numIDs = (ids != null) ? ids.length : 0;
  		String dbgIDs = "" + numIDs + ": [";
 		for (int i = 0; i < numIDs; ++i)

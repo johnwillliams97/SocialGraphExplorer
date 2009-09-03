@@ -115,6 +115,7 @@ public class ServerStatus extends Composite {
 		 this.instantStatusHistory.remove(0);
 	  }
 	  redraw();
+	  System.err.println("IS>" + msg);
   }
   
   public void showInstantStatus2(String header, String body, boolean bold) {

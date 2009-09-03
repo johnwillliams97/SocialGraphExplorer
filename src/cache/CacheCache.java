@@ -7,6 +7,7 @@ import javax.cache.Cache;
 import javax.cache.CacheException;
 import javax.cache.CacheManager;
 
+import people.client.Misc;
 import datatypes.PersonLI;
 
 
@@ -20,7 +21,7 @@ public class CacheCache implements CacheActual<Long, PersonLI> {
 	    try {
 	    	theCache = CacheManager.getInstance().getCacheFactory().createCache( Collections.emptyMap());
 	    } catch (CacheException e) {
-	    	e.printStackTrace();
+	    	Misc.reportException(e);
 	    }
 	}
 	
@@ -28,7 +29,6 @@ public class CacheCache implements CacheActual<Long, PersonLI> {
 	@Override
 	public PersonLI get(Long key, WebReadPolicy policy, double timeBoundSec) {
 		PersonLI person = (PersonLI)theCache.get(key);
-		//logger.info(key + ":" + (person != null ? person.getNameFull() : "not found"));
 		return person;
 	}
 

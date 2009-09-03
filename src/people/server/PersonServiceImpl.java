@@ -13,6 +13,7 @@ import cache.CacheDB;
 import cache.CachePipeline;
 import cache.CacheActual.WebReadPolicy;
 import datatypes.PersonLI;
+import people.client.Misc;
 import people.client.MiscCollections;
 import people.client.OurConfiguration;
 import people.client.PersonFetch;
@@ -151,10 +152,9 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 						break;
 					++numRemoved;
 				}
-				if (numRemoved > 0) // !@#$ fix data in database
-					logger.warning(person.getNameFull() 
-							+ " [" + person.getLiUniqueID() + "] " 
-							+ numRemoved + " connections are unique ID");
+				if (numRemoved > 0) {// !@#$ fix data in database
+					//logger.warning(person.getNameFull() + " [" + person.getLiUniqueID() + "] " 	+ numRemoved + " connections are unique ID");
+				}
 				connectionIDs = removeDuplicates(connectionIDs); // !@#$ fix data in database
 				person.setConnectionIDs(connectionIDs);
 			}
@@ -258,7 +258,7 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 			catch (Exception e) {
 				// Best effort response to an exception
 				logger.warning("Exception for person " + liUniqueID +  ", " + i+ ": " + e.getMessage() + "," + e.toString()); 
-				e.printStackTrace();
+				Misc.reportException(e);
 				break;
 			}
 			/*
