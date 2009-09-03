@@ -227,9 +227,7 @@ public class PersonList extends Composite implements ClickHandler {
 	    else if (sender == oldestButton) {
 	    	//SocialGraphExplorer.get().showInstantStatus("oldestButton");
 		    // Move to end.
-		    this.state.startIndex = getPersonCount() - CONNECTIONS_PER_SCREEN;
-		    if (this.state.startIndex < 0) 
-		        this.state.startIndex = 0;
+		    this.state.startIndex = (getPersonCount()/CONNECTIONS_PER_SCREEN)*CONNECTIONS_PER_SCREEN;
 		    styleRow(selectedRow, false);
 		    selectedRow = -1;
 		    updatePersonList("oldestButton");
@@ -606,12 +604,8 @@ public class PersonList extends Composite implements ClickHandler {
     
         int count = getPersonCount();
   	  	// Update the older/newer buttons & label.
-      	int max = this.state.startIndex + CONNECTIONS_PER_SCREEN;
-  	  	if (max > count) {
-  	  		//max = count;
-  	  		max = (count/CONNECTIONS_PER_SCREEN)*CONNECTIONS_PER_SCREEN; 
-  	  	}
-
+      	int max = Math.min(this.state.startIndex + CONNECTIONS_PER_SCREEN, count);
+  	  
   	  	newerButton.setVisible(this.state.startIndex != 0);
   	  	newestButton.setVisible(this.state.startIndex > CONNECTIONS_PER_SCREEN);
   	  	olderButton.setVisible(this.state.startIndex + CONNECTIONS_PER_SCREEN < count);
@@ -619,9 +613,7 @@ public class PersonList extends Composite implements ClickHandler {
   	  	countLabel.setText("" + (this.state.startIndex + 1) + " - " + max + " of " + count);
   	  	backButton.setVisible(isOldAnchors());
   	  	this.isNavigationDisabled = false;
-      
-  	  // Update the status message.
-  	  // !!@#$
+   
 	}
   	
   	private void disableNavigation() {
