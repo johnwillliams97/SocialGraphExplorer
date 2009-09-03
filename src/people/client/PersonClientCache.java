@@ -152,11 +152,22 @@ public class PersonClientCache {
 	  /*
   	   * Ugly way of returning PersonClientCacheEntry[] 
   	   */
- 	interface GetPersonsFromCacheCallback {
+ 	public interface GetPersonsFromCacheCallback {
   		public void handleReturn(PersonClientCacheEntry[][] entries,  String description);
  	}
-  
+ 	// This is really a global, hence all lower case
 	private GetPersonsFromCacheCallback cb_params_callback;
+	private int                         cb_number_calls_in_progress = 0;
+	
+	// Always call back through this function to keep track of calls in progres
+	private void doCallback(PersonClientCacheEntry[][] entries,  String description) {
+		myAssert(cb_number_calls_in_progress > 0);
+		--cb_number_calls_in_progress;
+		SocialGraphExplorer.get().showInstantStatus("doCallback(" + description
+ 				+  ") calls in prog = " + cb_number_calls_in_progress, false);
+		
+		cb_params_callback.handleReturn(entries, description);
+	}
 	
 	
 	/*
@@ -174,8 +185,14 @@ public class PersonClientCache {
  		myAssert(uniqueIDsList[CACHE_LEVEL_ANCHOR] != null);
  	//	myAssert(uniqueIDsList[CACHE_LEVEL_VISIBLE] != null); Will be null when anchor fetched for first time
  		myAssert(!MiscCollections.arrayContains(uniqueIDsList[CACHE_LEVEL_VISIBLE], uniqueIDsList[CACHE_LEVEL_ANCHOR][0]));
+ 		
+ 		// fetchPersonsFromServer() calls back through cb_params_callback.handleReturn();
+		// The timer'd functions call this function as well
+		cb_params_callback = callback;
+		++cb_number_calls_in_progress;
  			
- 		SocialGraphExplorer.get().showInstantStatus("updateCacheAndGetVisible(" + (uniqueIDsList != null) +  ")" , true);
+ 		SocialGraphExplorer.get().showInstantStatus("updateCacheAndGetVisible(" + (uniqueIDsList != null) 
+ 				+  ") calls in prog = " + cb_number_calls_in_progress, true);
  		SocialGraphExplorer.get().log("updateCacheAndGetVisible", 
  					"[" + CACHE_LEVEL_ANCHOR +  ", " + CACHE_LEVEL_VISIBLE + "]: " +
  					+ this._clientSequenceNumber + " - "
@@ -187,7 +204,8 @@ public class PersonClientCache {
  					+ getCacheLevels(uniqueIDsList[CACHE_LEVEL_VISIBLE]),
  					true);
  		
- 		// Record the IDs that MUST be returned !@#$
+ 		 		
+		 // Record the IDs that MUST be returned !@#$
  		this._currentVisibleRequest = uniqueIDsList[CACHE_LEVEL_VISIBLE] ;
  		
  		/* 
@@ -205,9 +223,7 @@ public class PersonClientCache {
  		// Instrumentation
  		markCacheLevels();  
 		  
-		  // fetchPersonsFromServer() calls back through cb_params_callback.handleReturn();
-		  // The timer'd functions call this function as well
-		  cb_params_callback = callback;
+	
 		  
 		//  dumpCache("!@#$ before hintPersonsInCache");
 		  // Configure cache
@@ -277,7 +293,7 @@ public class PersonClientCache {
 	  		}
 	  		else if (needsReturn) {
 			  // This path requires a return to the caller
-			  cb_params_callback.handleReturn(getVisibleCacheEntries(), "fetchPersonsFromServer");
+	  			doCallback(getVisibleCacheEntries(), "fetchPersonsFromServer");
 	  		}
 	  	}
 	  
@@ -560,7 +576,7 @@ public class PersonClientCache {
 	  						+ ", _clientSequenceNumberCutoff = " + _clientSequenceNumberCutoff);
 	  			// Update UI if visible changes
 		  			if (hasVisibleLevel(requestedLevels)) {  //!@#$ Need to update on invisible fetches?
-		  				cb_params_callback.handleReturn(getVisibleCacheEntries(), "accept");
+		  				doCallback(getVisibleCacheEntries(), "accept");
 		  			}
 	  			}
 	  			else {
@@ -574,7 +590,7 @@ public class PersonClientCache {
 		  			
 		  			// Update UI if visible changes
 		  			if (hasVisibleLevel(requestedLevels)) {  //!@#$ Need to update on invisible fetches?
-		  				cb_params_callback.handleReturn(getVisibleCacheEntries(), "accept");
+		  				doCallback(getVisibleCacheEntries(), "accept");
 		  			}
 		  			
 		  			// Fetch more persons if not all are fetched or some are incompletely, but first check the number of RPC calls for this request

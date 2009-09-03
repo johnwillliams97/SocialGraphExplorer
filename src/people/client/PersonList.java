@@ -53,9 +53,9 @@ public class PersonList extends Composite implements ClickHandler {
 	
 	// UI behaviour
 	// Total number of entries on a screen
-	static final int _VISIBLE_PERSONS_COUNT = OurConfiguration.VISIBLE_PERSONS_COUNT;  
+	static final int VISIBLE_PERSONS_COUNT = OurConfiguration.VISIBLE_PERSONS_COUNT;  
 	// Number of connection on a screen
-	static final int CONNECTIONS_PER_SCREEN = _VISIBLE_PERSONS_COUNT - 1;
+	static final int CONNECTIONS_PER_SCREEN = VISIBLE_PERSONS_COUNT - 1;
 
 	// When a person is first fetched from the cache, a 2nd call will be required to 
 	// fetch all that persons connections.
@@ -175,7 +175,7 @@ public class PersonList extends Composite implements ClickHandler {
        table.getRowFormatter().setStyleName(0, "mail-ListHeader");
 
        // Initialise the rest of the rows.
-       for (int i = 0; i < _VISIBLE_PERSONS_COUNT; ++i) {
+       for (int i = 0; i < VISIBLE_PERSONS_COUNT; ++i) {
 	      table.setText(i + 1, 0, "");
 	      table.setText(i + 1, 1, "");
 	      table.setText(i + 1, 2, "");
@@ -543,7 +543,7 @@ public class PersonList extends Composite implements ClickHandler {
      * @return person cache entry for row or null if there is no cache entry 
      */
   	private PersonClient getPersonForRow(int row) {
-  		assert(0 <= row && row < _VISIBLE_PERSONS_COUNT);
+  		assert(0 <= row && row < VISIBLE_PERSONS_COUNT);
   		PersonClient person = null;
   		
   		if (row == 0) {
@@ -571,7 +571,7 @@ public class PersonList extends Composite implements ClickHandler {
   	// Show the selected persons.
     	PersonClient person = null;
     		    	
-        for (int i = 0; i < _VISIBLE_PERSONS_COUNT; ++i) {
+        for (int i = 0; i < VISIBLE_PERSONS_COUNT; ++i) {
         	markRowDisabled(i, false);
         	person = getPersonForRow(i);
         	if (person != null) {
@@ -631,7 +631,7 @@ public class PersonList extends Composite implements ClickHandler {
   	  	oldestButton.setVisible(false);
   	  	backButton.setVisible(false);
   	  	
-  	   for (int i = 1; i < _VISIBLE_PERSONS_COUNT; ++i) {
+  	   for (int i = 1; i < VISIBLE_PERSONS_COUNT; ++i) {
   		   markRowDisabled(i, true);
   	   }
   	}
