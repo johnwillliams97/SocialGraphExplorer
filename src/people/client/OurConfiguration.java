@@ -13,16 +13,16 @@ public class OurConfiguration {
 
 	// Debugging. All flags == false => release mode.
 	public static final boolean DEBUG_MODE = true;
-	public static final boolean SHORT_LIST = true;
-	public static final boolean VALIDATION_MODE = true;
-	public static final boolean NO_SERVER_TIME_LIMIT = true;
+	public static final boolean SHORT_LIST = false;
+	public static final boolean VALIDATION_MODE = false;
+	public static final boolean NO_SERVER_TIME_LIMIT = false;
 	
 	// For RequestsInProgress
 	public static final  int MAX_REQUESTS_IN_PROGRESS = 20;
 	public static final  int MAX_SERVER_CALLS_PER_REQUEST = 9;
 	
 	// For Server PersonServiceImpl
-	public static final double MAX_TIME_FOR_SERVLET_RESPONSE = NO_SERVER_TIME_LIMIT ? 1000.0 : 10.0;
+	public static final double MAX_TIME_FOR_SERVLET_RESPONSE = NO_SERVER_TIME_LIMIT ? 1000.0 : 10.0; // seconds
 
 	// For PersonList
 	public static final  int VISIBLE_PERSONS_COUNT = SHORT_LIST ?  3 : 11; 

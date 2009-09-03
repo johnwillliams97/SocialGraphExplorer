@@ -195,7 +195,7 @@ public class PersonClientCache {
  		 * 		(Smarter to filter out PENDING fetches currently in progress from new request list
  		 * 		Make this change later)
  		 * Clear out all pending requests to ensure cache coherency 
- 		 */
+		 */
  		this._clientSequenceNumberCutoff = this._clientSequenceNumber;
  		fetcherTimerClick1.cancel();
  		if (do_three_simultaneous_fetches)
@@ -227,7 +227,7 @@ public class PersonClientCache {
 	 					+ MiscCollections.arrayToString(uniqueIDsList[CACHE_LEVEL_VISIBLE]) + " "
 	 					+ getCacheLevels(uniqueIDsList[CACHE_LEVEL_VISIBLE]));
 		  
-		//  dumpCache("hintPersonsInCache");
+		 dumpCache("hintPersonsInCache");
 		  
 		  // Kick off timers to do low priority requests. Logically, this follows
 		  // fetchPersonsFromServer(), but we do it first to avoid weird race conditions

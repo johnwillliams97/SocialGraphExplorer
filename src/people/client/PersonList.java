@@ -52,8 +52,11 @@ public class PersonList extends Composite implements ClickHandler {
 	private final PersonClientCache personClientCache;
 	
 	// UI behaviour
-	static final int VISIBLE_PERSONS_COUNT = OurConfiguration.VISIBLE_PERSONS_COUNT;  
-	
+	// Total number of entries on a screen
+	static final int _VISIBLE_PERSONS_COUNT = OurConfiguration.VISIBLE_PERSONS_COUNT;  
+	// Number of connection on a screen
+	static final int CONNECTIONS_PER_SCREEN = _VISIBLE_PERSONS_COUNT - 1;
+
 	// When a person is first fetched from the cache, a 2nd call will be required to 
 	// fetch all that persons connections.
 	private boolean _needs2ndCacheCall = true; // !@#$ Move to CanonicalState
@@ -108,9 +111,9 @@ public class PersonList extends Composite implements ClickHandler {
 		// Setup the cache
 		int[] cacheLevelSize = new int[PersonClientCache.CACHE_LEVEL_NUMBER_LEVELS];
 		cacheLevelSize[PersonClientCache.CACHE_LEVEL_ANCHOR] = 1;
-		cacheLevelSize[PersonClientCache.CACHE_LEVEL_VISIBLE] = VISIBLE_PERSONS_COUNT - 1;
-		cacheLevelSize[PersonClientCache.CACHE_LEVEL_CLICK1] = (4 + VISIBLE_PERSONS_COUNT - 1) * VISIBLE_PERSONS_COUNT;
-		cacheLevelSize[PersonClientCache.CACHE_LEVEL_CLICK2] = (2) * VISIBLE_PERSONS_COUNT;
+		cacheLevelSize[PersonClientCache.CACHE_LEVEL_VISIBLE] = CONNECTIONS_PER_SCREEN;
+		cacheLevelSize[PersonClientCache.CACHE_LEVEL_CLICK1] =  4 * CONNECTIONS_PER_SCREEN;
+		cacheLevelSize[PersonClientCache.CACHE_LEVEL_CLICK2] =  4 * CONNECTIONS_PER_SCREEN;
 		cacheLevelSize[PersonClientCache.CACHE_LEVEL_RECENT] = OurConfiguration.CACHE_SIZE_LRU;
 		personClientCache = new PersonClientCache(cacheLevelSize);
 	
@@ -172,7 +175,7 @@ public class PersonList extends Composite implements ClickHandler {
        table.getRowFormatter().setStyleName(0, "mail-ListHeader");
 
        // Initialise the rest of the rows.
-       for (int i = 0; i < VISIBLE_PERSONS_COUNT; ++i) {
+       for (int i = 0; i < _VISIBLE_PERSONS_COUNT; ++i) {
 	      table.setText(i + 1, 0, "");
 	      table.setText(i + 1, 1, "");
 	      table.setText(i + 1, 2, "");
@@ -198,9 +201,9 @@ public class PersonList extends Composite implements ClickHandler {
 	    if (sender == olderButton) {
 	    //	SocialGraphExplorer.get().showInstantStatus("olderButton");
 	      // Move forward a page.
-	      this.state.startIndex += VISIBLE_PERSONS_COUNT;
+	      this.state.startIndex += CONNECTIONS_PER_SCREEN;
 	      if (this.state.startIndex >= getPersonCount()) {
-	        this.state.startIndex -= VISIBLE_PERSONS_COUNT;
+	        this.state.startIndex -= CONNECTIONS_PER_SCREEN;
 	      } else {
 	        styleRow(selectedRow, false);
 	        selectedRow = -1;
@@ -210,7 +213,7 @@ public class PersonList extends Composite implements ClickHandler {
 	    else if (sender == newerButton) {
 	    //	SocialGraphExplorer.get().showInstantStatus("newerButton");
 	      // Move back a page.
-	      this.state.startIndex -= VISIBLE_PERSONS_COUNT;
+	      this.state.startIndex -= CONNECTIONS_PER_SCREEN;
 	      if (this.state.startIndex < 0) {
 	        this.state.startIndex = 0;
 	      } else {
@@ -222,7 +225,7 @@ public class PersonList extends Composite implements ClickHandler {
 	    else if (sender == oldestButton) {
 	    	//SocialGraphExplorer.get().showInstantStatus("oldestButton");
 		    // Move to end.
-		    this.state.startIndex = getPersonCount() -1 -VISIBLE_PERSONS_COUNT;
+		    this.state.startIndex = getPersonCount() - CONNECTIONS_PER_SCREEN;
 		    if (this.state.startIndex < 0) 
 		        this.state.startIndex = 0;
 		    styleRow(selectedRow, false);
@@ -387,7 +390,7 @@ public class PersonList extends Composite implements ClickHandler {
 	if (person != null) {
 		List<Long> conIDs = person.getConnectionIDs();
 		if (conIDs != null) {
-			int numConnections = Math.min(conIDs.size(), VISIBLE_PERSONS_COUNT);
+			int numConnections = Math.min(conIDs.size(), CONNECTIONS_PER_SCREEN);
 			for (int i = 0; i < numConnections; ++i)
 				cons += "" + conIDs.get(i) + ",";
 		}
@@ -475,18 +478,18 @@ public class PersonList extends Composite implements ClickHandler {
 		  // The callback will call again after this with anchorFetched set true ^&*
 		  if (!this.state.anchorFetched) {
 			  // Instrumentation
-			  printPersonList(this.state, null, VISIBLE_PERSONS_COUNT-1);
+			  printPersonList(this.state, null, CONNECTIONS_PER_SCREEN);
 		
 			  this.state.visibleFetched = false;
-			  fetchList = Interval.getAnchorAndConnectionsIDs(this.state, null, VISIBLE_PERSONS_COUNT-1);
+			  fetchList = Interval.getAnchorAndConnectionsIDs(this.state, null, CONNECTIONS_PER_SCREEN);
 				
 		  }
 		  // Anchor is correct so fetch the full list
 		  else if (!this.state.visibleFetched) {
 			  // Instrumentation
-			  printPersonList(this.state, this.getAnchor().getConnectionIDs(), VISIBLE_PERSONS_COUNT-1);
+			  printPersonList(this.state, this.getAnchor().getConnectionIDs(), CONNECTIONS_PER_SCREEN);
 		
-			  this.uniqueIDsList = Interval.getAnchorAndConnectionsIDs(this.state, this.getAnchor().getConnectionIDs(), VISIBLE_PERSONS_COUNT-1);
+			  this.uniqueIDsList = Interval.getAnchorAndConnectionsIDs(this.state, this.getAnchor().getConnectionIDs(), CONNECTIONS_PER_SCREEN);
 			  fetchList = this.uniqueIDsList;
 			
 		  }
@@ -540,7 +543,7 @@ public class PersonList extends Composite implements ClickHandler {
      * @return person cache entry for row or null if there is no cache entry 
      */
   	private PersonClient getPersonForRow(int row) {
-  		assert(0 <= row && row < VISIBLE_PERSONS_COUNT);
+  		assert(0 <= row && row < _VISIBLE_PERSONS_COUNT);
   		PersonClient person = null;
   		
   		if (row == 0) {
@@ -568,12 +571,15 @@ public class PersonList extends Composite implements ClickHandler {
   	// Show the selected persons.
     	PersonClient person = null;
     		    	
-        for (int i = 0; i < VISIBLE_PERSONS_COUNT; ++i) {
+        for (int i = 0; i < _VISIBLE_PERSONS_COUNT; ++i) {
         	markRowDisabled(i, false);
         	person = getPersonForRow(i);
         	if (person != null) {
         		int numConnections = (person.getConnectionIDs() != null) ? person.getConnectionIDs().size() : 0;
-    		   	table.setText(i+1 , 0, squeeze(person.getNameFull(), 20) + " - " + (i+ this.state.startIndex+1) + ",  " 
+        		int index = 0; // Anchor
+        		if (i > 0)
+        			index = this.state.startIndex+1+i; // Show indexes as being one-offset
+    		   	table.setText(i+1 , 0, squeeze(person.getNameFull(), 20) + " - " + index + ",  " 
 	        			+ person.getWhence() + ",  " 
 	        			+ (person.getIsChildConnectionInProgress() ? "in progress" : "..") + ","
 	        			+ (person.getHtmlPage() != null ? person.getHtmlPage().length()/1024 : 0) + "kb, " 
@@ -598,16 +604,16 @@ public class PersonList extends Composite implements ClickHandler {
     
         int count = getPersonCount();
   	  	// Update the older/newer buttons & label.
-        //  int count = getPersonCount();
-  	  	int max = this.state.startIndex + VISIBLE_PERSONS_COUNT;
+      	int max = this.state.startIndex + CONNECTIONS_PER_SCREEN;
   	  	if (max > count) {
-  	  		max = count;
+  	  		//max = count;
+  	  		max = (count/CONNECTIONS_PER_SCREEN)*CONNECTIONS_PER_SCREEN; 
   	  	}
 
   	  	newerButton.setVisible(this.state.startIndex != 0);
-  	  	newestButton.setVisible(this.state.startIndex > VISIBLE_PERSONS_COUNT);
-  	  	olderButton.setVisible(this.state.startIndex + VISIBLE_PERSONS_COUNT < count);
-  	  	oldestButton.setVisible(this.state.startIndex + 2* VISIBLE_PERSONS_COUNT < count);
+  	  	newestButton.setVisible(this.state.startIndex > CONNECTIONS_PER_SCREEN);
+  	  	olderButton.setVisible(this.state.startIndex + CONNECTIONS_PER_SCREEN < count);
+  	  	oldestButton.setVisible(this.state.startIndex + 2* CONNECTIONS_PER_SCREEN < count);
   	  	countLabel.setText("" + (this.state.startIndex + 1) + " - " + max + " of " + count);
   	  	backButton.setVisible(isOldAnchors());
   	  	this.isNavigationDisabled = false;
@@ -625,7 +631,7 @@ public class PersonList extends Composite implements ClickHandler {
   	  	oldestButton.setVisible(false);
   	  	backButton.setVisible(false);
   	  	
-  	   for (int i = 1; i < VISIBLE_PERSONS_COUNT; ++i) {
+  	   for (int i = 1; i < _VISIBLE_PERSONS_COUNT; ++i) {
   		   markRowDisabled(i, true);
   	   }
   	}
