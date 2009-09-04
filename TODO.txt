@@ -29,6 +29,7 @@ Sort connection on
 		Index generation will take time
 			Maybe use Cron Jobs http://code.google.com/appengine/docs/java/config/cron.html
 			Maybe use Task Queues http://code.google.com/appengine/kb/general.html#taskqueue
+			                      http://code.google.com/appengine/docs/java/taskqueue/overview.html
 Handle &#x260  as in "? Adrian Cotterill ?"  
 Remove "&amp;" etc from all strings
 Add build from scratch script

@@ -92,8 +92,12 @@ public class PersonList extends Composite implements ClickHandler {
 	private HTML oldestButton = new HTML("<a href='javascript:;'>&gt;&gt;</a>", true);
 	private HTML backButton   = new HTML("<a href='javascript:;'>*</a>", true);
 	
+	private HTML dummyLabel2  = new HTML(" ");
+	
 	private FlexTable table = new FlexTable();
 	private HorizontalPanel navBar = new HorizontalPanel();
+	private HorizontalPanel navBar1 = new HorizontalPanel();
+	private HorizontalPanel navBar2 = new HorizontalPanel();
 
 	private boolean isNavigationDisabled = false;
 
@@ -134,17 +138,32 @@ public class PersonList extends Composite implements ClickHandler {
 
 		// Create the 'navigation' bar at the upper-right.
 		HorizontalPanel innerNavBar = new HorizontalPanel();
-		navBar.setStyleName("mail-ListNavBar");
-		innerNavBar.add(backButton);
+		innerNavBar.add(countLabel);
 		innerNavBar.add(newestButton);
 		innerNavBar.add(newerButton);
 		innerNavBar.add(olderButton);
 		innerNavBar.add(oldestButton);
-		innerNavBar.add(countLabel);
-
-		navBar.setHorizontalAlignment(HorizontalPanel.ALIGN_RIGHT);
+		innerNavBar.add(backButton);
+	
+	
+		navBar.setStyleName("mail-ListNavBar");
+		navBar.setHorizontalAlignment(HorizontalPanel.ALIGN_LEFT);
 		navBar.add(innerNavBar);
 		navBar.setWidth("100%");
+		
+		// All this navBar1 stuff is to get consistent styling across the row
+		HorizontalPanel innerNavBar1 = new HorizontalPanel();
+	//	innerNavBar1.add(dummyLabel1);
+		navBar1.setStyleName("mail-ListNavBar");
+		navBar1.add(innerNavBar1);
+		navBar1.setWidth("100%");
+		
+		// All this navBar2 stuff is to get consistent styling across the row
+		HorizontalPanel innerNavBar2 = new HorizontalPanel();
+	//	innerNavBar2.add(dummyLabel2);
+		navBar2.setStyleName("mail-ListNavBar");
+		navBar2.add(innerNavBar2);
+		navBar2.setWidth("100%");
 
 		initWidget(table);
 		setStyleName("mail-List");
@@ -173,7 +192,10 @@ public class PersonList extends Composite implements ClickHandler {
    * persons. 
    */
 	private void initTable() {
-       table.setWidget(0, 3, navBar);
+       table.setWidget(0, 0, navBar);
+       table.setWidget(0, 1, navBar1); // Gives consistent formatting across the whole row
+       table.setWidget(0, 2, navBar2); // Gives consistent formatting across the whole row
+       
        table.getRowFormatter().setStyleName(0, "mail-ListHeader");
 
        // Initialise the rest of the rows.
