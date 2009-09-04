@@ -286,6 +286,9 @@ public class PersonClientCache {
 	   * 
 	   * This call changes cache states from NEED_TO_FETCH => PENDING
 	   * 
+	   * @param requestedLevels - cache levels to fetch persons for
+	   * @param needsReturn - true if callback is required
+	   * 
 	   */
 	  	private void fetchPersonsFromServer(List<Integer> requestedLevels, boolean needsReturn) {
 	  		List<IDsAtLevel> idsToFetch = getIdLists(requestedLevels, CacheEntryState.NEED_TO_FETCH);
@@ -529,6 +532,7 @@ public class PersonClientCache {
 		  }
 	  }
 	 
+	  private RequestsInProgress requestsInProgress = new RequestsInProgress();
 	  /*
 	   * Request a best-effort (time limited) person fetch from server
 	   * 
@@ -539,10 +543,12 @@ public class PersonClientCache {
 	   * This function returns clunkily through AcceptorUpdateCache.accept() which 
 	   *  calls cb_params_callback.handleReturn();
 	   * The continued fetching is implemented here.
+	   * 
+	   * @param idsAtLevel - list of IDs and their levels to fetch from the server
+	   * @param clientSequenceNumber - number of calls to fetchPersonsFromServer()
+	   * @param numCallsForThisClientSequenceNumber - number of server calls for this clientSequenceNumber
 	   */
-	  private RequestsInProgress requestsInProgress = new RequestsInProgress();
-	  
-	  private void callServerToFetchPersons(List<IDsAtLevel> idsAtLevel,
+  private void callServerToFetchPersons(List<IDsAtLevel> idsAtLevel,
 			  long clientSequenceNumber, int numCallsForThisClientSequenceNumber) {
 		  
 		  SocialGraphExplorer.get().log("callServerToFetchPersons", 
