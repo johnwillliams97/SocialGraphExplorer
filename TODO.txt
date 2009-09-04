@@ -62,9 +62,7 @@ Make all potentially static functions static
 BUGS
 ----
 Find and fix all !@#$
-Person is sometimes duplicated in his own connections list on UI
 Remap URLs in HTML scraped from social networks (may be better to parse HTML)
-Level 0 of client cache is empty
 Moving between screens should maintain row position on screen
 * RPC error (onFailureCallback()) when using back button
 

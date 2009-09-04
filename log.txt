@@ -1,11 +1,19 @@
 WORK LOG
 ========
+
+2009/09/04
+----------
+Pushed a stable version
+	Release http://6.latest.peterwilliams9798.appspot.com/ 
+	Debug   http://7.latest.peterwilliams9798.appspot.com/
+
 2009/09/02
 ----------
 Fixed bug where a whole screen of data was not being every time
 	Duplicate entries in persons' connection lists were breaking assumption is client-cache logic
 	Fixed this by adding code to remove duplicates
 Fixed up generics in cache pipeline:  interface CacheActual<K, V extends CacheTrait>	
+
 2009/09/01
 ----------
 Call server enough times to populate client cache at startup  
