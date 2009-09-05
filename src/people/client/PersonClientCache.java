@@ -82,11 +82,9 @@ public class PersonClientCache {
 	// All calls from before this number are discarded.
 	private long _clientSequenceNumberCutoff = -1L;
 	
-	// Track calls that have not been called back on
-	private long _unhandledReturns = 0;
 	
 	// The visible persons currently requested !@#$ Probably should not return until these are fetched
-	private long[] _currentVisibleRequest = null;
+	private long[] _requestedVisibleIDs = null;
 		  
 	public PersonClientCache(int[] cacheLevelSize) {
 	 	
@@ -174,6 +172,11 @@ public class PersonClientCache {
  				+  ") calls in prog = " + cb_number_calls_in_progress, false);
 		
 		PersonClientCacheEntry[][] entries = getVisibleCacheEntries();
+		
+		// _requestedVisibleIDs are the IDs of the cache entries that must be filled before returning
+		// visibleEntryIds should not contain any IDs that are not in _requestedVisibleIDs
+		long[] visibleEntryIds = MiscCollections.listToArrayLong(getIdListForEntries(entries[CACHE_LEVEL_VISIBLE]));
+		Misc.myAssert(MiscCollections.arrayContainsArray(_requestedVisibleIDs, visibleEntryIds));
 		cb_params_callback.handleReturn(entries, description);
 	}
 	
@@ -194,6 +197,9 @@ public class PersonClientCache {
  	//	Misc.myAssert(uniqueIDsList[CACHE_LEVEL_VISIBLE] != null); Will be null when anchor fetched for first time
  		Misc.myAssert(!MiscCollections.arrayContains(uniqueIDsList[CACHE_LEVEL_VISIBLE], uniqueIDsList[CACHE_LEVEL_ANCHOR][0]));
  		
+ 		// These are the IDs of the cache entries that must be filled before returning
+ 		_requestedVisibleIDs = uniqueIDsList[CACHE_LEVEL_VISIBLE];
+ 		
  		// fetchPersonsFromServer() calls back through cb_params_callback.handleReturn();
 		// The timer'd functions call this function as well
 		cb_params_callback = callback;
@@ -213,7 +219,7 @@ public class PersonClientCache {
  					true);
  		
  		 // Record the IDs that MUST be returned !@#$
- 		this._currentVisibleRequest = uniqueIDsList[CACHE_LEVEL_VISIBLE] ;
+ 		this._requestedVisibleIDs = uniqueIDsList[CACHE_LEVEL_VISIBLE] ;
  		
  		/* 
  		 * !@#$ Naively discard all old fetches in progress to guarantee cache coherency
@@ -232,24 +238,23 @@ public class PersonClientCache {
  		// Instrumentation
  		markCacheLevels();  
 		  
-		//  dumpCache("!@#$ before hintPersonsInCache");
-		  // Configure cache
-		  for (int level = CACHE_LEVEL_ANCHOR; level <= CACHE_LEVEL_CLICK2; ++level) {
+ 		// Configure cache
+ 		for (int level = CACHE_LEVEL_ANCHOR; level <= CACHE_LEVEL_CLICK2; ++level) {
 			  hintPersonsInCache(uniqueIDsList[level], level);
-		  }
-		  // Set LRUs for visible entries
-		  for (int level = CACHE_LEVEL_ANCHOR; level <= CACHE_LEVEL_VISIBLE; ++level) {
+		}
+		// Set LRUs for visible entries
+		for (int level = CACHE_LEVEL_ANCHOR; level <= CACHE_LEVEL_VISIBLE; ++level) {
 			  PersonClientCacheEntry[] cache = this._theClientCache[level];
 			  for (PersonClientCacheEntry entry: cache)
 				  entry.touchLastReference();
-		  }
-		  if (uniqueIDsList[CACHE_LEVEL_VISIBLE] != null)
+		}
+		if (uniqueIDsList[CACHE_LEVEL_VISIBLE] != null)
 	 			SocialGraphExplorer.get().log("hinted PersonsInCache", 
 	 					"[" + CACHE_LEVEL_VISIBLE + "]: " +
 	 					+ this._clientSequenceNumber + " - "
 	 					+ MiscCollections.arrayToString(uniqueIDsList[CACHE_LEVEL_VISIBLE]) + " "
 	 					+ getCacheLevels(uniqueIDsList[CACHE_LEVEL_VISIBLE]));
-		  
+		dumpCache("after hintPersonsInCache");
 		  
 		  // Kick off timers to do low priority requests. Logically, this follows
 		  // fetchPersonsFromServer(), but we do it first to avoid weird race conditions
@@ -260,11 +265,11 @@ public class PersonClientCache {
 		  */
 		  // Async fetch from server of visible cache entries
 		  // Returns clunkily through cb_params_callback.handleReturn();
-		  fetchPersonsFromServer(VISIBLE_CACHE_LEVEL_LIST, true); 
-		  fetchPersonsFromServer(Arrays.asList(new Integer[] {CACHE_LEVEL_CLICK1}), false);
-		  fetchPersonsFromServer(Arrays.asList(new Integer[] {CACHE_LEVEL_CLICK2}), false);
-		  
-		}
+		fetchPersonsFromServer(VISIBLE_CACHE_LEVEL_LIST, true); 
+		fetchPersonsFromServer(Arrays.asList(new Integer[] {CACHE_LEVEL_CLICK1}), false);
+		fetchPersonsFromServer(Arrays.asList(new Integer[] {CACHE_LEVEL_CLICK2}), false);
+	}
+	
 	/*
 	   * Get a list of persons from the cache
 	   * 

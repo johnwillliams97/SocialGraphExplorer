@@ -99,12 +99,30 @@ public class MiscCollections {
 	  	return dbgIDs;
 	}
 
+	/*
+	 * Returns true if containerIDs contains anID
+	 */
 	public static boolean arrayContains(long[] containerIDs, long anID) {
 		boolean contains = false;
 		if (containerIDs != null) {
 			for (Long id: containerIDs) {
 				if (id == anID) {
 					contains = true;
+					break;
+				}
+			}
+		}
+		return contains;
+	}
+	/*
+	 * Returns true if containerIDs contains all entries in containeeIDs
+	 */
+	public static boolean arrayContainsArray(long[] containerIDs, long[] containeeIDs) {
+		boolean contains = true;
+		if (containeeIDs != null) {
+			for (Long id: containeeIDs) {
+				if (arrayContains(containerIDs, id)) {
+					contains = false;
 					break;
 				}
 			}
