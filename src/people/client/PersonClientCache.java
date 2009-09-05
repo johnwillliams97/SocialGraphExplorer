@@ -3,9 +3,11 @@ package people.client;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Set;
-import com.google.gwt.user.client.Timer;
+//import com.google.gwt.user.client.Timer;
 import people.client.PersonClientCacheEntry.CacheEntryState;
 import people.client.RPCWrapper.IDsAtLevel;
 import people.client.RPCWrapper.PersonsAcceptor;
@@ -80,6 +82,9 @@ public class PersonClientCache {
 	// All calls from before this number are discarded.
 	private long _clientSequenceNumberCutoff = -1L;
 	
+	// Track calls that have not been called back on
+	private long _unhandledReturns = 0;
+	
 	// The visible persons currently requested !@#$ Probably should not return until these are fetched
 	private long[] _currentVisibleRequest = null;
 		  
@@ -128,18 +133,19 @@ public class PersonClientCache {
 	   */
 	  
 	  // !@#$ Loose the timers? They slow UI response. 
-	  private static int INVISIBLE_FETCH_DELAY_CLICK1 = OurConfiguration.INVISIBLE_FETCH_DELAY_CLICK1;
-	  private static int INVISIBLE_FETCH_DELAY_CLICK2 = OurConfiguration.INVISIBLE_FETCH_DELAY_CLICK2;
+	//  private static int INVISIBLE_FETCH_DELAY_CLICK1 = OurConfiguration.INVISIBLE_FETCH_DELAY_CLICK1;
+	 // private static int INVISIBLE_FETCH_DELAY_CLICK2 = OurConfiguration.INVISIBLE_FETCH_DELAY_CLICK2;
 //	  private static int INVISIBLE_FETCH_DELAY_EXTRA = 5000;
 	  private static List<Integer> VISIBLE_CACHE_LEVEL_LIST   = Arrays.asList(new Integer[] {CACHE_LEVEL_ANCHOR, CACHE_LEVEL_VISIBLE});
 	  private static List<Integer> INVISIBLE_CACHE_LEVEL_LIST = Arrays.asList(new Integer[] {CACHE_LEVEL_CLICK1, CACHE_LEVEL_CLICK2});
+	  /*
 	  private static boolean do_three_simultaneous_fetches = false;
 	  private Timer fetcherTimerClick1 = new Timer() {
 		  public void run() {
 			  if (do_three_simultaneous_fetches)
 				  fetchPersonsFromServer(Arrays.asList(new Integer[] {CACHE_LEVEL_CLICK1}), false);
 			  else
-			   fetchPersonsFromServer(INVISIBLE_CACHE_LEVEL_LIST, false);
+				  fetchPersonsFromServer(INVISIBLE_CACHE_LEVEL_LIST, false);
 		  }
  	  };
  	  private Timer fetcherTimerClick2 = new Timer() {
@@ -148,7 +154,7 @@ public class PersonClientCache {
 				  fetchPersonsFromServer(Arrays.asList(new Integer[] {CACHE_LEVEL_CLICK2}), false);
 		  }
 	  };
-	  
+	  */
 	  /*
   	   * Ugly way of returning PersonClientCacheEntry[] 
   	   */
@@ -206,8 +212,7 @@ public class PersonClientCache {
  					+ getCacheLevels(uniqueIDsList[CACHE_LEVEL_VISIBLE]),
  					true);
  		
- 		 		
-		 // Record the IDs that MUST be returned !@#$
+ 		 // Record the IDs that MUST be returned !@#$
  		this._currentVisibleRequest = uniqueIDsList[CACHE_LEVEL_VISIBLE] ;
  		
  		/* 
@@ -217,29 +222,27 @@ public class PersonClientCache {
  		 * Clear out all pending requests to ensure cache coherency 
 		 */
  		this._clientSequenceNumberCutoff = this._clientSequenceNumber;
+ 		/*
  		fetcherTimerClick1.cancel();
  		if (do_three_simultaneous_fetches)
  			fetcherTimerClick2.cancel();
+ 			*/
  		clearPendingCacheEntries();
  		
  		// Instrumentation
  		markCacheLevels();  
-		  
- 		SocialGraphExplorer.get().showInstantStatus("updateCacheAndGetVisible:1");
 		  
 		//  dumpCache("!@#$ before hintPersonsInCache");
 		  // Configure cache
 		  for (int level = CACHE_LEVEL_ANCHOR; level <= CACHE_LEVEL_CLICK2; ++level) {
 			  hintPersonsInCache(uniqueIDsList[level], level);
 		  }
-		  SocialGraphExplorer.get().showInstantStatus("updateCacheAndGetVisible:2");
 		  // Set LRUs for visible entries
 		  for (int level = CACHE_LEVEL_ANCHOR; level <= CACHE_LEVEL_VISIBLE; ++level) {
 			  PersonClientCacheEntry[] cache = this._theClientCache[level];
 			  for (PersonClientCacheEntry entry: cache)
 				  entry.touchLastReference();
 		  }
-		  SocialGraphExplorer.get().showInstantStatus("updateCacheAndGetVisible:3");
 		  if (uniqueIDsList[CACHE_LEVEL_VISIBLE] != null)
 	 			SocialGraphExplorer.get().log("hinted PersonsInCache", 
 	 					"[" + CACHE_LEVEL_VISIBLE + "]: " +
@@ -247,22 +250,21 @@ public class PersonClientCache {
 	 					+ MiscCollections.arrayToString(uniqueIDsList[CACHE_LEVEL_VISIBLE]) + " "
 	 					+ getCacheLevels(uniqueIDsList[CACHE_LEVEL_VISIBLE]));
 		  
-		  SocialGraphExplorer.get().showInstantStatus("updateCacheAndGetVisible:4");
-		 //dumpCache("hintPersonsInCache");
 		  
 		  // Kick off timers to do low priority requests. Logically, this follows
 		  // fetchPersonsFromServer(), but we do it first to avoid weird race conditions
+		  /*
 		  fetcherTimerClick1.schedule(INVISIBLE_FETCH_DELAY_CLICK1);
 		  if (do_three_simultaneous_fetches)
 			  fetcherTimerClick2.schedule(INVISIBLE_FETCH_DELAY_CLICK2);
-		  
-		  SocialGraphExplorer.get().showInstantStatus("updateCacheAndGetVisible:5");
+		  */
 		  // Async fetch from server of visible cache entries
 		  // Returns clunkily through cb_params_callback.handleReturn();
 		  fetchPersonsFromServer(VISIBLE_CACHE_LEVEL_LIST, true); 
+		  fetchPersonsFromServer(Arrays.asList(new Integer[] {CACHE_LEVEL_CLICK1}), false);
+		  fetchPersonsFromServer(Arrays.asList(new Integer[] {CACHE_LEVEL_CLICK2}), false);
 		  
-		  SocialGraphExplorer.get().showInstantStatus("updateCacheAndGetVisible:6");
-	}
+		}
 	/*
 	   * Get a list of persons from the cache
 	   * 
@@ -288,7 +290,6 @@ public class PersonClientCache {
 	   * 
 	   * @param requestedLevels - cache levels to fetch persons for
 	   * @param needsReturn - true if callback is required
-	   * 
 	   */
 	  	private void fetchPersonsFromServer(List<Integer> requestedLevels, boolean needsReturn) {
 	  		List<IDsAtLevel> idsToFetch = getIdLists(requestedLevels, CacheEntryState.NEED_TO_FETCH);
@@ -531,7 +532,52 @@ public class PersonClientCache {
 			  changeCacheStatesAtLevel(levels.get(i), oldState, newState);
 		  }
 	  }
-	 
+	  
+	  /*
+	   * Queue calls to callServerToFetchPersons()
+	   * 
+	   */
+	  class ServerFetchArgs {
+		  List<IDsAtLevel> idsAtLevel;
+		  long clientSequenceNumber;
+		  int numCallsForThisClientSequenceNumber;
+		  
+		  public ServerFetchArgs(List<IDsAtLevel> idsAtLevel,
+				  long clientSequenceNumber, int numCallsForThisClientSequenceNumber) {
+			  this.idsAtLevel = idsAtLevel;
+			  this.clientSequenceNumber = clientSequenceNumber;
+			  this.numCallsForThisClientSequenceNumber = numCallsForThisClientSequenceNumber;
+		  }
+	  };
+	  private Queue<ServerFetchArgs> serverFetchArgsList = new LinkedList<ServerFetchArgs>();
+	  private int _numServerCallsInProgress = 0;
+	  private static int MAX_CALLS_IN_PROGRESS = 2;
+	  
+	  private void callServerToFetchPersons(List<IDsAtLevel> idsAtLevel,
+			  long clientSequenceNumber, int numCallsForThisClientSequenceNumber) {
+		  
+		  SocialGraphExplorer.get().showInstantStatus2("callServerToFetchPersons", 
+				  clientSequenceNumber + ":" + numCallsForThisClientSequenceNumber 
+				  + ", " + _numServerCallsInProgress
+				  + ", " + serverFetchArgsList.size()); 
+		  
+		  ServerFetchArgs newArgs = new ServerFetchArgs(idsAtLevel,
+			   clientSequenceNumber,  numCallsForThisClientSequenceNumber);
+		  serverFetchArgsList.offer(newArgs);
+	
+		  while (_numServerCallsInProgress < MAX_CALLS_IN_PROGRESS  &&
+				  serverFetchArgsList.size() > 0 ) {
+			  ServerFetchArgs workArgs = serverFetchArgsList.remove();
+			  callServerToFetchPersons_(workArgs.idsAtLevel,
+					  workArgs.clientSequenceNumber, 
+					  workArgs.numCallsForThisClientSequenceNumber);
+			  ++_numServerCallsInProgress;
+		  }
+		  
+		  Misc.myAssert(0 <=_numServerCallsInProgress && _numServerCallsInProgress <= MAX_CALLS_IN_PROGRESS);
+	  		
+	  }
+	  
 	  private RequestsInProgress requestsInProgress = new RequestsInProgress();
 	  /*
 	   * Request a best-effort (time limited) person fetch from server
@@ -548,9 +594,13 @@ public class PersonClientCache {
 	   * @param clientSequenceNumber - number of calls to fetchPersonsFromServer()
 	   * @param numCallsForThisClientSequenceNumber - number of server calls for this clientSequenceNumber
 	   */
-  private void callServerToFetchPersons(List<IDsAtLevel> idsAtLevel,
+	  private void callServerToFetchPersons_(List<IDsAtLevel> idsAtLevel,
 			  long clientSequenceNumber, int numCallsForThisClientSequenceNumber) {
 		  
+		  SocialGraphExplorer.get().showInstantStatus2("callServerToFetchPersons_", 
+				  clientSequenceNumber + ":" + numCallsForThisClientSequenceNumber 
+				  + ", " + _numServerCallsInProgress
+				  + ", " + serverFetchArgsList.size());
 		  SocialGraphExplorer.get().log("callServerToFetchPersons", 
 				  "[" + clientSequenceNumber + ":" + numCallsForThisClientSequenceNumber + "]"
 				  + "(" + idsAtLevel.get(0).level + "): " + idsAtLevel.get(0).ids);
@@ -576,24 +626,36 @@ public class PersonClientCache {
 	  		@Override
 			public void accept(List<Integer> requestedLevels, PersonFetch[] fetches,
 					          long clientSequenceNumber, double callTime) {
+	  			  					
+	  			--_numServerCallsInProgress;
+	  			Misc.myAssert(0 <=_numServerCallsInProgress && _numServerCallsInProgress <MAX_CALLS_IN_PROGRESS);
+	  			
+	  			SocialGraphExplorer.get().showInstantStatus2("accept", 
+						  clientSequenceNumber + ":"  + requestsInProgress.getNumCalls(clientSequenceNumber) 
+						  + ", " + _numServerCallsInProgress + ":" + serverFetchArgsList.size()
+						  + ", " + requestedLevels
+						  + ", " + (clientSequenceNumber <= _clientSequenceNumberCutoff)
+						  + ", " + cb_number_calls_in_progress, true);
 	  			SocialGraphExplorer.get().log("accept", clientSequenceNumber + ": "
 	  					+ requestsInProgress.getNumCalls(clientSequenceNumber) + " - "
 	  					+ (fetches != null ? fetches.length : 0) + " fetches, " 
 	  					+ requestedLevels + " levels, "
 	  					+ PersonFetch.getFetchIDs(fetches));
+	  			
 	  			// Throw away old requests 
 	  			if (clientSequenceNumber <= _clientSequenceNumberCutoff) {
 	  				SocialGraphExplorer.get().log("Discarding old request", 
 	  						  "clientSequenceNumber = " + clientSequenceNumber
 	  						+ ", _clientSequenceNumberCutoff = " + _clientSequenceNumberCutoff);
-	  			// Update UI if visible changes
-		  			if (hasVisibleLevel(requestedLevels)) {  //!@#$ Need to update on invisible fetches?
+	  				// Update UI if visible changes
+	  				// or (in order to prevent hanging) if there are any outstanding callbacks
+		  			if (hasVisibleLevel(requestedLevels) || cb_number_calls_in_progress > 0) {  //!@#$ Need to update on invisible fetches?
 		  				doCallback("accept - discarding");
 		  			}
 	  			}
 	  			else {
 		  			recordCallDurations(fetches, callTime);
-	  			   // Update the cache!
+		  			// Update the cache!
 		  			List<Long> misses = addToCache(fetches);
 		  			if (misses.size() > 0) {
 		  				SocialGraphExplorer.get().showError("Could not add " + clientSequenceNumber + "(misses = "  + misses + ") to cache" );

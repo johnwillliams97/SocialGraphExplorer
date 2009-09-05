@@ -92,8 +92,7 @@ public class PersonList extends Composite implements ClickHandler {
 	private HTML oldestButton = new HTML("<a href='javascript:;'>&gt;&gt;</a>", true);
 	private HTML backButton   = new HTML("<a href='javascript:;'>*</a>", true);
 	
-	private HTML dummyLabel2  = new HTML(" ");
-	
+
 	private FlexTable table = new FlexTable();
 	private HorizontalPanel navBar = new HorizontalPanel();
 	private HorizontalPanel navBar1 = new HorizontalPanel();
@@ -541,11 +540,10 @@ public class PersonList extends Composite implements ClickHandler {
   				_savedFor2ndCall = false;
   			}
   			if (!_lastHistoryItem.equals(historyItem) && !isRewind && this.state.anchorUniqueID > 0) {
-  				SocialGraphExplorer.get().showInstantStatus("History.newItem(" + historyItem + ")", true);
+  				//SocialGraphExplorer.get().showInstantStatus("History.newItem(" + historyItem + ")", true);
   				History.newItem(historyItem, false); // See http://google-web-toolkit.googlecode.com/svn/javadoc/1.6/com/google/gwt/user/client/History.html#newItem(java.lang.String, boolean)
   				_lastHistoryItem = historyItem;
   			}
-  			
   		}
   	}
   
