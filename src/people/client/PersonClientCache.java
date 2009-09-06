@@ -161,15 +161,18 @@ public class PersonClientCache {
  	}
  	// This is really a global, hence all lower case
 	private GetPersonsFromCacheCallback cb_params_callback;
-	private int                         cb_number_calls_in_progress = 0;
+	private int                         _numberOfCallbacksNeeded = 0;
 	
 	// Always call back through this function to keep track of calls in progress
 	private void doCallback(String description) {
-		Misc.myAssert(cb_number_calls_in_progress >= 0);
-		if (cb_number_calls_in_progress > 0)
-			--cb_number_calls_in_progress;
-		SocialGraphExplorer.get().showInstantStatus("doCallback(" + description
- 				+  ") calls in prog = " + cb_number_calls_in_progress, false);
+		Misc.myAssert(_numberOfCallbacksNeeded >= 0);
+		if (_numberOfCallbacksNeeded > 0)
+			--_numberOfCallbacksNeeded;
+		SocialGraphExplorer.get().showInstantStatus2("doCallback(" + description +  ")",
+					  this._clientSequenceNumber + ":"  + _requestsInProgress.getNumCalls(this._clientSequenceNumber) 
+					  + ", " + _numServerCallsInProgress + ":" + _serverFetchArgsList.size()
+					  + ", " + (this._clientSequenceNumber <= _clientSequenceNumberCutoff)
+					  + ", " + _numberOfCallbacksNeeded, false);
 		
 		PersonClientCacheEntry[][] entries = getVisibleCacheEntries();
 		
@@ -177,6 +180,9 @@ public class PersonClientCache {
 		// visibleEntryIds should not contain any IDs that are not in _requestedVisibleIDs
 		long[] visibleEntryIds = MiscCollections.listToArrayLong(getIdListForEntries(entries[CACHE_LEVEL_VISIBLE]));
 		Misc.myAssert(MiscCollections.arrayContainsArray(_requestedVisibleIDs, visibleEntryIds));
+		// This when combined with the previous assertion ensures visibleEntryIds==_requestedVisibleIDs
+		Misc.myAssert(MiscCollections.arrayContainsArray(visibleEntryIds, _requestedVisibleIDs));
+		
 		cb_params_callback.handleReturn(entries, description);
 	}
 	
@@ -203,10 +209,9 @@ public class PersonClientCache {
  		// fetchPersonsFromServer() calls back through cb_params_callback.handleReturn();
 		// The timer'd functions call this function as well
 		cb_params_callback = callback;
-		++cb_number_calls_in_progress;
- 			
+		 			
  		SocialGraphExplorer.get().showInstantStatus("updateCacheAndGetVisible(" + (uniqueIDsList != null) 
- 				+  ") calls in prog = " + cb_number_calls_in_progress, true);
+ 				+  ") calls in prog = " + _numberOfCallbacksNeeded, true);
  		SocialGraphExplorer.get().log("updateCacheAndGetVisible", 
  					"[" + CACHE_LEVEL_ANCHOR +  ", " + CACHE_LEVEL_VISIBLE + "]: " +
  					+ this._clientSequenceNumber + " - "
@@ -228,16 +233,23 @@ public class PersonClientCache {
  		 * Clear out all pending requests to ensure cache coherency 
 		 */
  		this._clientSequenceNumberCutoff = this._clientSequenceNumber;
- 		/*
- 		fetcherTimerClick1.cancel();
- 		if (do_three_simultaneous_fetches)
- 			fetcherTimerClick2.cancel();
- 			*/
  		clearPendingCacheEntries();
+ 		while (_serverFetchArgsList.size() > 0 ) {
+ 			@SuppressWarnings("unused")
+			ServerFetchArgs workArgs = _serverFetchArgsList.remove();
+ 		}
+ 		// All pending calls are now cleared  
+ 		markCacheLevels();  // Instrumentation
  		
- 		// Instrumentation
- 		markCacheLevels();  
-		  
+ 		// Callback for discarded server calls from previous calls to updateAndGetVisible()
+ 		if (_numberOfCallbacksNeeded > 0) {
+ 			doCallback("discarding old server calls"); 
+ 		}
+		// Now the cache is in clean
+ 		
+ 		
+ 		++_numberOfCallbacksNeeded;
+ 		
  		// Configure cache
  		for (int level = CACHE_LEVEL_ANCHOR; level <= CACHE_LEVEL_CLICK2; ++level) {
 			  hintPersonsInCache(uniqueIDsList[level], level);
@@ -300,13 +312,13 @@ public class PersonClientCache {
 	  		List<IDsAtLevel> idsToFetch = getIdLists(requestedLevels, CacheEntryState.NEED_TO_FETCH);
 	  		if (idsToFetch.size() > 0) {
 			  ++this._clientSequenceNumber;
-			  requestsInProgress.startRequest(this._clientSequenceNumber);
+			  _requestsInProgress.startRequest(this._clientSequenceNumber);
 			  
 			  // Actual call hidden among all the instrumentation
-			  callServerToFetchPersons(idsToFetch, this._clientSequenceNumber, requestsInProgress.getNumCalls(this._clientSequenceNumber));
+			  callServerToFetchPersons(idsToFetch, this._clientSequenceNumber, _requestsInProgress.getNumCalls(this._clientSequenceNumber));
 			  changeCacheStates(requestedLevels, CacheEntryState.NEED_TO_FETCH, CacheEntryState.PENDING);
 			  
-			  requestsInProgress.increment(this._clientSequenceNumber);
+			  _requestsInProgress.increment(this._clientSequenceNumber);
 	  		}
 	  		else if (needsReturn) {
 			  // This path requires a return to the caller
@@ -554,7 +566,7 @@ public class PersonClientCache {
 			  this.numCallsForThisClientSequenceNumber = numCallsForThisClientSequenceNumber;
 		  }
 	  };
-	  private Queue<ServerFetchArgs> serverFetchArgsList = new LinkedList<ServerFetchArgs>();
+	  private Queue<ServerFetchArgs> _serverFetchArgsList = new LinkedList<ServerFetchArgs>();
 	  private int _numServerCallsInProgress = 0;
 	  private static int MAX_CALLS_IN_PROGRESS = 2;
 	  
@@ -564,26 +576,32 @@ public class PersonClientCache {
 		  SocialGraphExplorer.get().showInstantStatus2("callServerToFetchPersons", 
 				  clientSequenceNumber + ":" + numCallsForThisClientSequenceNumber 
 				  + ", " + _numServerCallsInProgress
-				  + ", " + serverFetchArgsList.size()); 
+				  + ", " + _serverFetchArgsList.size()); 
 		  
 		  ServerFetchArgs newArgs = new ServerFetchArgs(idsAtLevel,
 			   clientSequenceNumber,  numCallsForThisClientSequenceNumber);
-		  serverFetchArgsList.offer(newArgs);
+		  _serverFetchArgsList.offer(newArgs);
 	
+		  dispatchPendingFetches();
+	 }
+	  
+	  private void dispatchPendingFetches() {
+		  SocialGraphExplorer.get().showInstantStatus2("dispatchPendingFetches", "in");
 		  while (_numServerCallsInProgress < MAX_CALLS_IN_PROGRESS  &&
-				  serverFetchArgsList.size() > 0 ) {
-			  ServerFetchArgs workArgs = serverFetchArgsList.remove();
+				  _serverFetchArgsList.size() > 0 ) {
+			  ServerFetchArgs workArgs = _serverFetchArgsList.remove();
 			  callServerToFetchPersons_(workArgs.idsAtLevel,
 					  workArgs.clientSequenceNumber, 
 					  workArgs.numCallsForThisClientSequenceNumber);
 			  ++_numServerCallsInProgress;
 		  }
-		  
+		  // All fetches will not necessarily be dispatches since _numServerCallsInProgress is limite
+		 // Misc.myAssert(_serverFetchArgsList.size()==0);
 		  Misc.myAssert(0 <=_numServerCallsInProgress && _numServerCallsInProgress <= MAX_CALLS_IN_PROGRESS);
-	  		
+		  SocialGraphExplorer.get().showInstantStatus2("dispatchPendingFetches", "out");
 	  }
 	  
-	  private RequestsInProgress requestsInProgress = new RequestsInProgress();
+	  private RequestsInProgress _requestsInProgress = new RequestsInProgress();
 	  /*
 	   * Request a best-effort (time limited) person fetch from server
 	   * 
@@ -604,8 +622,7 @@ public class PersonClientCache {
 		  
 		  SocialGraphExplorer.get().showInstantStatus2("callServerToFetchPersons_", 
 				  clientSequenceNumber + ":" + numCallsForThisClientSequenceNumber 
-				  + ", " + _numServerCallsInProgress
-				  + ", " + serverFetchArgsList.size());
+				  + ", " + _numServerCallsInProgress + ":" + _serverFetchArgsList.size());
 		  SocialGraphExplorer.get().log("callServerToFetchPersons", 
 				  "[" + clientSequenceNumber + ":" + numCallsForThisClientSequenceNumber + "]"
 				  + "(" + idsAtLevel.get(0).level + "): " + idsAtLevel.get(0).ids);
@@ -634,15 +651,15 @@ public class PersonClientCache {
 	  			  					
 	  			--_numServerCallsInProgress;
 	  			Misc.myAssert(0 <=_numServerCallsInProgress && _numServerCallsInProgress <MAX_CALLS_IN_PROGRESS);
-	  			
+	  				  			
 	  			SocialGraphExplorer.get().showInstantStatus2("accept", 
-						  clientSequenceNumber + ":"  + requestsInProgress.getNumCalls(clientSequenceNumber) 
-						  + ", " + _numServerCallsInProgress + ":" + serverFetchArgsList.size()
+						  clientSequenceNumber + ":"  + _requestsInProgress.getNumCalls(clientSequenceNumber) 
+						  + ", " + _numServerCallsInProgress + ":" + _serverFetchArgsList.size()
 						  + ", " + requestedLevels
 						  + ", " + (clientSequenceNumber <= _clientSequenceNumberCutoff)
-						  + ", " + cb_number_calls_in_progress, true);
+						  + ", " + _numberOfCallbacksNeeded, true);
 	  			SocialGraphExplorer.get().log("accept", clientSequenceNumber + ": "
-	  					+ requestsInProgress.getNumCalls(clientSequenceNumber) + " - "
+	  					+ _requestsInProgress.getNumCalls(clientSequenceNumber) + " - "
 	  					+ (fetches != null ? fetches.length : 0) + " fetches, " 
 	  					+ requestedLevels + " levels, "
 	  					+ PersonFetch.getFetchIDs(fetches));
@@ -654,8 +671,8 @@ public class PersonClientCache {
 	  						+ ", _clientSequenceNumberCutoff = " + _clientSequenceNumberCutoff);
 	  				// Update UI if visible changes
 	  				// or (in order to prevent hanging) if there are any outstanding callbacks
-		  			if (hasVisibleLevel(requestedLevels) || cb_number_calls_in_progress > 0) {  //!@#$ Need to update on invisible fetches?
-		  				doCallback("accept - discarding");
+		  			if (hasVisibleLevel(requestedLevels) || _numberOfCallbacksNeeded > 0) {  //!@#$ Need to update on invisible fetches?
+		  				//doCallback("accept - discarding"); !@#$ move to updateCacheAndGetVisible()
 		  			}
 	  			}
 	  			else {
@@ -678,7 +695,7 @@ public class PersonClientCache {
 		  			List<IDsAtLevel> incompletePersonIDsInvisible = getIncompletePersonsIDs(fetches, true, true, INVISIBLE_CACHE_LEVEL_LIST);
 		  			List<IDsAtLevel> incompletePersonIDs = RPCWrapper.meldIDsAtLevelLists(incompletePersonIDsVisible, incompletePersonIDsInvisible);
 		  			List<IDsAtLevel> idsToFetch = RPCWrapper.meldIDsAtLevelLists(unfetchedIDs, incompletePersonIDs);
-		  			int numCallsForThisClientSequenceNumber = requestsInProgress.getNumCalls(clientSequenceNumber);
+		  			int numCallsForThisClientSequenceNumber = _requestsInProgress.getNumCalls(clientSequenceNumber);
 		  			if (idsToFetch.size() > 0 && numCallsForThisClientSequenceNumber <= RequestsInProgress.MAX_SERVER_CALLS_PER_REQUEST) {
 		  				SocialGraphExplorer.get().log("Incomplete fetch ", clientSequenceNumber 
 		  						+ ": " + RPCWrapper.getTotalNumberOfIDs(unfetchedIDs) + " unfetched "
@@ -692,10 +709,14 @@ public class PersonClientCache {
 		  				// The actual call!! hidden amongst logging code
 		  				callServerToFetchPersons(idsToFetch, clientSequenceNumber, numCallsForThisClientSequenceNumber);
 		  				
-						requestsInProgress.increment(clientSequenceNumber);
+						_requestsInProgress.increment(clientSequenceNumber);
 					}
 	  			}
+	  			// Keep working through the queue of pending fetches
+	  			dispatchPendingFetches();
 			}
+	  		
+	  		
 	  	}
 	  
 	  /*

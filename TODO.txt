@@ -53,12 +53,13 @@ Inject server bugs and test client recovery
 Add Google Maps support to show geographical spread
 Do Matthew UI of line to line connections on screen. Shows clusters of connections
 Do David UI of a sphere.
-* Remove '*' from controls
 * Remove commented code
 Make all potentially static functions static
 * Handle faults
 	Missing data from server
 	Time-out from server
+Guantanamize code: http://docs.codehaus.org/display/ASH/Guantanamo. 
+	Jester (http://jester.sourceforge.net/) will probably work better
 
 BUGS
 ----

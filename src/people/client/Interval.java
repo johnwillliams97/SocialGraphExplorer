@@ -106,7 +106,8 @@ class Interval {
   	 }
   
  
-    static private long[][] getAnchorAndConnectionsIDs1(CanonicalState state, 
+    @SuppressWarnings("unused")
+	static private long[][] getAnchorAndConnectionsIDs1(CanonicalState state, 
   		  		  				List<Long> connectionIDs,
   		  		  				int rowsPerScreen,
   		  		  			    int[] cacheLevelSize) {

@@ -121,7 +121,7 @@ public class MiscCollections {
 		boolean contains = true;
 		if (containeeIDs != null) {
 			for (Long id: containeeIDs) {
-				if (arrayContains(containerIDs, id)) {
+				if (!arrayContains(containerIDs, id)) {
 					contains = false;
 					break;
 				}

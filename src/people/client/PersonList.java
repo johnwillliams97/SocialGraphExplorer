@@ -71,11 +71,6 @@ public class PersonList extends Composite implements ClickHandler {
 	
 	private int	selectedRow = -1; 
 	
-	// History list for anchor !@#$ Create or find a history list class. 
-	static final int ANCHOR_HISTORY_COUNT = OurConfiguration.ANCHOR_HISTORY_COUNT; // 2;
-	private StackLikeContainer<PersonClient> oldAnchors = new StackLikeContainer<PersonClient>(ANCHOR_HISTORY_COUNT);
-	private StackLikeContainer<PersonClient> newAnchors = new StackLikeContainer<PersonClient>(ANCHOR_HISTORY_COUNT);
-	
 	// Unique IDs of all persons tracked in this class
 	private long[][] uniqueIDsList = null;
 	
@@ -90,8 +85,6 @@ public class PersonList extends Composite implements ClickHandler {
 	private HTML olderButton = new HTML("<a href='javascript:;'>&gt;</a>", true);
 	private HTML newestButton = new HTML("<a href='javascript:;'>&lt;&lt;</a>", true);
 	private HTML oldestButton = new HTML("<a href='javascript:;'>&gt;&gt;</a>", true);
-	private HTML backButton   = new HTML("<a href='javascript:;'>*</a>", true);
-	
 
 	private FlexTable table = new FlexTable();
 	private HorizontalPanel navBar = new HorizontalPanel();
@@ -129,7 +122,6 @@ public class PersonList extends Composite implements ClickHandler {
 
 		// Hook up events.
 		table.addClickHandler(this);
-		backButton.addClickHandler(this);
 		newerButton.addClickHandler(this);
 		olderButton.addClickHandler(this);
 		newestButton.addClickHandler(this);
@@ -142,8 +134,6 @@ public class PersonList extends Composite implements ClickHandler {
 		innerNavBar.add(newerButton);
 		innerNavBar.add(olderButton);
 		innerNavBar.add(oldestButton);
-		innerNavBar.add(backButton);
-	
 	
 		navBar.setStyleName("mail-ListNavBar");
 		navBar.setHorizontalAlignment(HorizontalPanel.ALIGN_LEFT);
@@ -261,14 +251,6 @@ public class PersonList extends Composite implements ClickHandler {
 		    selectedRow = -1;
 		    updatePersonList("newestButton");
 		} 
-	     else if (sender == backButton) {
-	    	 SocialGraphExplorer.get().showInstantStatus("backButton");
-		    // Move to start.
-		    styleRow(selectedRow, false);
-		    rewindAnchor();
-		    selectedRow = -1;
-		    updatePersonList("backButton");
-		}
 	    else if (sender == table) {
 	    	//  SocialGraphExplorer.get().showInstantStatus("table ");
 	      // Select the row that was clicked (-1 to account for header row).
@@ -332,13 +314,9 @@ public class PersonList extends Composite implements ClickHandler {
     */
   	private void updateAnchor(PersonClient newAnchor, boolean saveOldAnchor) {
   		if (newAnchor != null && !newAnchor.isMagicPerson()) { 	// Update to a real person?
-		//	if (this.state.anchorUniqueID != newAnchor.getLiUniqueID()) {	// Anything changed? !@#$ Use !this.state.anchorFetched for conditional
 			if (!this.state.anchorFetched)	{
 				SocialGraphExplorer.get().showInstantStatus("updateAnchor(" + this.oldState.anchorUniqueID + " => " 
 						+ newAnchor.getLiUniqueID() + "," + saveOldAnchor + ")");
-				if (this.theAnchor != null && !this.theAnchor.isMagicPerson() && saveOldAnchor)
-					oldAnchors.push(this.theAnchor);
-				SocialGraphExplorer.get().log("oldAnchors", oldAnchors.getState());
 				this.theAnchor = newAnchor;
 				this.state.anchorUniqueID = newAnchor.getLiUniqueID();
 				this.state.anchorFetched = true;
@@ -346,30 +324,10 @@ public class PersonList extends Composite implements ClickHandler {
 				oldState.anchorUniqueID = state.anchorUniqueID;  // !@#$ could do better!
 			}
 		}
-  		
  	}
   	
     	
-  	/*
-  	 * Backup to previous anchor
-  	 */
-  	private void rewindAnchor() {
-  		// If there are old anchors
-  		PersonClient oldAnchor = this.getAnchor();
-  		PersonClient newAnchor = this.getAnchor();
-  		if (oldAnchors.size() > 0) {
-  			// Save current anchorUniqueID in newAnchorUniqueIDs[]
-  			newAnchors.push(oldAnchor);
-  			// Fetch previous anchorUniqueID
-  			newAnchor = oldAnchors.pop();
-  			updateAnchor(newAnchor, false);
-  		}
-  		SocialGraphExplorer.get().showInstantStatus("rewindAnchor(" + oldAnchor.getLiUniqueID() + " => " + this.state.anchorUniqueID +")");
-  	}
-  	private boolean isOldAnchors() {
-  		return (oldAnchors.size() > 0);
-  	}
-  	
+  
 	private void updateVisiblePersonsFromCache(PersonClientCacheEntry[] entries)  {
   		if (entries != null && entries.length > 0) {
 	  		long[] ids = this.uniqueIDsList[PersonClientCache.CACHE_LEVEL_VISIBLE];
@@ -631,9 +589,7 @@ public class PersonList extends Composite implements ClickHandler {
   	  	olderButton.setVisible(this.state.startIndex + CONNECTIONS_PER_SCREEN < count);
   	  	oldestButton.setVisible(this.state.startIndex + 2* CONNECTIONS_PER_SCREEN < count);
   	  	countLabel.setText("" + (this.state.startIndex + 1) + " - " + max + " of " + count);
-  	  	backButton.setVisible(isOldAnchors());
   	  	this.isNavigationDisabled = false;
-   
 	}
   	
   	private void disableNavigation() {
@@ -643,8 +599,7 @@ public class PersonList extends Composite implements ClickHandler {
   	  	newestButton.setVisible(false);
   	  	olderButton.setVisible(false);
   	  	oldestButton.setVisible(false);
-  	  	backButton.setVisible(false);
-  	  	
+ 	  	
   	   for (int i = 1; i < VISIBLE_PERSONS_COUNT; ++i) {
   		   markRowDisabled(i, true);
   	   }

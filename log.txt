@@ -1,6 +1,13 @@
 WORK LOG
 ========
 
+2009/09/06
+----------
+Refactored PersonClientCache callback code to work without timers.
+	Has MAX_CALLS_IN_PROGRESS (default value = 2) server calls in progress at once
+	Calls are enqueued and pulled off queue by server callbacks
+Removed '*' from UI controls
+
 2009/09/04
 ----------
 Pushed a stable version
