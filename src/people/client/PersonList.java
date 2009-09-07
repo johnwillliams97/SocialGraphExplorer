@@ -81,10 +81,10 @@ public class PersonList extends Composite implements ClickHandler {
 	
 	// Widgets
 	private HTML countLabel  = new HTML();
-	private HTML newerButton = new HTML("<a href='javascript:;'>&lt;</a>", true);
-	private HTML olderButton = new HTML("<a href='javascript:;'>&gt;</a>", true);
-	private HTML newestButton = new HTML("<a href='javascript:;'>&lt;&lt;</a>", true);
-	private HTML oldestButton = new HTML("<a href='javascript:;'>&gt;&gt;</a>", true);
+	private HTML lowerButton = new HTML("<a href='javascript:;'>&lt;</a>", true);
+	private HTML higherButton = new HTML("<a href='javascript:;'>&gt;</a>", true);
+	private HTML lowestButton = new HTML("<a href='javascript:;'>&lt;&lt;</a>", true);
+	private HTML highestButton = new HTML("<a href='javascript:;'>&gt;&gt;</a>", true);
 
 	private FlexTable table = new FlexTable();
 	private HorizontalPanel navBar = new HorizontalPanel();
@@ -122,18 +122,18 @@ public class PersonList extends Composite implements ClickHandler {
 
 		// Hook up events.
 		table.addClickHandler(this);
-		newerButton.addClickHandler(this);
-		olderButton.addClickHandler(this);
-		newestButton.addClickHandler(this);
-		oldestButton.addClickHandler(this);
+		lowerButton.addClickHandler(this);
+		higherButton.addClickHandler(this);
+		lowestButton.addClickHandler(this);
+		highestButton.addClickHandler(this);
 
 		// Create the 'navigation' bar at the upper-right.
 		HorizontalPanel innerNavBar = new HorizontalPanel();
 		innerNavBar.add(countLabel);
-		innerNavBar.add(newestButton);
-		innerNavBar.add(newerButton);
-		innerNavBar.add(olderButton);
-		innerNavBar.add(oldestButton);
+		innerNavBar.add(lowestButton);
+		innerNavBar.add(lowerButton);
+		innerNavBar.add(higherButton);
+		innerNavBar.add(highestButton);
 	
 		navBar.setStyleName("mail-ListNavBar");
 		navBar.setHorizontalAlignment(HorizontalPanel.ALIGN_LEFT);
@@ -211,8 +211,8 @@ public class PersonList extends Composite implements ClickHandler {
 	public void onClick(ClickEvent event) {
 		//SocialGraphExplorer.get().showInstantStatus("onClick()");
 	    Object sender = event.getSource();
-	    if (sender == olderButton) {
-	    //	SocialGraphExplorer.get().showInstantStatus("olderButton");
+	    if (sender == higherButton) {
+	    //	SocialGraphExplorer.get().showInstantStatus("higherButton");
 	      // Move forward a page.
 	      this.state.startIndex += CONNECTIONS_PER_SCREEN;
 	      if (this.state.startIndex >= getPersonCount()) {
@@ -220,11 +220,11 @@ public class PersonList extends Composite implements ClickHandler {
 	      } else {
 	        styleRow(selectedRow, false);
 	        selectedRow = -1;
-	        updatePersonList("olderButton");
+	        updatePersonList("higherButton");
 	      }
 	    } 
-	    else if (sender == newerButton) {
-	    //	SocialGraphExplorer.get().showInstantStatus("newerButton");
+	    else if (sender == lowerButton) {
+	    //	SocialGraphExplorer.get().showInstantStatus("lowerButton");
 	      // Move back a page.
 	      this.state.startIndex -= CONNECTIONS_PER_SCREEN;
 	      if (this.state.startIndex < 0) {
@@ -232,25 +232,25 @@ public class PersonList extends Composite implements ClickHandler {
 	      } else {
 	        styleRow(selectedRow, false);
 	        selectedRow = -1;
-	        updatePersonList("newerButton");
+	        updatePersonList("lowerButton");
 	      }
 	    } 
-	    else if (sender == oldestButton) {
-	    	//SocialGraphExplorer.get().showInstantStatus("oldestButton");
+	    else if (sender == highestButton) {
+	    	//SocialGraphExplorer.get().showInstantStatus("highestButton");
 		    // Move to end.
 	    	int count = getPersonCount();
 		    this.state.startIndex = (count > 0) ? ((count-1)/CONNECTIONS_PER_SCREEN)*CONNECTIONS_PER_SCREEN : 0;
 		    styleRow(selectedRow, false);
 		    selectedRow = -1;
-		    updatePersonList("oldestButton");
+		    updatePersonList("highestButton");
 		}
-		else if (sender == newestButton) {
-			//SocialGraphExplorer.get().showInstantStatus("newestButton");
+		else if (sender == lowestButton) {
+			//SocialGraphExplorer.get().showInstantStatus("lowestButton");
 		    // Move to start.
 		    this.state.startIndex = 0;
 		    styleRow(selectedRow, false);
 		    selectedRow = -1;
-		    updatePersonList("newestButton");
+		    updatePersonList("lowestButton");
 		} 
 	    else if (sender == table) {
 	    	//  SocialGraphExplorer.get().showInstantStatus("table ");
@@ -585,10 +585,10 @@ public class PersonList extends Composite implements ClickHandler {
   	  	// Update the older/newer buttons & label.
       	int max = Math.min(this.state.startIndex + CONNECTIONS_PER_SCREEN, count);
   	  
-  	  	newerButton.setVisible(this.state.startIndex != 0);
-  	  	newestButton.setVisible(this.state.startIndex > CONNECTIONS_PER_SCREEN);
-  	  	olderButton.setVisible(this.state.startIndex + CONNECTIONS_PER_SCREEN < count);
-  	  	oldestButton.setVisible(this.state.startIndex + 2* CONNECTIONS_PER_SCREEN < count);
+  	  	lowerButton.setVisible(this.state.startIndex != 0);
+  	  	lowestButton.setVisible(this.state.startIndex > CONNECTIONS_PER_SCREEN);
+  	  	higherButton.setVisible(this.state.startIndex + CONNECTIONS_PER_SCREEN < count);
+  	  	highestButton.setVisible(this.state.startIndex + 2* CONNECTIONS_PER_SCREEN < count);
   	  	countLabel.setText("" + (this.state.startIndex + 1) + " - " + max + " of " + count);
   	  	this.isNavigationDisabled = false;
 	}
@@ -596,10 +596,10 @@ public class PersonList extends Composite implements ClickHandler {
   	private void disableNavigation() {
   	//	SocialGraphExplorer.get().showInstantStatus("disableNavigation()");
   		this.isNavigationDisabled = true;
-  		newerButton.setVisible(false);
-  	  	newestButton.setVisible(false);
-  	  	olderButton.setVisible(false);
-  	  	oldestButton.setVisible(false);
+  		lowerButton.setVisible(false);
+  	  	lowestButton.setVisible(false);
+  	  	higherButton.setVisible(false);
+  	  	highestButton.setVisible(false);
  	  	
   	   for (int i = 1; i < VISIBLE_PERSONS_COUNT; ++i) {
   		   markRowDisabled(i, true);

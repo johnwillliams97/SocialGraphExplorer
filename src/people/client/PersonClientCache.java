@@ -231,8 +231,6 @@ public class PersonClientCache {
  		
  		 // Record the IDs that MUST be returned !@#$
  		this._requestedVisibleIDs = uniqueIDsList[CACHE_LEVEL_VISIBLE] ;
- 		long[] pendingCacheEntries = getPendingCacheEntries();
- 					
  		
  		/* 
  		 * Discard all old fetches in progress to guarantee cache coherency
