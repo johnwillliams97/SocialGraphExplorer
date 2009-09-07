@@ -28,7 +28,6 @@ public class OurConfiguration {
 
 	// For PersonList
 	public static final  int VISIBLE_PERSONS_COUNT = SHORT_LIST ?  3 : 11; 
-	public static final  int ANCHOR_HISTORY_COUNT  = SHORT_LIST ?  2 : 20;
 	public static final  int CACHE_SIZE_LRU        = SHORT_LIST ?  5 : 200;
  
 	// For ClientCache
