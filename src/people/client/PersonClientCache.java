@@ -234,10 +234,8 @@ public class PersonClientCache {
 		 */
  		this._clientSequenceNumberCutoff = this._clientSequenceNumber;
  		clearPendingCacheEntries();
- 		while (_serverFetchArgsList.size() > 0 ) {
- 			@SuppressWarnings("unused")
-			ServerFetchArgs workArgs = _serverFetchArgsList.remove();
- 		}
+ 		_serverFetchArgsList.removeAll();
+ 		
  		// All pending calls are now cleared  
  		markCacheLevels();  // Instrumentation
  		
@@ -555,50 +553,94 @@ public class PersonClientCache {
 	   * 
 	   */
 	  class ServerFetchArgs {
-		  List<IDsAtLevel> idsAtLevel;
+		  IDsAtLevel idsAtLevel;
 		  long clientSequenceNumber;
 		  int numCallsForThisClientSequenceNumber;
 		  
-		  public ServerFetchArgs(List<IDsAtLevel> idsAtLevel,
+		  public ServerFetchArgs(IDsAtLevel idsAtLevel,
 				  long clientSequenceNumber, int numCallsForThisClientSequenceNumber) {
 			  this.idsAtLevel = idsAtLevel;
 			  this.clientSequenceNumber = clientSequenceNumber;
 			  this.numCallsForThisClientSequenceNumber = numCallsForThisClientSequenceNumber;
 		  }
 	  };
-	  private Queue<ServerFetchArgs> _serverFetchArgsList = new LinkedList<ServerFetchArgs>();
+	  
+	  class CommandQueueArray {
+		  private Queue<ServerFetchArgs>[] _levelQueue;
+		  @SuppressWarnings("unchecked")
+		  public   CommandQueueArray(int numLevels) {
+			  _levelQueue = new Queue[numLevels];
+			  for (int level = 0; level < _levelQueue.length; ++level)
+				  _levelQueue[level] = new LinkedList<ServerFetchArgs>();
+		  }
+		  public int size() {
+			  int totalSize = 0;;
+			  for (int level = 0; level < _levelQueue.length; ++level) 
+				  totalSize += _levelQueue[level].size();
+			  return totalSize;
+		  }
+		  public void removeAll() {
+			  @SuppressWarnings("unused")
+			ServerFetchArgs args = null;
+			  for (int level = 0; level < _levelQueue.length; ++level) {
+				  while (_levelQueue[level].size() > 0) {
+					  args = _levelQueue[level].remove();
+				  }
+			  }
+		  }
+		  public ServerFetchArgs remove() {
+			  ServerFetchArgs args = null;
+			  for (int level = 0; level < _levelQueue.length; ++level) {
+				  if (_levelQueue[level].size() > 0) {
+					  args = _levelQueue[level].remove();
+					  if (args != null) 
+						  break;
+				  }
+			  }
+			  return args;
+		  }
+		  public void offer(int level, ServerFetchArgs args) {
+			  Misc.myAssert(0 <= level && level < _levelQueue.length);
+			  _levelQueue[level].offer(args);
+		  }
+		  
+	  };
+	//  private Queue<ServerFetchArgs> _serverFetchArgsList = new LinkedList<ServerFetchArgs>();
+	  private CommandQueueArray _serverFetchArgsList= new CommandQueueArray(CACHE_LEVEL_SETTABLE_LEVELS);
 	  private int _numServerCallsInProgress = 0;
 	  private static int MAX_CALLS_IN_PROGRESS = 2;
-	  
-	  private void callServerToFetchPersons(List<IDsAtLevel> idsAtLevel,
+	  // Assumes idsAtLevel is sorted from lowest level to highest
+	  private void callServerToFetchPersons(List<IDsAtLevel> idsAtLevelList,
 			  long clientSequenceNumber, int numCallsForThisClientSequenceNumber) {
 		  
 		  SocialGraphExplorer.get().showInstantStatus2("callServerToFetchPersons", 
 				  clientSequenceNumber + ":" + numCallsForThisClientSequenceNumber 
-				  + ", " + _numServerCallsInProgress
-				  + ", " + _serverFetchArgsList.size()); 
-		  
-		  ServerFetchArgs newArgs = new ServerFetchArgs(idsAtLevel,
-			   clientSequenceNumber,  numCallsForThisClientSequenceNumber);
-		  _serverFetchArgsList.offer(newArgs);
-	
+				  + ", " + _numServerCallsInProgress + ":" + _serverFetchArgsList.size()
+				  + ", " + idsAtLevelList.size());
+		 
+		  // Get nearest visible entries first
+		  for (IDsAtLevel idsAtLevel: idsAtLevelList) {
+			  ServerFetchArgs args = new ServerFetchArgs(idsAtLevel,
+				   clientSequenceNumber,  numCallsForThisClientSequenceNumber);
+			  _serverFetchArgsList.offer(idsAtLevel.level, args);
+		  }
 		  dispatchPendingFetches();
 	 }
 	  
+	
 	  private void dispatchPendingFetches() {
-		  SocialGraphExplorer.get().showInstantStatus2("dispatchPendingFetches", "in");
+		//  SocialGraphExplorer.get().showInstantStatus2("dispatchPendingFetches", "in");
 		  while (_numServerCallsInProgress < MAX_CALLS_IN_PROGRESS  &&
 				  _serverFetchArgsList.size() > 0 ) {
-			  ServerFetchArgs workArgs = _serverFetchArgsList.remove();
-			  callServerToFetchPersons_(workArgs.idsAtLevel,
-					  workArgs.clientSequenceNumber, 
-					  workArgs.numCallsForThisClientSequenceNumber);
+			  ServerFetchArgs args = _serverFetchArgsList.remove();
+			  callServerToFetchPersons_(args.idsAtLevel,
+					  args.clientSequenceNumber, 
+					  args.numCallsForThisClientSequenceNumber);
 			  ++_numServerCallsInProgress;
 		  }
 		  // All fetches will not necessarily be dispatches since _numServerCallsInProgress is limite
-		 // Misc.myAssert(_serverFetchArgsList.size()==0);
 		  Misc.myAssert(0 <=_numServerCallsInProgress && _numServerCallsInProgress <= MAX_CALLS_IN_PROGRESS);
-		  SocialGraphExplorer.get().showInstantStatus2("dispatchPendingFetches", "out");
+		//  SocialGraphExplorer.get().showInstantStatus2("dispatchPendingFetches", "out");
 	  }
 	  
 	  private RequestsInProgress _requestsInProgress = new RequestsInProgress();
@@ -617,19 +659,22 @@ public class PersonClientCache {
 	   * @param clientSequenceNumber - number of calls to fetchPersonsFromServer()
 	   * @param numCallsForThisClientSequenceNumber - number of server calls for this clientSequenceNumber
 	   */
-	  private void callServerToFetchPersons_(List<IDsAtLevel> idsAtLevel,
+	  private void callServerToFetchPersons_(IDsAtLevel idsAtLevel,
 			  long clientSequenceNumber, int numCallsForThisClientSequenceNumber) {
 		  
 		  SocialGraphExplorer.get().showInstantStatus2("callServerToFetchPersons_", 
 				  clientSequenceNumber + ":" + numCallsForThisClientSequenceNumber 
-				  + ", " + _numServerCallsInProgress + ":" + _serverFetchArgsList.size());
+				  + ", " + _numServerCallsInProgress + ":" + _serverFetchArgsList.size()
+				  + ", " + idsAtLevel.level + ":" + idsAtLevel.ids.size());
 		  SocialGraphExplorer.get().log("callServerToFetchPersons", 
 				  "[" + clientSequenceNumber + ":" + numCallsForThisClientSequenceNumber + "]"
-				  + "(" + idsAtLevel.get(0).level + "): " + idsAtLevel.get(0).ids);
+				  + "(level " + idsAtLevel.level + "): " + idsAtLevel.ids);
 		  
-		  // The actual call
+		  // The actual call. First make a list with a single element
+		  List<IDsAtLevel> idsAtLevelList = new ArrayList<IDsAtLevel>();
+		  idsAtLevelList.add(idsAtLevel);
 		  _rpcWrapper.getPersonsFromServer(_acceptorUpdateCache, 
-				  	 idsAtLevel, clientSequenceNumber, numCallsForThisClientSequenceNumber,
+				  idsAtLevelList, clientSequenceNumber, numCallsForThisClientSequenceNumber,
 	  				"callServerToFetchPersons");
 	  }	 
 	 
