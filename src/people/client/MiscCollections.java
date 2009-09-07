@@ -114,6 +114,7 @@ public class MiscCollections {
 		}
 		return contains;
 	}
+	
 	/*
 	 * Returns true if containerIDs contains all entries in containeeIDs
 	 */
@@ -123,6 +124,22 @@ public class MiscCollections {
 			for (Long id: containeeIDs) {
 				if (!arrayContains(containerIDs, id)) {
 					contains = false;
+					break;
+				}
+			}
+		}
+		return contains;
+	}
+	
+	/*
+	 * Returns true if containerIDs contains any entries in containeeIDs
+	 */
+	public static boolean arrayContainsAny(long[] containerIDs, long[] containeeIDs) {
+		boolean contains = false;
+		if (containeeIDs != null) {
+			for (Long id: containeeIDs) {
+				if (arrayContains(containerIDs, id)) {
+					contains = true;
 					break;
 				}
 			}

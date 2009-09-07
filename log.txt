@@ -1,6 +1,11 @@
 WORK LOG
 ========
 
+2009/09/07
+----------
+Tuned performance. Stopped discarding old requests. See updateCacheIfNoVisiblePending()
+	
+	
 2009/09/06
 ----------
 Refactored PersonClientCache callback code to work without timers.

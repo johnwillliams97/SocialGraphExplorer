@@ -621,7 +621,7 @@ public class PersonList extends Composite implements ClickHandler {
   			int dbgNumAnchors = entries[PersonClientCache.CACHE_LEVEL_ANCHOR].length;
   			int dbgNumVisible = entries[PersonClientCache.CACHE_LEVEL_VISIBLE].length;
   			SocialGraphExplorer.get().showInstantStatus(
-  					 "handleReturn(" + description + ", " + dbgNumAnchors + ", " + dbgNumVisible+ ", " + state.anchorFetched+")", true);
+  					 "handleReturn(" + description + ", " + dbgNumAnchors + ", " + dbgNumVisible+ ", " + state.anchorFetched+")", false);
   			SocialGraphExplorer.get().log("handleReturn", 
   	 					"[" + PersonClientCache.CACHE_LEVEL_ANCHOR +  ", " + PersonClientCache.CACHE_LEVEL_VISIBLE + "]: " 
   	 					+ PersonClientCache.getIdListForEntries(entries[PersonClientCache.CACHE_LEVEL_ANCHOR]) + ", "

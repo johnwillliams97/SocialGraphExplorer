@@ -8,9 +8,6 @@ Add authentication.
 Remove my LI cookies from  git so people cannot access my account
 Add cookies to save state between uses (anchor:start)
 Add Gears support
-* Tune performance
-	Stop discarding old requests
-	Optimise number of simultaneous server calls in progress. Probably two.
 Remove anchor from client cache. No need for it.
 Replace arrays and null checks with lists and empty lists
 Do stuff from 

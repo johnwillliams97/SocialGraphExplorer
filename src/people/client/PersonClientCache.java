@@ -186,6 +186,46 @@ public class PersonClientCache {
 		cb_params_callback.handleReturn(entries, description);
 	}
 	
+	/*
+	 * Delay for up to a specified time-out while waiting for server to return
+	 * pending IDs
+	 */
+	private boolean areVisibleEntriesPending(long[][] uniqueIDsList) {
+		long[] requestedVisibleIDs = uniqueIDsList[CACHE_LEVEL_VISIBLE] ;
+		long[] pendingCacheEntries = getPendingCacheEntries();
+ 		return (MiscCollections.arrayContainsAny(pendingCacheEntries, requestedVisibleIDs));
+	}
+	
+	private long[][] cb_uniqueIDsList = null;
+	private boolean  cb_updateCacheAndGetVisible_called = false;
+	public void updateCacheAndGetVisible(long[][] uniqueIDsList, GetPersonsFromCacheCallback callback) {
+		
+		// fetchPersonsFromServer() calls back through cb_params_callback.handleReturn();
+		// The timer'd functions call this function as well
+		cb_uniqueIDsList = uniqueIDsList;
+		cb_params_callback = callback;
+		cb_updateCacheAndGetVisible_called = false;
+		
+		// No visible entries pending so call directly
+		updateCacheIfNoVisiblePending();
+	}
+	
+	/*
+	 * Calls updateCacheAndGetVisible_() if there are no PENDING entries that the
+	 * last call to updateCacheAndGetVisible() will make visible
+	 * Gets called by server callback. 
+	 */
+	private void updateCacheIfNoVisiblePending() {
+		if (!cb_updateCacheAndGetVisible_called) {
+			if (!areVisibleEntriesPending(cb_uniqueIDsList)) {
+				cb_updateCacheAndGetVisible_called = true;
+				updateCacheAndGetVisible_(cb_uniqueIDsList, cb_params_callback);
+			}
+			else {
+				SocialGraphExplorer.get().showInstantStatus2("updateCacheIfNoVisiblePending", "waiting", true);
+			}
+		}
+	}
 	
 	/*
 	 * Main function
@@ -197,7 +237,7 @@ public class PersonClientCache {
 	 *    Max 2 RPC calls in progress at once
 	 *    http://code.google.com/webtoolkit/doc/1.6/DevGuideServerCommunication.html#DevGuideGettingUsedToAsyncCalls
 	 */
-	public void updateCacheAndGetVisible(long[][] uniqueIDsList, GetPersonsFromCacheCallback callback) {
+	private void updateCacheAndGetVisible_(long[][] uniqueIDsList, GetPersonsFromCacheCallback callback) {
 		Misc.myAssert(uniqueIDsList != null);
  		Misc.myAssert(uniqueIDsList[CACHE_LEVEL_ANCHOR] != null);
  	//	Misc.myAssert(uniqueIDsList[CACHE_LEVEL_VISIBLE] != null); Will be null when anchor fetched for first time
@@ -206,9 +246,7 @@ public class PersonClientCache {
  		// These are the IDs of the cache entries that must be filled before returning
  		_requestedVisibleIDs = uniqueIDsList[CACHE_LEVEL_VISIBLE];
  		
- 		// fetchPersonsFromServer() calls back through cb_params_callback.handleReturn();
-		// The timer'd functions call this function as well
-		cb_params_callback = callback;
+ 		
 		 			
  		SocialGraphExplorer.get().showInstantStatus("updateCacheAndGetVisible(" + (uniqueIDsList != null) 
  				+  ") calls in prog = " + _numberOfCallbacksNeeded, true);
@@ -225,6 +263,8 @@ public class PersonClientCache {
  		
  		 // Record the IDs that MUST be returned !@#$
  		this._requestedVisibleIDs = uniqueIDsList[CACHE_LEVEL_VISIBLE] ;
+ 		long[] pendingCacheEntries = getPendingCacheEntries();
+ 					
  		
  		/* 
  		 * !@#$ Naively discard all old fetches in progress to guarantee cache coherency
@@ -338,6 +378,19 @@ public class PersonClientCache {
 				  }
 			  }
 		  }  
+	  }
+	  /*
+	   * Get an array of all pending cache entry IDs
+	   */
+	  private long[] getPendingCacheEntries() {
+		  Set<Long>  idListAll = new LinkedHashSet<Long> ();
+		  for (int level = 0; level < CACHE_LEVEL_SETTABLE_LEVELS; ++level) {
+			  Set<Long> idList = getIdList(level, CacheEntryState.PENDING);
+			  if (idList.size() > 0) {
+				  idListAll.addAll(idList);
+			  }
+		  }
+		  return MiscCollections.listToArrayLong(idListAll);
 	  }
 	  /*
 	   * Return the indexes of all the empty slots in a cache
@@ -757,6 +810,9 @@ public class PersonClientCache {
 						_requestsInProgress.increment(clientSequenceNumber);
 					}
 	  			}
+	  			// Check if there any more incoming calls 
+	  			updateCacheIfNoVisiblePending();
+	  			
 	  			// Keep working through the queue of pending fetches
 	  			dispatchPendingFetches();
 			}
@@ -815,6 +871,7 @@ public class PersonClientCache {
 			  }
 			  return entries; 
 		  }
+		  
 		  
 		  /*
 		   * Get an entry from a cache level.
