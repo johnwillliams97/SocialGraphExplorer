@@ -161,7 +161,7 @@ public class PersonClientCache {
 		long[] visibleEntryIds = MiscCollections.listToArrayLong(getIdListForEntries(entries[CACHE_LEVEL_VISIBLE]));
 		Misc.myAssert(MiscCollections.arrayContainsArray(_requestedVisibleIDs, visibleEntryIds));
 		// This when combined with the previous assertion ensures visibleEntryIds==_requestedVisibleIDs
-		Misc.myAssert(MiscCollections.arrayContainsArray(visibleEntryIds, _requestedVisibleIDs));
+	//	Misc.myAssert(MiscCollections.arrayContainsArray(visibleEntryIds, _requestedVisibleIDs));
 		
 		cb_params_callback.handleReturn(entries, description);
 	}
