@@ -223,7 +223,9 @@ public class RPCWrapper {
     }
 	
 	// Longest call to server	
-	private static double _maxDuration  = 0;
+	private static double _maxServerDuration  = 0.0;
+	// Longest round-trip	
+	private static double _maxRoundTripDuration  = 0.0;
     /*
      * Callback that gets called when async call to server completes on server.
      *  theAcceptor.accept() keeps calling this function until the client cache is up to date
@@ -270,9 +272,15 @@ public class RPCWrapper {
 			if (numFetches < result.requestedUniqueIDs.length)
 				SocialGraphExplorer.get().showInstantStatus2("Incomplete fetch", numFetches + " of " + numRequestedIDs);
 			
+			double roundTripDuration = Statistics.getCurrentTime() - result.callTime;
+			// Track longest round-trip duraction  
+			if (_maxRoundTripDuration < roundTripDuration)
+				_maxRoundTripDuration = roundTripDuration;
+				
 			// Track longest server response 
-			if (_maxDuration < result.responseDuration)
-				_maxDuration = result.responseDuration;
+			if (_maxServerDuration < result.responseDuration)
+				_maxServerDuration = result.responseDuration;
+			
 			
 			// Report status  - for debugging
 			String uniqueLevelsString = uniqueLevels.toString();
@@ -297,8 +305,9 @@ public class RPCWrapper {
 					+ result.responseDuration1 + ", "
 			 		+ result.responseDuration2 + ", "
 			 		+ result.responseDuration3 + ", "
-			 		+ result.responseDuration  + ": "
-			 		+ _maxDuration );
+			 		+ result.responseDuration  + " (" + _maxServerDuration + ") "
+			 		+ roundTripDuration  + " (" + _maxRoundTripDuration + ") "
+			 		 );
 			SocialGraphExplorer.get().showStatus("IDs", "" + result.getFetchedIDs() );
 		}
 		
