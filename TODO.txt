@@ -1,7 +1,6 @@
 LIST OF WORK TO DO (x = Complete. ? = May not be an issue. * Fix next)
 ------------------
 Add versioning to database (e.g. Long version) and fix data problems such as duplicate connections
-Honour URL args e.g.	http://localhost:59310/SocialGraphExplorer.html#1960788,99
 Clean up 'details' person html.
 	Check if html is in messy format and delete it if it is.
 Add authentication.
@@ -30,11 +29,9 @@ Sort connection on
 Handle &#x260  as in "? Adrian Cotterill ?"  
 Remove "&amp;" etc from all strings
 Add build from scratch script
-Give visual feedback when on-screen data is being fetched (e.g. grey out people) Added 2009/08/31
 Make UI usable
 	Get feedback from users
 	Keep list pointer at same location when going forward and back screens
-	Grey when not responsive
 	Distinguish main person from connections
 	Move scroll controls out of table
 Command line client
@@ -59,6 +56,7 @@ Make all potentially static functions static
 	Time-out from server
 Guantanamize code: http://docs.codehaus.org/display/ASH/Guantanamo. 
 	Jester (http://jester.sourceforge.net/) will probably work better
+Create one instance of PersonClientCache and re-use it	
 
 BUGS
 ----

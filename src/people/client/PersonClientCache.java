@@ -82,6 +82,13 @@ public class PersonClientCache {
 	// All calls from before this number are discarded.
 	private long _clientSequenceNumberCutoff = -1L;
 	
+	// Number of server calls in progress at any given time
+	// **** This is a key invariant. Note asserts on this variable
+	private int _numServerCallsInProgress = 0;
+	
+	// Maximum server calls in progress at any given time 
+	private static int MAX_CALLS_IN_PROGRESS = 2;
+	
 	
 	// The visible persons currently requested !@#$ Probably should not return until these are fetched
 	private long[] _requestedVisibleIDs = null;
@@ -212,6 +219,7 @@ public class PersonClientCache {
  		Misc.myAssert(uniqueIDsList[CACHE_LEVEL_ANCHOR] != null);
  	//	Misc.myAssert(uniqueIDsList[CACHE_LEVEL_VISIBLE] != null); Will be null when anchor fetched for first time
  		Misc.myAssert(!MiscCollections.arrayContains(uniqueIDsList[CACHE_LEVEL_VISIBLE], uniqueIDsList[CACHE_LEVEL_ANCHOR][0]));
+ 		validateCache();
  		
  		// These are the IDs of the cache entries that must be filled before returning
  		_requestedVisibleIDs = uniqueIDsList[CACHE_LEVEL_VISIBLE];
@@ -304,6 +312,8 @@ public class PersonClientCache {
 	   * @param needsReturn - true if callback is required
 	   */
 	  	private void fetchPersonsFromServer(List<Integer> requestedLevels, boolean needsReturn) {
+	  		validateCache();
+	  		
 	  		List<IDsAtLevel> idsToFetch = getIdLists(requestedLevels, CacheEntryState.NEED_TO_FETCH);
 	  		if (idsToFetch.size() > 0) {
 			  ++this._clientSequenceNumber;
@@ -623,10 +633,10 @@ public class PersonClientCache {
 		  }
 		  
 	  };
-	//  private Queue<ServerFetchArgs> _serverFetchArgsList = new LinkedList<ServerFetchArgs>();
+	
+	  // Queue of server fetch commands to be executed.
 	  private CommandQueueArray _serverFetchArgsList= new CommandQueueArray(CACHE_LEVEL_SETTABLE_LEVELS);
-	  private int _numServerCallsInProgress = 0;
-	  private static int MAX_CALLS_IN_PROGRESS = 2;
+	  
 	  // Assumes idsAtLevel is sorted from lowest level to highest
 	  private void callServerToFetchPersons(List<IDsAtLevel> idsAtLevelList,
 			  long clientSequenceNumber, int numCallsForThisClientSequenceNumber) {
@@ -635,6 +645,7 @@ public class PersonClientCache {
 				  clientSequenceNumber + ":" + numCallsForThisClientSequenceNumber 
 				  + ", " + _numServerCallsInProgress + ":" + _serverFetchArgsList.size()
 				  + ", " + idsAtLevelList.size());
+		  validateCache();
 		 
 		  // Get nearest visible entries first
 		  for (IDsAtLevel idsAtLevel: idsAtLevelList) {
@@ -654,9 +665,8 @@ public class PersonClientCache {
 			  callServerToFetchPersons_(args.idsAtLevel,
 					  args.clientSequenceNumber, 
 					  args.numCallsForThisClientSequenceNumber);
-			  ++_numServerCallsInProgress;
 		  }
-		  // All fetches will not necessarily be dispatches since _numServerCallsInProgress is limite
+		  // All fetches will not necessarily be dispatches since _numServerCallsInProgress is limited
 		  Misc.myAssert(0 <=_numServerCallsInProgress && _numServerCallsInProgress <= MAX_CALLS_IN_PROGRESS);
 		//  SocialGraphExplorer.get().showInstantStatus2("dispatchPendingFetches", "out");
 	  }
@@ -679,6 +689,10 @@ public class PersonClientCache {
 	   */
 	  private void callServerToFetchPersons_(IDsAtLevel idsAtLevel,
 			  long clientSequenceNumber, int numCallsForThisClientSequenceNumber) {
+		  
+		  validateCache();
+		  Misc.myAssert(0 <= _numServerCallsInProgress && _numServerCallsInProgress < MAX_CALLS_IN_PROGRESS);
+		    ++_numServerCallsInProgress;
 		  
 		  SocialGraphExplorer.get().showInstantStatus2("callServerToFetchPersons_", 
 				  clientSequenceNumber + ":" + numCallsForThisClientSequenceNumber 
@@ -713,7 +727,7 @@ public class PersonClientCache {
 					          long clientSequenceNumber, double callTime) {
 	  			  					
 	  			--_numServerCallsInProgress;
-	  			Misc.myAssert(0 <=_numServerCallsInProgress && _numServerCallsInProgress <MAX_CALLS_IN_PROGRESS);
+	  			Misc.myAssert(0 <=_numServerCallsInProgress && _numServerCallsInProgress < MAX_CALLS_IN_PROGRESS);
 	  				  			
 	  			SocialGraphExplorer.get().showInstantStatus2("accept", 
 						  clientSequenceNumber + ":"  + _requestsInProgress.getNumCalls(clientSequenceNumber) 
@@ -726,6 +740,7 @@ public class PersonClientCache {
 	  					+ (fetches != null ? fetches.length : 0) + " fetches, " 
 	  					+ requestedLevels + " levels, "
 	  					+ PersonFetch.getFetchIDs(fetches));
+	  			validateCache();
 	  			
 	  			// Throw away old requests 
 	  			if (clientSequenceNumber <= _clientSequenceNumberCutoff) {
@@ -891,6 +906,7 @@ public class PersonClientCache {
 						Misc.myAssert("Can't happen because clearPendingCacheEntries()" == null);
 						misses.add(person.getRequestedID());
 					}
+					validateCache();
 				}
 	  		}
 	  		return misses;
@@ -1121,14 +1137,16 @@ public class PersonClientCache {
 	  
 	  static private boolean anchor_has_been_filled = false;
 	  private void validateCache() {
-		  // Once anchor has been filled it has to stay filled
-		  boolean gotAnchor = (_theClientCache[CACHE_LEVEL_ANCHOR][0] != null && _theClientCache[CACHE_LEVEL_ANCHOR][0].getPerson() != null);
-		  if (!anchor_has_been_filled) {
-			  if (gotAnchor)
-				  anchor_has_been_filled = true;
-		  }
-		  else {
-			  Misc.myAssert(gotAnchor);
+		  if (OurConfiguration.VALIDATION_MODE) {
+			  // Once anchor has been filled it has to stay filled
+			  boolean gotAnchor = (_theClientCache[CACHE_LEVEL_ANCHOR][0] != null && _theClientCache[CACHE_LEVEL_ANCHOR][0].getPerson() != null);
+			  if (!anchor_has_been_filled) {
+				  if (gotAnchor)
+					  anchor_has_been_filled = true;
+			  }
+			  else {
+				  Misc.myAssert(gotAnchor);
+			  }
 		  }
 	  }
 	 

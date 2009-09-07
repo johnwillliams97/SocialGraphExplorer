@@ -10,7 +10,6 @@ import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.HTMLTable.Cell;
-
 import people.client.PersonClientCache.GetPersonsFromCacheCallback;
 import people.client.Interval;
 
@@ -57,9 +56,7 @@ public class PersonList extends Composite implements ClickHandler {
 	// Number of connection on a screen
 	static final int CONNECTIONS_PER_SCREEN = VISIBLE_PERSONS_COUNT - 1;
 
-	// When a person is first fetched from the cache, a 2nd call will be required to 
-	// fetch all that persons connections.
-	private boolean _needs2ndCacheCall = true; // !@#$ Move to CanonicalState
+	
 	/*
 	 * This UI is a list. First item in the list is the 'anchor'.
 	 * The following items are indexes in anchor's connections list
@@ -69,6 +66,13 @@ public class PersonList extends Composite implements ClickHandler {
 	private CanonicalState state = new CanonicalState();
 	private CanonicalState oldState = new CanonicalState();;  // For tracking changes !@#$ is this needed?
 	
+	// When a person is first fetched from the cache, a 2nd call will be required to 
+	// fetch all that persons connections.
+	private boolean _needs2ndCacheCall = true; 
+	// This also requires an extra UI state
+	private CanonicalState _2ndState = new CanonicalState();
+	
+	// Row selected in the current frame. !@#$ Move this to CanonicalState
 	private int	selectedRow = -1; 
 	
 	// Unique IDs of all persons tracked in this class
@@ -98,8 +102,9 @@ public class PersonList extends Composite implements ClickHandler {
 	private static int[] _cacheLevelSize = null;
   	/*
   	 * Set up the list UI
+  	 * @param urlStringRep - String representation of URL
   	 */
-	public PersonList() {
+	public PersonList(String urlStringRep) {
 		// GWT sometimes calls this twice in hosted mode.
 		++debug_num_calls;
 		if (debug_num_calls > 1) {
@@ -167,14 +172,24 @@ public class PersonList extends Composite implements ClickHandler {
     	 * 	cacheCallbackUpdateList.handleReturn()
     	 * 
     	 */
-    	
-    	//updatePersonList("Constructor");
-    	updatePersonListExtern(this.state.getAsString(), false);  //<= Instead !@#$
+    	String stateString = (urlStringRep != null && urlStringRep.length() > 0) ? urlStringRep : this.state.getAsString();
+      	updatePersonListExtern(stateString, false);  
 	}
 
+	/*
+	 * Bring UI to a known state. This is used as the initial state.
+	 */
+	private void resetState() {
+		theAnchor = null;
+		visiblePersons = new ArrayList<PersonClient>();
+		_needs2ndCacheCall = true;
+		state = new CanonicalState();
+		_2ndState = new CanonicalState();
+	}
+	
 	@Override
-	protected void onLoad() { // !@#$
-	//	dynaTable.refresh(true);
+		protected void onLoad() { // !@#$
+	 // 
 	}
   /**
    * Initialise the table so that it contains enough rows for a full page of
@@ -215,8 +230,9 @@ public class PersonList extends Composite implements ClickHandler {
 	    //	SocialGraphExplorer.get().showInstantStatus("higherButton");
 	      // Move forward a page.
 	      this.state.startIndex += CONNECTIONS_PER_SCREEN;
-	      if (this.state.startIndex >= getPersonCount()) {
-	        this.state.startIndex -= CONNECTIONS_PER_SCREEN;
+	      int maxIndex = Interval.getMaxIndex(getAnchorConnectionIDs(), CONNECTIONS_PER_SCREEN);
+	      if (this.state.startIndex > maxIndex) {
+	        this.state.startIndex = maxIndex;
 	      } else {
 	        styleRow(selectedRow, false);
 	        selectedRow = -1;
@@ -238,8 +254,7 @@ public class PersonList extends Composite implements ClickHandler {
 	    else if (sender == highestButton) {
 	    	//SocialGraphExplorer.get().showInstantStatus("highestButton");
 		    // Move to end.
-	    	int count = getPersonCount();
-		    this.state.startIndex = (count > 0) ? ((count-1)/CONNECTIONS_PER_SCREEN)*CONNECTIONS_PER_SCREEN : 0;
+	        this.state.startIndex = Interval.getMaxIndex(getAnchorConnectionIDs(), CONNECTIONS_PER_SCREEN);
 		    styleRow(selectedRow, false);
 		    selectedRow = -1;
 		    updatePersonList("highestButton");
@@ -287,21 +302,13 @@ public class PersonList extends Composite implements ClickHandler {
   	 * Get number of people in list. 
   	 * Currently this is the anchor person's number of connection
   	 */
-  	private int getPersonCount() {
-  		int personCount = 0;
+  	private List<Long> getAnchorConnectionIDs() {
+  		List<Long> connectionIDs = null;
   		PersonClient person = getAnchor();
   		if (person != null && person != PersonClient.MAGIC_PERSON_CLIENT_1) {
-  			List<Long> connectionIDs = person.getConnectionIDs();
-  			personCount = ((connectionIDs != null) ? connectionIDs.size() : 0) + 1;
+  			connectionIDs = person.getConnectionIDs();
   		}
-  		// Still in bootstrap?
-  		else if (person == PersonClient.MAGIC_PERSON_CLIENT_1) {
-  			personCount = 1; 
-  		}
-  		else {
-  			personCount = -1; // For debugging obviously
-  		}
-  		return personCount;
+  		return connectionIDs;
   	}
 
   	/*
@@ -324,8 +331,8 @@ public class PersonList extends Composite implements ClickHandler {
 				this.state.visibleFetched = false;   // Visible list is invalid because anchor has changed
 				oldState.anchorUniqueID = state.anchorUniqueID;  // !@#$ could do better!
 			}
-		}
- 	}
+		} 
+  	}
   	
     	
   
@@ -395,7 +402,7 @@ public class PersonList extends Composite implements ClickHandler {
       }
     }
   }
-  private void markRowDisabled(int row, boolean selected) {
+  	private void markRowDisabled(int row, boolean selected) {
 	    if (row != -1) {
 	      if (selected) {
 	        table.getRowFormatter().addStyleName(row + 1, "mail-DisabledRow");
@@ -403,33 +410,43 @@ public class PersonList extends Composite implements ClickHandler {
 	        table.getRowFormatter().removeStyleName(row + 1, "mail-DisabledRow");
 	      }
 	    }
-	  }
-  
-  
-  
-  
-  /*
+  	}
+ 
+  	/*
    * External call to set state.
    * !@#$ We can optimise this later by keeping old anchor persons
-   */
-  public void updatePersonListExtern(String stringRep, boolean isRewind) {
-	  SocialGraphExplorer.get().showInstantStatus("updatePersonListExtern(" + stringRep + ")", true);
+   * Resets state
+   	*/
+  	public void updatePersonListExtern(String stringRep, boolean isRewind) {
+	   
+  		SocialGraphExplorer.get().showInstantStatus("updatePersonListExtern(" + stringRep + ")", true);
 	  
-	  long  oldID = this.state.anchorUniqueID;
-	  int	oldStartIndex = this.state.startIndex;
-	  
-	  CanonicalState newState = new CanonicalState(stringRep);
-	  this.state = newState; // This case is just like startup
-	  _needs2ndCacheCall = true;    // Exactly like startup
-	 	 
-	  //handleReturn() will call updateAnchor()
-	  updatePersonList_("updatePersonListExtern(" + stringRep +") from " + oldID + ":" + oldStartIndex, isRewind);
-  }
-  private void updatePersonList(String dbgMsg) {
-	  updatePersonList_(dbgMsg, false);
-  }
+  		long oldID = this.state.anchorUniqueID;
+  		int  oldStartIndex = this.state.startIndex;
+		
+  		// Reset state to start up
+  		resetState();
+  		
+  		// Apply new state over reset state
+  		state = new CanonicalState(stringRep);;
+  		// Initially we get only anchor so we had better set indexes to 0
+  		state.startIndex = -1;  // !@#$ Testing that state doesn't get used when there is a 2nd call: this._needs2ndCacheCall == true
+  		// Eventually we get the full state
+		_2ndState = new CanonicalState(stringRep);; 
+		
+		//handleReturn() will call updateAnchor()
+  		updatePersonList_("updatePersonListExtern(" + stringRep +") from " + oldID + ":" + oldStartIndex, isRewind);
+  	}
   
-  /*
+  	/*
+   * Internal call to set state.
+   * Does not reset state
+   	*/
+  	private void updatePersonList(String dbgMsg) {
+  		updatePersonList_(dbgMsg, false);
+  	}
+  
+  	/*
    * Update the person list from the client cache
    * Returns through cacheCallbackUpdateList.handleReturn()
    * 
@@ -441,54 +458,73 @@ public class PersonList extends Composite implements ClickHandler {
     */
     private void updatePersonList_(String dbgMsg, boolean isRewind) {
   		
+    	// Validate indexes
+    	if (theAnchor != null) {
+    		int maxIndex = Interval.getMaxIndex(getAnchorConnectionIDs(), CONNECTIONS_PER_SCREEN);
+    		state.startIndex = Math.max(state.startIndex, 0);
+    		state.startIndex = Math.min(state.startIndex, maxIndex);
+    	}
+    	
     	PersonClient.debugValidate(this.theAnchor);
-		if (!statesEqual(this.state, this.oldState))
-			  this.state.visibleFetched = false;
-		  
-		  // Web history handling
-		//  if (this.state.anchorUniqueID > 0 && !isRewind) {
-			  setHistory(this.state.getAsString(), isRewind, this._needs2ndCacheCall);
-		//  }
-		  
-		  SocialGraphExplorer.get().showInstantStatus("updatePersonList(" + dbgMsg +  ", " + !this.state.anchorFetched + ", " + !this.state.visibleFetched + ", " + isRewind + ")");
-		 
-		  long[][] fetchList = null;
-		 
-		  // Anchor changed so fetch a new anchor
-		  // The callback will call again after this with anchorFetched set true ^&*
-		  if (!this.state.anchorFetched) {
-			  // Instrumentation
-			  printPersonList(this.state, null, CONNECTIONS_PER_SCREEN);
+		if (!statesEqual(this.state, this.oldState)) {
+			this.state.visibleFetched = false;
+		}
 		
-			  this.state.visibleFetched = false;
-			  fetchList = Interval.getAnchorAndConnectionsIDs(this.state, null, CONNECTIONS_PER_SCREEN, _cacheLevelSize);
-				
-		  }
-		  // Anchor is correct so fetch the full list
-		  else if (!this.state.visibleFetched) {
-			  // Instrumentation
-			  printPersonList(this.state, this.getAnchor().getConnectionIDs(), CONNECTIONS_PER_SCREEN);
-		
-			  this.uniqueIDsList = Interval.getAnchorAndConnectionsIDs(this.state, this.getAnchor().getConnectionIDs(), CONNECTIONS_PER_SCREEN, _cacheLevelSize);
-			  fetchList = this.uniqueIDsList;
+		// Use a real uniqueID instead of a pseudo ID.
+		CanonicalState saveState = new CanonicalState(this.state);
+		if (saveState.anchorUniqueID == PersonClient.MAGIC_PERSON_CLIENT_1_UNIQUE_ID && theAnchor != null)
+			saveState.anchorUniqueID = theAnchor.getLiUniqueID();
 			
-		  }
-		  
-		   	 
-		  // Fetch data from server
-		  // Disable navigation buttons while fetching data to give client cache a single state
-		  // cacheCallbackUpdateList() will call redrawUII() to re-enable the buttons after the server fetch
-		  if (!this.state.anchorFetched || !this.state.visibleFetched) {
-			  disableNavigation();
-			  personClientCache.updateCacheAndGetVisible(fetchList, this.cacheCallbackUpdateList);
-		  }
+	  	// Save in web history
+	  	saveStateInHistory(saveState.getAsString(), isRewind, this._needs2ndCacheCall);
+	
+	  	SocialGraphExplorer.get().showInstantStatus("updatePersonList(" + dbgMsg +  ", " + !this.state.anchorFetched + ", " + !this.state.visibleFetched + ", " + isRewind + ")");
+	 
+	  	long[][] fetchList = null;
+	 
+	  	// Anchor changed so fetch a new anchor
+	  	// The callback will call again after this with anchorFetched set true ^&*
+	  	if (!this.state.anchorFetched) {
+	  		// Instrumentation
+	  		printPersonList(this.state, null, CONNECTIONS_PER_SCREEN);
+	
+	  		this.state.visibleFetched = false;
+	  		fetchList = Interval.getAnchorAndConnectionsIDs(this.state, null, CONNECTIONS_PER_SCREEN, _cacheLevelSize);
+	  	}
+	  	// Anchor is correct so fetch the full list
+	  	else if (!this.state.visibleFetched) {
+	  		// Instrumentation
+	  		if (!this._needs2ndCacheCall)
+	  			printPersonList(this.state, this.getAnchor().getConnectionIDs(), CONNECTIONS_PER_SCREEN);
+	  		
+	  		this.uniqueIDsList = Interval.getAnchorAndConnectionsIDs(this.state, this.getAnchor().getConnectionIDs(), CONNECTIONS_PER_SCREEN, _cacheLevelSize);
+	  		fetchList = this.uniqueIDsList;
+	  	}
+	   	 
+	  	// Fetch data from server
+	  	// Disable navigation buttons while fetching data to give client cache a single state
+	  	// cacheCallbackUpdateList() will call redrawUII() to re-enable the buttons after the server fetch
+	  	if (!this.state.anchorFetched || !this.state.visibleFetched) {
+	  		disableNavigation();
+	  		personClientCache.updateCacheAndGetVisible(fetchList, this.cacheCallbackUpdateList);
+	  	}
 
-  	}
+	}
   	
+    // Last history item saved. Track this to avoid duplicated items in history
   	private String  _lastHistoryItem = "";
+  	// Indicates that a 2nd call to client cache will be needed
 	private boolean _savedFor2ndCall = false;
+	// Save isRewind arg in saveStateInHistory()
   	private boolean _savedIsRewind = false;
-  	private void setHistory(String historyItem, boolean isRewind, boolean needs2ndCacheCall) {
+  	/*
+  	 * Save a state in the history list
+  	 * @param historyItem - state to be saved
+  	 * @param isRewind - true if this function is called in response to a browser arrow
+  	 * @param needs2ndCacheCall - true if 2 cache calls will be needed (1 to fetch list of 
+  	 *                             + 1 to fetch persons with those IDs
+  	 */
+  	private void saveStateInHistory(String historyItem, boolean isRewind, boolean needs2ndCacheCall) {
   		if (needs2ndCacheCall) { 		// This is the first part of a 2 part call. 
   			_savedIsRewind = isRewind;	// Record state and wait
   			_savedFor2ndCall = true;
@@ -557,7 +593,7 @@ public class PersonList extends Composite implements ClickHandler {
         		int numConnections = (person.getConnectionIDs() != null) ? person.getConnectionIDs().size() : 0;
         		int index = 0; // Anchor
         		if (i > 0)
-        			index = this.state.startIndex+1+i; // Show indexes as being one-offset
+        			index = this.state.startIndex + (i-1) + 1; // Show indexes as being 1-offset
     		   	table.setText(i+1 , 0, squeeze(person.getNameFull(), 20) + " - " + index + ",  " 
 	        			+ person.getWhence() + ",  " 
 	        			+ (person.getIsChildConnectionInProgress() ? "in progress" : "..") + ","
@@ -581,14 +617,16 @@ public class PersonList extends Composite implements ClickHandler {
         	selectRow(0);
         }
     
-        int count = getPersonCount();
-  	  	// Update the older/newer buttons & label.
-      	int max = Math.min(this.state.startIndex + CONNECTIONS_PER_SCREEN, count);
-  	  
-  	  	lowerButton.setVisible(this.state.startIndex != 0);
+        List<Long> connectionIDs = getAnchorConnectionIDs();
+        int maxIndex = Interval.getMaxIndex(connectionIDs, CONNECTIONS_PER_SCREEN);
+        int count = connectionIDs != null ? connectionIDs.size() : 0;
+  	   	int max = Math.min(this.state.startIndex +  CONNECTIONS_PER_SCREEN, count);
+     	
+  	   	// Update the older/newer buttons & label.
+  	  	lowerButton.setVisible(this.state.startIndex > 0);
   	  	lowestButton.setVisible(this.state.startIndex > CONNECTIONS_PER_SCREEN);
-  	  	higherButton.setVisible(this.state.startIndex + CONNECTIONS_PER_SCREEN < count);
-  	  	highestButton.setVisible(this.state.startIndex + 2* CONNECTIONS_PER_SCREEN < count);
+  	  	higherButton.setVisible(this.state.startIndex < maxIndex);
+  	  	highestButton.setVisible(this.state.startIndex +  CONNECTIONS_PER_SCREEN < maxIndex);
   	  	countLabel.setText("" + (this.state.startIndex + 1) + " - " + max + " of " + count);
   	  	this.isNavigationDisabled = false;
 	}
@@ -652,6 +690,7 @@ public class PersonList extends Composite implements ClickHandler {
 	    
 	    	if (_needs2ndCacheCall) {
 	    		_needs2ndCacheCall = false;
+	    		state.startIndex = _2ndState.startIndex;
 	    		updatePersonList("2ndCacheCall"); // call server a 2nd time
 	    	}
 		}	

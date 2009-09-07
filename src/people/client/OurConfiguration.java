@@ -13,10 +13,10 @@ public class OurConfiguration {
 
 	// Debugging. All flags == false => release mode.
 	public static final boolean DEBUG_MODE = true;
-	public static final boolean SHORT_LIST = false;
+	public static final boolean SHORT_LIST = true;
 	public static final boolean VALIDATION_MODE = true;
 	public static final boolean NO_SERVER_TIME_LIMIT = false;
-	public static final boolean SUPRESS_ERRORS = true;
+	public static final boolean SUPRESS_ERRORS = false;
 	public static final boolean SHORT_SERVER_RESPONSE = false;
 	
 	// For RequestsInProgress

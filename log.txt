@@ -1,6 +1,10 @@
 WORK LOG
 ========
 
+2009/09/08
+----------
+Honour URL args e.g. http://localhost:59310/SocialGraphExplorer.html#1960788,99
+
 2009/09/07
 ----------
 Tuned performance. Stopped discarding old requests. See updateCacheIfNoVisiblePending()

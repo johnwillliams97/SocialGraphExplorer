@@ -170,6 +170,10 @@ class Interval {
   	  	return uniqueIDsList;
     }
    
+    static public int getMaxIndex(List<Long> connectionIDs, int rowsPerScreen) {
+    	int numConnections = connectionIDs != null ? connectionIDs.size() : 0;
+    	return (numConnections > 0) ? ((numConnections-1)/rowsPerScreen)*rowsPerScreen : 0;
+    }
    
     static private long[][] getAnchorAndConnectionsIDs2(CanonicalState state, 
 	  				List<Long> connectionIDs,
@@ -185,7 +189,7 @@ class Interval {
 		int i3f = Math.min(numConnections, i2f + rowsPerScreen);
 		int j1  = Math.min(numConnections,       rowsPerScreen);
 		int j2  = Math.min(numConnections, j1 +  rowsPerScreen);
-		int k1  = (numConnections > 0) ? ((numConnections-1)/rowsPerScreen)*rowsPerScreen : 0;
+		int k1  = getMaxIndex(connectionIDs, rowsPerScreen);
 		int k2  = Math.max(0, k1 - rowsPerScreen);
 		
 		// conns<n> = n-click away list

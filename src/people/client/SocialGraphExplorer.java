@@ -24,11 +24,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 
 public class SocialGraphExplorer 
-			implements EntryPoint, ResizeHandler
-                        //  , HistoryListener 
-                      //    ,ValueChangeHandler<String>  // !@#$ Should be <CanonicalState>
-{
-	
+			implements EntryPoint, ResizeHandler  {
 	
 	private ValueChangeHandler<String> historyHandler;
 	
@@ -125,75 +121,66 @@ public class SocialGraphExplorer
 			}
 		};
 		History.addValueChangeHandler(historyHandler);
-  	//	History.addHistoryListener(this);
 		
- //   topPanel.setWidth("100%");
+		String initToken = History.getToken();
+	    		
+		//   topPanel.setWidth("100%");
 
-    // PersonList uses LoadsOfFun.get() in its constructor, so initialise it after
-    // 'singleton'.
-    personList = new PersonList();
-    personList.setWidth("100%");
+		// PersonList uses LoadsOfFun.get() in its constructor, so initialise it after
+		// 'singleton'.
+		personList = new PersonList(initToken);
+		personList.setWidth("100%");
 
-    // Create the right panel, containing the email list & details.
-    rightPanel.add(personList);
-    rightPanel.add(serverStatus);
-    rightPanel.add(personDetail);
+		// Create the right panel, containing the email list & details.
+		rightPanel.add(personList);
+		rightPanel.add(serverStatus);
+		rightPanel.add(personDetail);
     
-    
-    personList.setWidth("100%");
-    personDetail.setWidth("100%");
-    serverStatus.setWidth("100%");
+		personList.setWidth("100%");
+		personDetail.setWidth("100%");
+		serverStatus.setWidth("100%");
 
-    // Create a dock panel that will contain the menu bar at the top,
-    // the shortcuts to the left, and the mail list & details taking the rest.
-    DockPanel outer = new DockPanel();
-//    outer.add(topPanel, DockPanel.NORTH);
-   // outer.add(shortcuts, DockPanel.WEST);
-    outer.add(rightPanel, DockPanel.CENTER);
-    outer.setWidth("100%");
+       // Create a dock panel that will contain the menu bar at the top,
+       // the shortcuts to the left, and the mail list & details taking the rest.
+       DockPanel outer = new DockPanel();
+       //    outer.add(topPanel, DockPanel.NORTH);
+       // outer.add(shortcuts, DockPanel.WEST);
+       outer.add(rightPanel, DockPanel.CENTER);
+       outer.setWidth("100%");
 
-    outer.setSpacing(4);
-    outer.setCellWidth(rightPanel, "100%");
+       outer.setSpacing(4);
+       outer.setCellWidth(rightPanel, "100%");
 
-    // Hook the window resize event, so that we can adjust the UI.
-    Window.addResizeHandler(this);
+       // Hook the window resize event, so that we can adjust the UI.
+       Window.addResizeHandler(this);
 
-    // Get rid of scrollbars, and clear out the window's built-in margin,
-    // because we want to take advantage of the entire client area.
-    Window.enableScrolling(false);
-    Window.setMargin("0px");
+       // Get rid of scrollbars, and clear out the window's built-in margin,
+       // because we want to take advantage of the entire client area.
+       Window.enableScrolling(false);
+       Window.setMargin("0px");
 
-    // Finally, add the outer panel to the RootPanel, so that it will be
-    // displayed.
-    RootPanel.get().add(outer);
-    
-    // History handling. See http://onjava.com/pub/a/onjava/2006/05/31/working-with-google-web-toolkit.html?page=4
-    //Add a new listener to record the row history
-   /* personList.addTableListener( new TableListener(){
-        public void onCellClicked(SourcesTableEvents sender, 
-            int row, int cell) {
-            History.newItem( ""+row );
-        }
-    });
-    */
+       // Finally, add the outer panel to the RootPanel, so that it will be
+       // displayed.
+       RootPanel.get().add(outer);
 
-    // Call the window resized handler to get the initial sizes setup. Doing
-    // this in a deferred command causes it to occur after all widgets' sizes
-    // have been computed by the browser.
-    DeferredCommand.addCommand(new Command() {
-      public void execute() {
-        onWindowResized(Window.getClientWidth(), Window.getClientHeight());
-      }
-    });
+       // Call the window resized handler to get the initial sizes setup. Doing
+       // this in a deferred command causes it to occur after all widgets' sizes
+       // have been computed by the browser.
+       DeferredCommand.addCommand(new Command() {
+    	   public void execute() {
+    		   onWindowResized(Window.getClientWidth(), Window.getClientHeight());
+    	   }
+       	});
 
-    onWindowResized(Window.getClientWidth(), Window.getClientHeight());
-  }
+       onWindowResized(Window.getClientWidth(), Window.getClientHeight());
+       
+  	}
 
-  public void onResize(ResizeEvent event) {
-    onWindowResized(event.getWidth(), event.getHeight());
-  }
+  	public void onResize(ResizeEvent event) {
+  		onWindowResized(event.getWidth(), event.getHeight());
+  	}
 
-  public void onWindowResized(int width, int height) {
+  	public void onWindowResized(int width, int height) {
     // Adjust the shortcut panel and detail area to take up the available room
     // in the window.
 	  /*
