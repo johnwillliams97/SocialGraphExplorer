@@ -43,6 +43,8 @@ Cron jobs to update more records
 Generalise to m-clicks?
 Test on all browsers and OSes
 	Vista + Chrome, Opera, IE, Safari, Firefox ok
+* Write unit tests
+Enable asserts in server mode
 Inject server bugs and test client recovery	
 	http://easymock.org/EasyMock2_5_1_Documentation.html
 	JUnit

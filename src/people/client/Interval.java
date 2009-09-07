@@ -171,22 +171,22 @@ class Interval {
     }
    
    
-		 static private long[][] getAnchorAndConnectionsIDs2(CanonicalState state, 
+    static private long[][] getAnchorAndConnectionsIDs2(CanonicalState state, 
 	  				List<Long> connectionIDs,
 	  				int rowsPerScreen,
 		  			int[] cacheLevelSize) {
 		int numConnections = connectionIDs != null ? connectionIDs.size() : 0;
 		
-		int i2b = Math.max(0, state.startIndex - 2*rowsPerScreen);
-		int i1b = Math.max(0, state.startIndex -   rowsPerScreen);
 		int i0  = state.startIndex;
-		int i1f = Math.min(numConnections, state.startIndex +   rowsPerScreen);
-		int i2f = Math.min(numConnections, state.startIndex + 2*rowsPerScreen);
-		int i3f = Math.min(numConnections, state.startIndex + 3*rowsPerScreen);
-		int j1  = Math.min(numConnections,   rowsPerScreen);
-		int j2  = Math.min(numConnections, 2*rowsPerScreen);
-		int k1  = Math.max(0, numConnections -   rowsPerScreen );
-		int k2  = Math.max(0, numConnections - 2*rowsPerScreen );
+		int i1b = Math.max(0, i0  - rowsPerScreen);
+		int i2b = Math.max(0, i1b - rowsPerScreen);
+		int i1f = Math.min(numConnections, i0  + rowsPerScreen);
+		int i2f = Math.min(numConnections, i1f + rowsPerScreen);
+		int i3f = Math.min(numConnections, i2f + rowsPerScreen);
+		int j1  = Math.min(numConnections,       rowsPerScreen);
+		int j2  = Math.min(numConnections, j1 +  rowsPerScreen);
+		int k1  = (numConnections > 0) ? ((numConnections-1)/rowsPerScreen)*rowsPerScreen : 0;
+		int k2  = Math.max(0, k1 - rowsPerScreen);
 		
 		// conns<n> = n-click away list
 		Set<Long> conns0 = new LinkedHashSet<Long>();

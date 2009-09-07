@@ -130,38 +130,18 @@ public class PersonClientCache {
 	   *    update UI
 	   */
 	  
-	  // !@#$ Loose the timers? They slow UI response. 
-	//  private static int INVISIBLE_FETCH_DELAY_CLICK1 = OurConfiguration.INVISIBLE_FETCH_DELAY_CLICK1;
-	 // private static int INVISIBLE_FETCH_DELAY_CLICK2 = OurConfiguration.INVISIBLE_FETCH_DELAY_CLICK2;
-//	  private static int INVISIBLE_FETCH_DELAY_EXTRA = 5000;
 	  private static List<Integer> VISIBLE_CACHE_LEVEL_LIST   = Arrays.asList(new Integer[] {CACHE_LEVEL_ANCHOR, CACHE_LEVEL_VISIBLE});
 	  private static List<Integer> INVISIBLE_CACHE_LEVEL_LIST = Arrays.asList(new Integer[] {CACHE_LEVEL_CLICK1, CACHE_LEVEL_CLICK2});
-	  /*
-	  private static boolean do_three_simultaneous_fetches = false;
-	  private Timer fetcherTimerClick1 = new Timer() {
-		  public void run() {
-			  if (do_three_simultaneous_fetches)
-				  fetchPersonsFromServer(Arrays.asList(new Integer[] {CACHE_LEVEL_CLICK1}), false);
-			  else
-				  fetchPersonsFromServer(INVISIBLE_CACHE_LEVEL_LIST, false);
-		  }
- 	  };
- 	  private Timer fetcherTimerClick2 = new Timer() {
-		  public void run() {
-			  if (do_three_simultaneous_fetches)
-				  fetchPersonsFromServer(Arrays.asList(new Integer[] {CACHE_LEVEL_CLICK2}), false);
-		  }
-	  };
-	  */
-	  /*
+	 
+	   /*
   	   * Ugly way of returning PersonClientCacheEntry[] 
   	   */
- 	public interface GetPersonsFromCacheCallback {
+	  public interface GetPersonsFromCacheCallback {
   		public void handleReturn(PersonClientCacheEntry[][] entries,  String description);
- 	}
- 	// This is really a global, hence all lower case
-	private GetPersonsFromCacheCallback cb_params_callback;
-	private int                         _numberOfCallbacksNeeded = 0;
+	  }
+	  // This is really a global, hence all lower case
+	  private GetPersonsFromCacheCallback cb_params_callback;
+	  private int                         _numberOfCallbacksNeeded = 0;
 	
 	// Always call back through this function to keep track of calls in progress
 	private void doCallback(String description) {
@@ -184,16 +164,6 @@ public class PersonClientCache {
 		Misc.myAssert(MiscCollections.arrayContainsArray(visibleEntryIds, _requestedVisibleIDs));
 		
 		cb_params_callback.handleReturn(entries, description);
-	}
-	
-	/*
-	 * Delay for up to a specified time-out while waiting for server to return
-	 * pending IDs
-	 */
-	private boolean areVisibleEntriesPending(long[][] uniqueIDsList) {
-		long[] requestedVisibleIDs = uniqueIDsList[CACHE_LEVEL_VISIBLE] ;
-		long[] pendingCacheEntries = getPendingCacheEntries();
- 		return (MiscCollections.arrayContainsAny(pendingCacheEntries, requestedVisibleIDs));
 	}
 	
 	private long[][] cb_uniqueIDsList = null;
@@ -246,8 +216,6 @@ public class PersonClientCache {
  		// These are the IDs of the cache entries that must be filled before returning
  		_requestedVisibleIDs = uniqueIDsList[CACHE_LEVEL_VISIBLE];
  		
- 		
-		 			
  		SocialGraphExplorer.get().showInstantStatus("updateCacheAndGetVisible(" + (uniqueIDsList != null) 
  				+  ") calls in prog = " + _numberOfCallbacksNeeded, true);
  		SocialGraphExplorer.get().log("updateCacheAndGetVisible", 
@@ -267,11 +235,9 @@ public class PersonClientCache {
  					
  		
  		/* 
- 		 * !@#$ Naively discard all old fetches in progress to guarantee cache coherency
- 		 * 		(Smarter to filter out PENDING fetches currently in progress from new request list
- 		 * 		Make this change later)
- 		 * Clear out all pending requests to ensure cache coherency 
-		 */
+ 		 * Discard all old fetches in progress to guarantee cache coherency
+ 		 *	This has no little cost because updateCacheIfNoVisiblePending() blocks calls before we get here.
+ 		 */
  		this._clientSequenceNumberCutoff = this._clientSequenceNumber;
  		clearPendingCacheEntries();
  		_serverFetchArgsList.removeAll();
@@ -305,16 +271,9 @@ public class PersonClientCache {
 	 					+ MiscCollections.arrayToString(uniqueIDsList[CACHE_LEVEL_VISIBLE]) + " "
 	 					+ getCacheLevels(uniqueIDsList[CACHE_LEVEL_VISIBLE]));
 		dumpCache("after hintPersonsInCache");
-		  
-		  // Kick off timers to do low priority requests. Logically, this follows
-		  // fetchPersonsFromServer(), but we do it first to avoid weird race conditions
-		  /*
-		  fetcherTimerClick1.schedule(INVISIBLE_FETCH_DELAY_CLICK1);
-		  if (do_three_simultaneous_fetches)
-			  fetcherTimerClick2.schedule(INVISIBLE_FETCH_DELAY_CLICK2);
-		  */
-		  // Async fetch from server of visible cache entries
-		  // Returns clunkily through cb_params_callback.handleReturn();
+		
+		// Async fetch from server of cache entries
+		// Returns clunkily through cb_params_callback.handleReturn();
 		fetchPersonsFromServer(VISIBLE_CACHE_LEVEL_LIST, true); 
 		fetchPersonsFromServer(Arrays.asList(new Integer[] {CACHE_LEVEL_CLICK1}), false);
 		fetchPersonsFromServer(Arrays.asList(new Integer[] {CACHE_LEVEL_CLICK2}), false);
@@ -364,6 +323,14 @@ public class PersonClientCache {
 	  		}
 	  	}
 	  
+	  	/*
+		 * Returns true if any visible entries are pending
+		 */
+		private boolean areVisibleEntriesPending(long[][] uniqueIDsList) {
+			long[] requestedVisibleIDs = uniqueIDsList[CACHE_LEVEL_VISIBLE] ;
+			long[] pendingCacheEntries = getPendingCacheEntries();
+	 		return (MiscCollections.arrayContainsAny(pendingCacheEntries, requestedVisibleIDs));
+		}
 	  	  	
 	  
 	  /*

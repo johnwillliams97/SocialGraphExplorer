@@ -238,7 +238,8 @@ public class PersonList extends Composite implements ClickHandler {
 	    else if (sender == oldestButton) {
 	    	//SocialGraphExplorer.get().showInstantStatus("oldestButton");
 		    // Move to end.
-		    this.state.startIndex = (getPersonCount()/CONNECTIONS_PER_SCREEN)*CONNECTIONS_PER_SCREEN;
+	    	int count = getPersonCount();
+		    this.state.startIndex = (count > 0) ? ((count-1)/CONNECTIONS_PER_SCREEN)*CONNECTIONS_PER_SCREEN : 0;
 		    styleRow(selectedRow, false);
 		    selectedRow = -1;
 		    updatePersonList("oldestButton");
@@ -441,7 +442,7 @@ public class PersonList extends Composite implements ClickHandler {
     private void updatePersonList_(String dbgMsg, boolean isRewind) {
   		
     	PersonClient.debugValidate(this.theAnchor);
-		  if (!statesEqual(this.state, this.oldState))
+		if (!statesEqual(this.state, this.oldState))
 			  this.state.visibleFetched = false;
 		  
 		  // Web history handling
@@ -667,6 +668,7 @@ public class PersonList extends Composite implements ClickHandler {
 			List<Long> connectionIDs,
 			int rowsPerScreen) {
 		int numConnections = connectionIDs != null ? connectionIDs.size() : 0;
+		Misc.myAssert(state.startIndex < numConnections || state.startIndex == 0);
 		String msg = "" + numConnections + ": " + state.anchorUniqueID + ", ";
 		int i0 = Math.max(0, state.startIndex - rowsPerScreen);
 		int i1 = state.startIndex;
@@ -683,6 +685,7 @@ public class PersonList extends Composite implements ClickHandler {
 	static private String makeIDsString(List<Long> connectionIDs, int i0, int i1) {
 		String msg = "" + (i1-i0) + ":[";
 		if (connectionIDs != null) {
+			Misc.myAssert(0 <= i0 && i0 <= i1 && i1 <= connectionIDs.size() );
 			for (int i = i0; i < i1; ++i) {
 				msg += connectionIDs.get(i) + ",";
 			}
