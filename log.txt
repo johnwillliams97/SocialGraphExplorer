@@ -4,7 +4,10 @@ WORK LOG
 2009/09/07
 ----------
 Tuned performance. Stopped discarding old requests. See updateCacheIfNoVisiblePending()
-	
+
+Pushed a stable version
+	Release http://8.latest.peterwilliams9798.appspot.com/ 
+	Debug   http://7.latest.peterwilliams9798.appspot.com/
 	
 2009/09/06
 ----------
@@ -17,7 +20,7 @@ Removed '*' from UI controls
 ----------
 Pushed a stable version
 	Release http://6.latest.peterwilliams9798.appspot.com/ 
-	Debug   http://7.latest.peterwilliams9798.appspot.com/
+	Debug   http://5.latest.peterwilliams9798.appspot.com/
 
 2009/09/02
 ----------
