@@ -59,6 +59,23 @@ Optimise caching
 	Create one instance of PersonClientCache and re-use it	
 	Fetch visible summary part of person fist <1KB compared to ~100KB for whole person
 	Generalise to m-clicks?
+* Add GDATA features
+ 	http://code.google.com/p/gwt-gdata/
+ 	http://groups.google.com/group/gwt-google-apis/browse_thread/thread/b87dd0406bde2e13?hl=en
+ 	http://code.google.com/apis/maps/documentation/mapsdata/
+ 
+General exception handler: http://www.itsolut.com/chrismusings/2009/08/04/rooting-out-exception/	
+	//chain handlers
+	private UncaughtExceptionHandler ueh;
+	 ueh = GWT.getUncaughtExceptionHandler();
+	GWT.setUncaughtExceptionHandler(new UncaughtExceptionHandler() {
+	  public void onUncaughtException(Throwable t) {
+	    logToConsole("AppController: Uncaught exception handled: " + t.getMessage());
+	    if (ueh != null) {
+	      ueh.onUncaughtException(t);
+	    }
+	  }
+	});
 
 BUGS
 ----
@@ -66,8 +83,7 @@ Find and fix all !@#$
 Remap URLs in HTML scraped from social networks (may be better to parse HTML)
 Moving between screens should maintain row position on screen
 * RPC error (onFailureCallback()) when using back button
-No persons are being fetched from CacheCache
-Full HTML is not always being fetched
+Full HTML is not always being fetched. Could be PersonLI not being DataNucleas enhanced?
 Test these URLS
 	#2640540,120
 	#11621780,0

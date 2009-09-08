@@ -25,10 +25,11 @@ public class CacheCache implements CacheActual<Long, PersonLI> {
 	    }
 	}
 	
-	
 	@Override
 	public PersonLI get(Long key, WebReadPolicy policy, double timeBoundSec) {
 		PersonLI person = (PersonLI)theCache.get(key);
+		if (person != null)
+			person.setWhence("CacheCache");
 		return person;
 	}
 

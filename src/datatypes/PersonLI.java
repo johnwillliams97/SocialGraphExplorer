@@ -746,7 +746,7 @@ public class PersonLI  implements Serializable, PersonPublic, CacheTrait {
 	
 	@Override
 	public boolean isIncomplete() {
-		boolean incomplete = getIsChildConnectionInProgress() || getHtmlPage() == null;// 
+		boolean incomplete = getIsChildConnectionInProgress() || getHtmlPage() == null;
 		long uniqueID = getLiUniqueID();
 		String nameFull = getNameFull();
 		String compl = incomplete ? "INCOMPLETE" : "complete";

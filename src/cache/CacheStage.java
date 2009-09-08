@@ -42,8 +42,8 @@ public class CacheStage<K, V extends CacheTrait> {
 		V value = null; 
 		try {
 			value = cacheActual.get(key, policy, timeBoundSec);
-			if (value != null && value.getWhence() == null)
-				value.setWhence(cacheActual.identify());
+		//	if (value != null /*&& value.getWhence() == null*/)
+		//		value.setWhence(cacheActual.identify());
 		}
 		catch (Exception e) {
 			// Best effort response to an exception
@@ -66,7 +66,7 @@ public class CacheStage<K, V extends CacheTrait> {
 			}
 		}
 		
-		// Debug code
+		// Debug code !@#$
 		String cacheIdentity = cacheActual.identify();
 		if (cacheIdentity.contains("CacheDB"))
 			assert(nextStage == null);

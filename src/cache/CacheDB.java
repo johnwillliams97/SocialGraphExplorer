@@ -4,6 +4,8 @@ package cache;
  */
 
 import java.util.logging.Logger;
+
+import people.client.OurConfiguration;
 import people.client.Statistics;
 import htmlstuff.WebSiteReader_EntryPoint;
 import datatypes.PersonLI;
@@ -21,6 +23,8 @@ public class CacheDB implements CacheActual<Long, PersonLI> {
 	private PersonLI getFromDBandLI(Long key, boolean doCheckLI, WebReadPolicy policy, double timeBoundSec) {
 		
 		PersonLI 	person = PersonLI.findInDBbyUniqueId(key);
+		if (person != null)
+			person.setWhence("CacheDB");
 		
 		boolean 	needsLIRead = false;
 		
@@ -60,14 +64,16 @@ public class CacheDB implements CacheActual<Long, PersonLI> {
 					person.saveToDB();
 					Statistics.getInstance().recordEvent("Saved " + person.getNameFull() + " to DB");
 					// !@#$ check
-					PersonLI 	person2 = PersonLI.findInDBbyUniqueId(key);
-					boolean personHasHtml  = (person != null  && person.getHtmlPage() != null);
-					boolean person2HasHtml = (person2 != null && person2.getHtmlPage() != null);
-					assert(person2HasHtml == personHasHtml);
-					String employer1 = person != null  ? person.getEmployer()  : null;;
-					String employer2 = person2 != null ? person2.getEmployer() : null;
-					assert((employer1 == null && employer2 == null) ||
-						   (employer1 != null && employer2 != null && employer1.equals(employer2)));
+					if (OurConfiguration.VALIDATION_MODE) {
+						PersonLI 	person2 = PersonLI.findInDBbyUniqueId(key);
+						boolean personHasHtml  = (person != null  && person.getHtmlPage() != null);
+						boolean person2HasHtml = (person2 != null && person2.getHtmlPage() != null);
+						assert(person2HasHtml == personHasHtml);
+						String employer1 = person != null  ? person.getEmployer()  : null;;
+						String employer2 = person2 != null ? person2.getEmployer() : null;
+						assert((employer1 == null && employer2 == null) ||
+							   (employer1 != null && employer2 != null && employer1.equals(employer2)));
+					}
 				}
 			}
 		}
