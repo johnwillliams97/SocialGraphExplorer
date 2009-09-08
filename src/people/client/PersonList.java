@@ -5,6 +5,7 @@ import java.util.List;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.History;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
@@ -517,7 +518,8 @@ public class PersonList extends Composite implements ClickHandler {
 	private boolean _savedFor2ndCall = false;
 	// Save isRewind arg in saveStateInHistory()
   	private boolean _savedIsRewind = false;
-  	/*
+  	
+   	/*
   	 * Save a state in the history list
   	 * @param historyItem - state to be saved
   	 * @param isRewind - true if this function is called in response to a browser arrow
@@ -538,8 +540,27 @@ public class PersonList extends Composite implements ClickHandler {
   				//SocialGraphExplorer.get().showInstantStatus("History.newItem(" + historyItem + ")", true);
   				History.newItem(historyItem, false); // See http://google-web-toolkit.googlecode.com/svn/javadoc/1.6/com/google/gwt/user/client/History.html#newItem(java.lang.String, boolean)
   				_lastHistoryItem = historyItem;
+  				
+  				updateWindowTitle(historyItem);
   			}
   		}
+  	}
+  	
+  	// Holds the initial window title
+	private  String _baseTitle = null;
+	/*
+	 * Update the window title so that old states can be looked up in the browser history list
+	 * @param historyItem - URL pattern for current UI canonical state
+	 */
+  	private void updateWindowTitle(String historyItem)  {
+  	// Do the title
+		if (_baseTitle == null)
+			_baseTitle = Window.getTitle();
+		String title = (_baseTitle != null) ? _baseTitle : "???";
+		if (theAnchor != null && theAnchor.getNameFull() != null)
+			title +=  " :: " + theAnchor.getNameFull();
+		title += " :: " + historyItem;
+		Window.setTitle(title);
   	}
   
   	private boolean statesEqual(CanonicalState s1, CanonicalState s2) {
@@ -594,7 +615,10 @@ public class PersonList extends Composite implements ClickHandler {
         		int index = 0; // Anchor
         		if (i > 0)
         			index = this.state.startIndex + (i-1) + 1; // Show indexes as being 1-offset
-    		   	table.setText(i+1 , 0, squeeze(person.getNameFull(), 20) + " - " + index + ",  " 
+        		//String url = "http://www.linkedin.com/profile?viewProfile=&key=" + person.getLiUniqueID();
+	        	//String link = "<a href='" + url + "'>" + squeeze(person.getNameFull(), 20) + "</a>";
+        		String link = squeeze(person.getNameFull(), 20);
+    		   	table.setText(i+1 , 0, link + " - " + index + ",  " 
 	        			+ person.getWhence() + ",  " 
 	        			+ (person.getIsChildConnectionInProgress() ? "in progress" : "..") + ","
 	        			+ (person.getHtmlPage() != null ? person.getHtmlPage().length()/1024 : 0) + "kb, " 
@@ -602,8 +626,9 @@ public class PersonList extends Composite implements ClickHandler {
 	        			+ person.getFetchDurationFull() + " sec"
 	        			+ ", level " + person.getCacheLevel()
 	        			);
-	        	table.setText(i+1 , 1, squeeze(person.getDescription(), 60) + " - " + numConnections);
-	        	table.setText(i+1 , 2, person.getLocation() + " - " + person.getLiUniqueID());
+	        	table.setText(i+1 , 1, squeeze(person.getDescription(), 80) + " - " + numConnections);
+	            table.setText(i+1 , 2, person.getLocation() + " - " + person.getLiUniqueID());
+	        			
         	}
         	else {
         		// Clear any remaining slots.
