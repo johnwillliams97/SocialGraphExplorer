@@ -249,7 +249,7 @@ public class RPCWrapper {
      */
     private void onSuccessCallbackReportStatus(PersonClientGroup result, List<Integer> uniqueLevels ) {
     	// Verify some assumptions
-    	Misc.myAssert(result != null);
+    	Misc.myAssert(result != null, "onSuccessCallbackReportStatus null result");
     	//myAssert(result.requestedLevels != null);
     	//myAssert(result.requestedUniqueIDs != null);
     	//myAssert(result.fetches != null);

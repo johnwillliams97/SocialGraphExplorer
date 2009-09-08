@@ -249,9 +249,12 @@ class Interval {
 			Set<Long> conns1,
 			Set<Long> conns2) {
 		if (OurConfiguration.VALIDATION_MODE) {
-			Misc.myAssert(conns0.size() <= cacheLevelSize[PersonClientCache.CACHE_LEVEL_VISIBLE]);
-			Misc.myAssert(conns1.size() <= cacheLevelSize[PersonClientCache.CACHE_LEVEL_CLICK1]);
-			Misc.myAssert(conns2.size() <= cacheLevelSize[PersonClientCache.CACHE_LEVEL_CLICK2]);
+			Misc.myAssert(conns0.size() <= cacheLevelSize[PersonClientCache.CACHE_LEVEL_VISIBLE], 
+					"checkSizes(CACHE_LEVEL_VISIBLE) " + conns0.size() + ", " + cacheLevelSize[PersonClientCache.CACHE_LEVEL_VISIBLE]);
+			Misc.myAssert(conns1.size() <= cacheLevelSize[PersonClientCache.CACHE_LEVEL_CLICK1], 
+					"checkSizes(CACHE_LEVEL_CLICK1) " + conns1.size() + ", " + cacheLevelSize[PersonClientCache.CACHE_LEVEL_CLICK1]);
+			Misc.myAssert(conns2.size() <= cacheLevelSize[PersonClientCache.CACHE_LEVEL_CLICK2], 
+					"checkSizes(CACHE_LEVEL_CLICK2) " + conns2.size() + ", " + cacheLevelSize[PersonClientCache.CACHE_LEVEL_CLICK2]);
 		}
 	}
 	

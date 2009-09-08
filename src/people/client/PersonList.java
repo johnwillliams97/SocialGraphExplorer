@@ -108,7 +108,7 @@ public class PersonList extends Composite implements ClickHandler {
 		// GWT sometimes calls this twice in hosted mode.
 		++debug_num_calls;
 		if (debug_num_calls > 1) {
-			Misc.myAssert(debug_num_calls <= 1);
+			Misc.myAssert(debug_num_calls <= 1, "PersonList - debug_num_calls <= ");
 		}
 		
 		// Setup the cache
@@ -558,7 +558,7 @@ public class PersonList extends Composite implements ClickHandler {
      * @return person cache entry for row or null if there is no cache entry 
      */
   	private PersonClient getPersonForRow(int row) {
-  		Misc.myAssert(0 <= row && row < VISIBLE_PERSONS_COUNT);
+  		Misc.myAssert(0 <= row && row < VISIBLE_PERSONS_COUNT, "getPersonForRow - 0 <= row && row < VISIBLE_PERSONS_COUNT");
   		PersonClient person = null;
   		
   		if (row == 0) {
@@ -672,11 +672,11 @@ public class PersonList extends Composite implements ClickHandler {
 	    	// This only gets called <=2 times since we set 2nd set of IDs to null here
   	
 	    	if (!state.anchorFetched) {
-	       		Misc.myAssert(entries[PersonClientCache.CACHE_LEVEL_ANCHOR] != null);
-	       		Misc.myAssert(entries[PersonClientCache.CACHE_LEVEL_ANCHOR].length > 0);
+	       		Misc.myAssert(entries[PersonClientCache.CACHE_LEVEL_ANCHOR] != null, "handleReturn - entries[PersonClientCache.CACHE_LEVEL_ANCHOR] != nul ");
+	       		Misc.myAssert(entries[PersonClientCache.CACHE_LEVEL_ANCHOR].length > 0, "handleReturn - entries[PersonClientCache.CACHE_LEVEL_ANCHOR].length > 0");
   				PersonClientCacheEntry newAnchorEntry = entries[PersonClientCache.CACHE_LEVEL_ANCHOR][0];
   				PersonClient newAnchor = newAnchorEntry.getPerson();
-  				Misc.myAssert(newAnchor != null);
+  				Misc.myAssert(newAnchor != null, "handleReturn - newAnchor != nul");
   				updateAnchor(newAnchor, true);
  			}
 	    	else {
@@ -707,7 +707,7 @@ public class PersonList extends Composite implements ClickHandler {
 			List<Long> connectionIDs,
 			int rowsPerScreen) {
 		int numConnections = connectionIDs != null ? connectionIDs.size() : 0;
-		Misc.myAssert(state.startIndex < numConnections || state.startIndex == 0);
+		Misc.myAssert(state.startIndex < numConnections || state.startIndex == 0, "printPersonList - tate.startIndex < numConnections || state.startIndex == 0");
 		String msg = "" + numConnections + ": " + state.anchorUniqueID + ", ";
 		int i0 = Math.max(0, state.startIndex - rowsPerScreen);
 		int i1 = state.startIndex;
@@ -724,7 +724,7 @@ public class PersonList extends Composite implements ClickHandler {
 	static private String makeIDsString(List<Long> connectionIDs, int i0, int i1) {
 		String msg = "" + (i1-i0) + ":[";
 		if (connectionIDs != null) {
-			Misc.myAssert(0 <= i0 && i0 <= i1 && i1 <= connectionIDs.size() );
+			Misc.myAssert(0 <= i0 && i0 <= i1 && i1 <= connectionIDs.size(), "makeIDsString - 0 <= i0 && i0 <= i1 && i1 <= " + connectionIDs.size());
 			for (int i = i0; i < i1; ++i) {
 				msg += connectionIDs.get(i) + ",";
 			}

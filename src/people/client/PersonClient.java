@@ -198,10 +198,10 @@ public class PersonClient implements IsSerializable, PersonPublic {
 				 long idI, idJ;
 				 for (int i = 0; i < numConnections; ++i) {
 					 idI = connectionIDs.get(i) ;
-					 Misc.myAssert(idI != uniqueID);
+					 Misc.myAssert(idI != uniqueID, "PersonClient.debugValidate - duplicate uniqueID" + i + "," + uniqueID);
 					 for (int j = i+1; j < numConnections; ++j) { 
 						 idJ = connectionIDs.get(j) ;
-						 Misc.myAssert(idI != idJ);
+						 Misc.myAssert(idI != idJ,  "PersonClient.debugValidate - duplicate connection" + i + "," + j + "," + idJ);
 					 }
 				 }
 			 }

@@ -152,7 +152,7 @@ public class PersonClientCache {
 	
 	// Always call back through this function to keep track of calls in progress
 	private void doCallback(String description) {
-		Misc.myAssert(_numberOfCallbacksNeeded >= 0);
+		Misc.myAssert(_numberOfCallbacksNeeded >= 0, "doCallback - numberOfCallbacksNeeded >= 0");
 		if (_numberOfCallbacksNeeded > 0)
 			--_numberOfCallbacksNeeded;
 		SocialGraphExplorer.get().showInstantStatus2("doCallback(" + description +  ")",
@@ -166,7 +166,7 @@ public class PersonClientCache {
 		// _requestedVisibleIDs are the IDs of the cache entries that must be filled before returning
 		// visibleEntryIds should not contain any IDs that are not in _requestedVisibleIDs
 		long[] visibleEntryIds = MiscCollections.listToArrayLong(getIdListForEntries(entries[CACHE_LEVEL_VISIBLE]));
-		Misc.myAssert(MiscCollections.arrayContainsArray(_requestedVisibleIDs, visibleEntryIds));
+		Misc.myAssert(MiscCollections.arrayContainsArray(_requestedVisibleIDs, visibleEntryIds), "doCallback - MiscCollections.arrayContainsArray(_requestedVisibleIDs, visibleEntryIds");
 		// This when combined with the previous assertion ensures visibleEntryIds==_requestedVisibleIDs
 	//	Misc.myAssert(MiscCollections.arrayContainsArray(visibleEntryIds, _requestedVisibleIDs));
 		
@@ -1145,7 +1145,7 @@ public class PersonClientCache {
 					  anchor_has_been_filled = true;
 			  }
 			  else {
-				  Misc.myAssert(gotAnchor);
+				  Misc.myAssert(gotAnchor, "validateCache - gotAnchor");
 			  }
 		  }
 	  }
