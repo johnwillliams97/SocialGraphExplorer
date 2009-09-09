@@ -16,7 +16,7 @@ public class CacheDB implements CacheActual<Long, PersonLI> {
 	
 	private static String 		LINKED_IN = "LinkedIn";
 	private WebSiteReader_EntryPoint 	webSiteReaderEntry = new WebSiteReader_EntryPoint();
-	private double 				longestLIReadDuration = 0.0; // For profiling
+	private double 				_longestLIReadDuration = 0.0; // For profiling
 	private static final PersonLI NO_PERSON = new PersonLI(
 			"Donald", 
 	  		"Duck", 
@@ -68,8 +68,8 @@ public class CacheDB implements CacheActual<Long, PersonLI> {
 				
 				double after = Statistics.getCurrentTime();
 				double duration = after - before;
-				this.longestLIReadDuration = Math.max(duration, this.longestLIReadDuration);
-				logger.info("LinkeIn read took " + duration/1000L + " (longest = " + this.longestLIReadDuration/1000L + ")");
+				_longestLIReadDuration = Math.max(duration, _longestLIReadDuration);
+				logger.info("LinkeIn read took " + duration/1000L + " (longest = " + _longestLIReadDuration/1000L + ")");
 				Statistics.getInstance().recordEvent("done getPersonFromLI");
 				if (personRead != null) {
 					personRead.setWhence(LINKED_IN);
@@ -99,7 +99,7 @@ public class CacheDB implements CacheActual<Long, PersonLI> {
 
 	@Override
 	public PersonLI get(Long key, WebReadPolicy policy, double timeBoundSec) {
-		PersonLI person = this.getFromDBandLI(key, true, policy, timeBoundSec);
+		PersonLI person = getFromDBandLI(key, true, policy, timeBoundSec);
 		return person;
 	}
 	

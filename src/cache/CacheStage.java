@@ -26,23 +26,23 @@ public class CacheStage<K, V extends CacheTrait> {
 			return summary;
 		}
 	}
-	CacheStats cacheStats = new CacheStats();
-	private CacheActual<K,V> cacheActual = null;
-	private CacheStage<K,V>  nextStage = null;
+	private CacheStats       _cacheStats = new CacheStats();
+	private CacheActual<K,V> _cacheActual = null;
+	private CacheStage<K,V>  _nextStage = null;
 	
-	private int sequence = -1;
+	private int _sequence = -1;
 	
 	public CacheStage(CacheActual<K,V> cacheActual, int sequence) {
-		this.cacheActual = cacheActual;
-		this.sequence = sequence;
+		_cacheActual = cacheActual;
+		_sequence = sequence;
 	}
 	
 	public V get(K key, WebReadPolicy policy, double timeBoundSec) {
-		++cacheStats.numGets;
+		++_cacheStats.numGets;
 	
 		V value = null; 
 		try {
-			value = cacheActual.get(key, policy, timeBoundSec);
+			value = _cacheActual.get(key, policy, timeBoundSec);
 		//	if (value != null /*&& value.getWhence() == null*/)
 		//		value.setWhence(cacheActual.identify());
 		}
@@ -55,52 +55,52 @@ public class CacheStage<K, V extends CacheTrait> {
 		boolean incomplete = (value != null && value.isIncomplete());
 		
 		if (value == null || policy == WebReadPolicy.ALWAYS || incomplete) {
-			++cacheStats.numMisses;
-			if (nextStage != null) {
+			++_cacheStats.numMisses;
+			if (_nextStage != null) {
 				if (incomplete) {
 					incomplete = true;
 				}
-				value = nextStage.get(key, policy,  timeBoundSec);
+				value = _nextStage.get(key, policy,  timeBoundSec);
 				if (value != null) {
-					cacheActual.put(key, value); // Don't call this.put() !
+					_cacheActual.put(key, value); // Don't call this.put() !
 				}
 			}
 		}
 		
 		// Debug code !@#$
-		String cacheIdentity = cacheActual.identify();
+		String cacheIdentity = _cacheActual.identify();
 		if (cacheIdentity.contains("CacheDB"))
-			assert(nextStage == null);
+			assert(_nextStage == null);
 		else
-			assert(nextStage != null);
+			assert(_nextStage != null);
 		//- Debug code
 		
 		return value;
 	}
 	
 	public void put(K key, V value, double timeBoundSec) {
-		++cacheStats.numPuts;
+		++_cacheStats.numPuts;
 		final WebReadPolicy webReadPolicy = OurConfiguration.ALLOW_LINKED_READS ? WebReadPolicy.AUTO : WebReadPolicy.NEVER;
-		V val = cacheActual.get(key, webReadPolicy, timeBoundSec);
+		V val = _cacheActual.get(key, webReadPolicy, timeBoundSec);
 		if (!(val != null && val.equals(value))) {
-			cacheActual.put(key, value);
-			if (nextStage != null) {
-				nextStage.put(key, value,  timeBoundSec);
+			_cacheActual.put(key, value);
+			if (_nextStage != null) {
+				_nextStage.put(key, value,  timeBoundSec);
 			}
 		}
 	}
 	public void setNextStage(CacheStage<K,V> nextStage) {
-		this.nextStage = nextStage;
+		_nextStage = nextStage;
 	}
 	public CacheStage<K, V> getNextStage() {
-		return nextStage;
+		return _nextStage;
 	}
 	public String identify() {
-		String identity = "sequence=" + sequence + ", id=" + cacheActual.identify(); 
+		String identity = "sequence=" + _sequence + ", id=" + _cacheActual.identify(); 
 		return identity;
 	}
 	public String getStatus() {
-		return cacheStats.getSummary();
+		return _cacheStats.getSummary();
 	}
 	
 }
