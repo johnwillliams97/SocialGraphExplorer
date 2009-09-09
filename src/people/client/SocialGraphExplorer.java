@@ -122,13 +122,14 @@ public class SocialGraphExplorer
 		};
 		History.addValueChangeHandler(historyHandler);
 		
+		// Determine the system's starting state. null => default
+		final String INITIAL_UI_STATE = OurConfiguration.INITIAL_UI_STATE; 
 		String initToken = History.getToken();
-	    		
-		//   topPanel.setWidth("100%");
-
+		String startingState = (initToken != null && initToken.length() > 0) ? initToken : INITIAL_UI_STATE;
+		
 		// PersonList uses LoadsOfFun.get() in its constructor, so initialise it after
 		// 'singleton'.
-		personList = new PersonList(initToken);
+		personList = new PersonList(startingState);
 		personList.setWidth("100%");
 
 		// Create the right panel, containing the email list & details.

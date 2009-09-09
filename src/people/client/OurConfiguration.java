@@ -16,8 +16,12 @@ public class OurConfiguration {
 	public static final boolean SHORT_LIST = false;
 	public static final boolean VALIDATION_MODE = true;
 	public static final boolean NO_SERVER_TIME_LIMIT = false;
-	public static final boolean SUPRESS_ERRORS = false;
+	public static final boolean SUPRESS_ERRORS = true;
 	public static final boolean SHORT_SERVER_RESPONSE = false;
+	
+	// Determines the system's starting state. null => default
+	// Handy for debugging
+	public static final String INITIAL_UI_STATE = "1814285,10";
 	
 	// For RequestsInProgress
 	public static final  int MAX_REQUESTS_IN_PROGRESS = 20;
@@ -33,7 +37,8 @@ public class OurConfiguration {
 	// For ClientCache
 	public static final int INVISIBLE_FETCH_DELAY_CLICK1 = 100;  	// msec
 	public static final int INVISIBLE_FETCH_DELAY_CLICK2 = 200;		// msec
-
+	
+	 
 	
 
 }

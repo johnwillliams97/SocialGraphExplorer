@@ -3,6 +3,11 @@ WORK LOG
 
 2009/09/08
 ----------
+Made startup state configurable OurConfiguration.INITIAL_UI_STATE
+
+
+2009/09/08
+----------
 Honour URL args e.g. http://localhost:59310/SocialGraphExplorer.html#1960788,99
 Added assertion description field to Misc.myAssert() because GWT disables asserts in web mode.
 Fixed "No persons are being fetched from CacheCache" by changing setWhence() calls
