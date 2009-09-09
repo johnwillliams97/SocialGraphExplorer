@@ -14,9 +14,6 @@ import com.google.gwt.user.client.Window;
  */
 public class Misc {
 	
-	public static void myAssert(boolean condition) {
-		myAssert(condition, null);
-	}
 	public static void myAssert(boolean condition, String msg) {
 		if (!condition) {
 			assert(condition);  // Add breakpoint here
