@@ -4,6 +4,10 @@ WORK LOG
 2009/09/08
 ----------
 Made startup state configurable OurConfiguration.INITIAL_UI_STATE
+Posted a blog entry http://peterwilliams97.blogspot.com/2009/09/gae-gwt-starter-project-8-reflections.html
+Overwrote last stable versions! Oh well.
+	Release http://8.latest.peterwilliams9798.appspot.com/ 
+	Debug   http://7.latest.peterwilliams9798.appspot.com/
 
 
 2009/09/08

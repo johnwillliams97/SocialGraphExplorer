@@ -56,11 +56,11 @@ public class WebSiteReader_Common {
 			// set up cookies
 			String url = "www.linkedin.com";
 			String domain = ".linkedin.com";
-			setACooky(manager, url, domain, "bcookie", "d2375dea-b963-49e4-90f9-71a30eeccd25");
-			setACooky(manager, url, domain, "srchId",  "5b40857a-343a-4c49-ac92-e0b5623ce4ae");
-			setACooky(manager, url, domain, "leo_auth_token", "LIM:1960788:i:1244505808:f23ae663f37659dd693bc98dfa7e558c11f4532f");
-			setACooky(manager, url, domain, "NSC_MC_WT_DTQ_IUUQ", "e2420fbd199f");
-			setACooky(manager, url, domain, "NSC_MC_QH_MFP",      "e2420d8429a0");
+			setACooky(manager, url, domain, "bcookie", MagicLICookies.bcookie);
+			setACooky(manager, url, domain, "srchId",  MagicLICookies.srchId);
+			setACooky(manager, url, domain, "leo_auth_token",  MagicLICookies.leo_auth_token);
+			setACooky(manager, url, domain, "NSC_MC_WT_DTQ_IUUQ",  MagicLICookies.NSC_MC_WT_DTQ_IUUQ);
+			setACooky(manager, url, domain, "NSC_MC_QH_MFP",       MagicLICookies.NSC_MC_QH_MFP);
 		}
 	}
 	
