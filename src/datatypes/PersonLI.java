@@ -755,4 +755,16 @@ public class PersonLI  implements Serializable, PersonPublic, CacheTrait {
 			logger.warning(uniqueID + ":" + nameFull + " - " + compl);
 		return incomplete;
 	}
+	
+	/*
+	 * A Claytons Person for when there is no person
+	 */
+	public static final PersonLI NO_PERSON = new PersonLI(
+			"Donald", 
+	  		"Duck", 
+	  		PersonPublic.NO_PERSON_UNIQUEID,
+	  		0,
+	  		"Disneyland",
+	  		"A Duck in the Entertainment Business",
+	  		null);
 }

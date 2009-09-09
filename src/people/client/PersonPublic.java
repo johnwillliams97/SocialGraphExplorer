@@ -15,6 +15,7 @@ public interface PersonPublic {
 		RECORD_READ_BASIC,
 		RECORD_READ_FULL
 	}
+	long NO_PERSON_UNIQUEID = 1L;
 	 /*
  	  * getters & setters
  	  */
