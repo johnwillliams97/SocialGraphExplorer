@@ -19,7 +19,7 @@ public class PersonFetch implements IsSerializable {
 		List<Long> ids = new ArrayList<Long>();
 		if (fetches != null)  {
 			for (PersonFetch fetch: fetches) {
-				ids.add(fetch.person.getLiUniqueID());
+				ids.add(fetch.person.getUniqueID());
 			}
 		}
 		return ids;

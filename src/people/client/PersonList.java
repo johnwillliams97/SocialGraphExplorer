@@ -289,10 +289,9 @@ public class PersonList extends Composite implements ClickHandler {
 	             	For consistency, use one method to update person
 	             	*/
 	        		_selectedRow = -1;
-	        		CanonicalState newState = new CanonicalState(getPersonForRow(row).getLiUniqueID(), 0);
+	        		CanonicalState newState = new CanonicalState(getPersonForRow(row).getUniqueID(), 0);
 	             	updatePersonListExtern(newState, false);
-	        		//updatePersonList("new anchor = " + oldID + " => " + newState.getAsString());
-	        	}
+	         	}
 	        }
 	      }
 	    }
@@ -324,9 +323,9 @@ public class PersonList extends Composite implements ClickHandler {
   		if (newAnchor != null && !newAnchor.isMagicPerson()) { 	// Update to a real person?
 			if (!_state.anchorFetched)	{
 				SocialGraphExplorer.get().showInstantStatus("updateAnchor(" + _oldState.anchorUniqueID + " => " 
-						+ newAnchor.getLiUniqueID() + "," + saveOldAnchor + ")");
+						+ newAnchor.getUniqueID() + "," + saveOldAnchor + ")");
 				_theAnchor = newAnchor;
-				_state.anchorUniqueID = newAnchor.getLiUniqueID();
+				_state.anchorUniqueID = newAnchor.getUniqueID();
 				_state.anchorFetched = true;
 				_state.visibleFetched = false;   // Visible list is invalid because anchor has changed
 				_oldState.anchorUniqueID = _state.anchorUniqueID;  // !@#$ could do better!
@@ -371,7 +370,7 @@ public class PersonList extends Composite implements ClickHandler {
 	long   dbgUniqueID = PersonClient.UNIQUE_ID_NOT_FOUND;
 	if (person != null) {
 		dbgNameFull = person.getNameFull() ;
-		dbgUniqueID = person.getLiUniqueID();
+		dbgUniqueID = person.getUniqueID();
 	}
 	String cons = "[";
 	if (person != null) {
@@ -473,7 +472,7 @@ public class PersonList extends Composite implements ClickHandler {
 		// Use a real uniqueID instead of a pseudo ID.
 		CanonicalState saveState = new CanonicalState(_state);
 		if (saveState.anchorUniqueID == PersonClient.MAGIC_PERSON_CLIENT_1_UNIQUE_ID && _theAnchor != null)
-			saveState.anchorUniqueID = _theAnchor.getLiUniqueID();
+			saveState.anchorUniqueID = _theAnchor.getUniqueID();
 			
 	  	// Save in web history
 	  	saveStateInHistory(saveState, isRewind, _needs2ndCacheCall);
@@ -617,7 +616,7 @@ public class PersonList extends Composite implements ClickHandler {
         		int index = 0; // Anchor
         		if (i > 0)
         			index = _state.startIndex + (i-1) + 1; // Show indexes as being 1-offset
-        		//String url = "http://www.linkedin.com/profile?viewProfile=&key=" + person.getLiUniqueID();
+        		//String url = "http://www.linkedin.com/profile?viewProfile=&key=" + person.getUniqueID();
 	        	//String link = "<a href='" + url + "'>" + squeeze(person.getNameFull(), 20) + "</a>";
         		String link = squeeze(person.getNameFull(), 20);
     		   	_table.setText(i+1 , 0, link + " - " + index + ",  " 
@@ -629,7 +628,7 @@ public class PersonList extends Composite implements ClickHandler {
 	        			+ ", level " + person.getCacheLevel()
 	        			);
 	        	_table.setText(i+1 , 1, squeeze(person.getDescription(), 80) + " - " + numConnections);
-	            _table.setText(i+1 , 2, person.getLocation() + " - " + person.getLiUniqueID());
+	            _table.setText(i+1 , 2, person.getLocation() + " - " + person.getUniqueID());
 	        			
         	}
         	else {

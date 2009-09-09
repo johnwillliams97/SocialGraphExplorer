@@ -39,7 +39,7 @@ public class PersonClientGroup  implements IsSerializable {
 		List<Long> fetchedIDs = new ArrayList<Long>();
 		if (this.fetches != null) {
 			for (PersonFetch fetch: fetches) {
-				fetchedIDs.add(fetch.person.getLiUniqueID());
+				fetchedIDs.add(fetch.person.getUniqueID());
 			}
 		}
 		return fetchedIDs;

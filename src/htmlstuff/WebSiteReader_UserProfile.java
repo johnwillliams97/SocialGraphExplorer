@@ -182,7 +182,7 @@ public class WebSiteReader_UserProfile {
 	            if (tagNameAttr.equalsIgnoreCase("UniqueID")) {
 	            	uniqueID = tag.getAttribute("content");
 	            	if (uniqueID != null) {
-	            		assert(_person.getLiUniqueID() == Long.getLong(uniqueID));
+	            		assert(_person.getUniqueID() == Long.getLong(uniqueID));
 	            		_foundUniqueID = true;
 	            	}
 	            }
@@ -280,7 +280,7 @@ public class WebSiteReader_UserProfile {
 		String target = makeLiProfileUrl(liUniqueID);
 		_target = target; // for debugging
 	
-		_person.setLiUniqueID(liUniqueID);
+		_person.setUniqueID(liUniqueID);
 	
 		setHasMoreConnections(_person, false);  // Until proven otherwise
 	

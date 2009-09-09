@@ -513,7 +513,7 @@ public class PersonClientCache {
 			  if (fetches[i].person.isIncomplete(noDetail, connectionsInProgress)) {
 				  int level = fetches[i].level;
 				  if (targetLevels.contains((Integer)level)) {
-					  long id = fetches[i].person.getLiUniqueID();
+					  long id = fetches[i].person.getUniqueID();
 					  Set<Long> ids = null;
 					  for (IDsAtLevel idsAtLevel: list) {
 						  if (idsAtLevel.level == level) {
@@ -871,7 +871,7 @@ public class PersonClientCache {
 					  match = (cacheEntry.getRequestedUniqueID() == uniqueID); // For bootstrapping, uniqueID < 0 
 					  if (cacheEntry.getPerson() != null)   {
 						  if ((cacheEntry.getPerson().getRequestedID() == uniqueID && uniqueID < 0) ||   // For bootstrapping, uniqueID < 0 
-							  (cacheEntry.getPerson().getLiUniqueID()  == uniqueID && uniqueID > 0)) {    // For matching on connections,  uniqueID > 0 
+							  (cacheEntry.getPerson().getUniqueID()  == uniqueID && uniqueID > 0)) {    // For matching on connections,  uniqueID > 0 
 							  match = true;
 						  } 
 					  }

@@ -63,7 +63,7 @@ public class WebSiteReader_EntryPoint {
 					if (connType == PersonLI.CHILDREN_CONNECTIONS) {// !@#$ Generalise this to a LUT
 						connectionsReaderState = 
 							WebSiteReader_Connections.doGetLiConnections(
-									person.getLiUniqueID(), 
+									person.getUniqueID(), 
 									person.getChildConnectionProgress(connType),
 									timeBoundSec); 
 					}

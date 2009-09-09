@@ -124,7 +124,7 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 			PersonClient.debugValidate(ps);
 			pc = new PersonClient();
 			pc.setIsRealData(ps.isRealData());
-			pc.setLiUniqueID(ps.getLiUniqueID());
+			pc.setUniqueID(ps.getUniqueID());
 			pc.setRequestedID(requestedID);
 			pc.setNameFull(ps.getNameFull());
 			pc.setDescription(ps.getDescription());
@@ -145,7 +145,7 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 		if (person != null) {
 			List<Long> connectionIDs = person.getConnectionIDs();
 			if (connectionIDs != null) {
-				Long id = person.getLiUniqueID();
+				Long id = person.getUniqueID();
 				boolean removed = false;
 				int  numRemoved = 0;
 				while (true) {
@@ -155,7 +155,7 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 					++numRemoved;
 				}
 				if (numRemoved > 0) {// !@#$ fix data in database
-					//logger.warning(person.getNameFull() + " [" + person.getLiUniqueID() + "] " 	+ numRemoved + " connections are unique ID");
+					//logger.warning(person.getNameFull() + " [" + person.getUniqueID() + "] " 	+ numRemoved + " connections are unique ID");
 				}
 				connectionIDs = removeDuplicates(connectionIDs); // !@#$ fix data in database
 				person.setConnectionIDs(connectionIDs);
@@ -212,7 +212,7 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 				int numConnections = (connectionIDs != null) ? connectionIDs.size() : 0;
 				logger.info("\t" + i + ": " 
 						+ resultsMain.fetches[i].person.getNameFull() +  " - " 
-						+ resultsMain.fetches[i].person.getLiUniqueID()  +  " - " 
+						+ resultsMain.fetches[i].person.getUniqueID()  +  " - " 
 						+ numConnections);
 			}
 		}
@@ -335,7 +335,7 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 					+ person.getNameFull() + ", " 
 					+ person.getLocation() + ", " 
 					+ person.getNumConnections() + ", " 
-					+ person.getLiUniqueID()  );
+					+ person.getUniqueID()  );
 		}
 	}
 

@@ -44,7 +44,7 @@ public class PersonLI  implements Serializable, PersonPublic, CacheTrait {
 /*
 	private String show() {
 		String out = " ";
-		out += this.getLiUniqueID() + ", ";
+		out += this.getUniqueID() + ", ";
 		out += this.getNameFull() + ", " ;
 		out += this.getNumConnections();
 		return out;
@@ -115,7 +115,7 @@ public class PersonLI  implements Serializable, PersonPublic, CacheTrait {
 			this.uniqueID = uniqueID;
 		}
 		PersonLISummary(PersonLI person) {
-			this.uniqueID  = person.getLiUniqueID();
+			this.uniqueID  = person.getUniqueID();
 			this.readState = person.getReadState();
 			this.sortIdx   = person.getNumConnections();
 		}
@@ -261,12 +261,12 @@ public class PersonLI  implements Serializable, PersonPublic, CacheTrait {
 	  }
 	  
 	  @Override
-	  public void setLiUniqueID(long liUniqueID) {
+	  public void setUniqueID(long liUniqueID) {
 		  this.liUniqueID = liUniqueID;
 	  }
 	  
 	  @Override
-	  public long getLiUniqueID() {
+	  public long getUniqueID() {
 		  return this.liUniqueID;
 	  }
 	
@@ -438,7 +438,7 @@ public class PersonLI  implements Serializable, PersonPublic, CacheTrait {
   	}
   	  	
   	public boolean isSameAs(PersonLI person) {
-  		return (this.getLiUniqueID() == person.getLiUniqueID());
+  		return (this.getUniqueID() == person.getUniqueID());
   	}
   	/*
   	 * Returns all people with a given uniqueID.
@@ -591,7 +591,7 @@ public class PersonLI  implements Serializable, PersonPublic, CacheTrait {
   			if (p != null) { 
   				// Person found in DB so update fields. 
   				// Person should get saved in close below
-	  			assert(p.getLiUniqueID() == this.liUniqueID);
+	  			assert(p.getUniqueID() == this.liUniqueID);
 	  			copyFields(this, p); 
   			}
   		}
@@ -636,7 +636,7 @@ public class PersonLI  implements Serializable, PersonPublic, CacheTrait {
   		pm = PMF.get().getPersistenceManager();;
   		try {		
 	  		if (p != null) {
-	  			assert(p.getLiUniqueID() == this.liUniqueID);
+	  			assert(p.getUniqueID() == this.liUniqueID);
 	  			copyFields(this, p); 
 	  		//	pm.makePersistent(p); // !@#$ is this needed?
 	  		}
@@ -701,7 +701,7 @@ public class PersonLI  implements Serializable, PersonPublic, CacheTrait {
   		//	logger.warning("after");
   			if (p != null) {
   		//		logger.warning("person = " + p.getNameFull());
-  	  			assert(p.getLiUniqueID() == liUniqueID);
+  	  			assert(p.getUniqueID() == liUniqueID);
    	  		}
   		} 
   		catch (Exception e) {
@@ -771,7 +771,7 @@ public class PersonLI  implements Serializable, PersonPublic, CacheTrait {
 	@Override
 	public boolean isIncomplete() {
 		boolean incomplete = getIsChildConnectionInProgress() || getHtmlPage() == null;
-		long uniqueID = getLiUniqueID();
+		long uniqueID = getUniqueID();
 		String nameFull = getNameFull();
 		String compl = incomplete ? "INCOMPLETE" : "complete";
 		if (incomplete)

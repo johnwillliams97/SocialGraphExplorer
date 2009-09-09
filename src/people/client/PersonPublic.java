@@ -32,8 +32,8 @@ public interface PersonPublic {
 	  public String 	getLocation();
 	  public void   	setEmployer(String employer); 
 	  public String 	getEmployer();
-	  public void   	setLiUniqueID(long liUniqueID); 
-	  public long   	getLiUniqueID() ;
+	  public void   	setUniqueID(long uniqueID); 
+	  public long   	getUniqueID() ;
 	  public List<Long> getConnectionIDs(); 
 	  public void   	setConnectionIDs(List<Long> connectionIDs);
 	  public void 		setIsChildConnectionInProgress(boolean isChildConnectionInProgress);

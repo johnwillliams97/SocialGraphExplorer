@@ -80,11 +80,11 @@ public class PersonClient implements IsSerializable, PersonPublic {
 		return this.nameFull;
 	}
 	@Override
-	public void   setLiUniqueID(long liUniqueID) {
+	public void   setUniqueID(long liUniqueID) {
 		this.liUniqueID = liUniqueID;
 	}
 	@Override
-	public long   getLiUniqueID() {
+	public long  getUniqueID() {
 		return this.liUniqueID;
 	}
 	@Override
@@ -93,7 +93,7 @@ public class PersonClient implements IsSerializable, PersonPublic {
 	}
 	
 	@Override
-	public void   setConnectionIDs(List<Long> connectionIDs) {
+	public void  setConnectionIDs(List<Long> connectionIDs) {
 		if (connectionIDs != null) {
 			this.connectionIDs = new ArrayList<Long>();
 			this.connectionIDs.addAll(connectionIDs);
@@ -208,7 +208,7 @@ public class PersonClient implements IsSerializable, PersonPublic {
 	public static void debugValidate(PersonPublic person) {
 		 if (OurConfiguration.VALIDATION_MODE && person != null) {
 			 List<Long> connectionIDs = person.getConnectionIDs();
-			 long uniqueID = person.getLiUniqueID();
+			 long uniqueID = person.getUniqueID();
 			 if (connectionIDs != null)  {
 				 int numConnections = connectionIDs.size();
 				 long idI, idJ;

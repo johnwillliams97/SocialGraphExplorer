@@ -96,7 +96,7 @@ public class CacheDB implements CacheActual<Long, PersonLI> {
 	
 	@Override
 	public void put(Long key, PersonLI value) {
-		assert(key == value.getLiUniqueID());
+		assert(key == value.getUniqueID());
 		value.saveToDB();
 	}
 

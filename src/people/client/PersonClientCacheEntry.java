@@ -55,7 +55,7 @@ public class PersonClientCacheEntry {
 	public long getUniqueID() {
 		long uniqueID = PersonClient.UNIQUE_ID_NOT_FOUND;
 		if (this.person != null) {
-			uniqueID = this.person.getLiUniqueID();
+			uniqueID = this.person.getUniqueID();
 		}
 		return uniqueID;
 	}	

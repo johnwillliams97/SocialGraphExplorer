@@ -90,7 +90,7 @@ public class PersonDetail extends Composite {
 	 		  html += makeRow("Name",        person.getNameFull());
 	 		  html += makeRow("Description", person.getDescription());
 	 		  html += makeRow("Location",    person.getLocation());
-	 		  html += makeRow("Unique ID",   "" + person.getLiUniqueID());
+	 		  html += makeRow("Unique ID",   "" + person.getUniqueID());
 	 		  html += makeRow("Connections", connections);
 
 	 		//  html += "<p>" + person.getEmployer() + "</p>";
