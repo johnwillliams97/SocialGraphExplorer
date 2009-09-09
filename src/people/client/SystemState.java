@@ -9,6 +9,7 @@ public class SystemState {
 	
 	public static final String KEY_UNIQUEID   = "key";
 	public static final String KEY_INDEX = "idx";
+	
 	private long _uniqueID = PersonClient.MAGIC_PERSON_CLIENT_1_UNIQUE_ID;
 	private int  _index = 0;
 	
