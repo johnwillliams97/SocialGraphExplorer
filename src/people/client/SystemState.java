@@ -3,7 +3,9 @@ package people.client;
 
 
 /**
- * Global state
+ * State read from URL
+ * 
+ * This will be a superset of the CanonicalState
  */
 public class SystemState {
 	

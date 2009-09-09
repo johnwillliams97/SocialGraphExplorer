@@ -52,6 +52,22 @@ public class PersonClient implements IsSerializable, PersonPublic {
 	public boolean isMagicPerson() {
 		return (this.location != null && this.location.equals(MAGIC_STRING));
 	}
+	
+	
+	/*
+	 * Is this record base on real data?
+	 * On the client this for information only
+	 * (non-Javadoc)
+	 * @see people.client.PersonPublic#isRealData()
+	 */
+	@Override
+	public boolean isRealData() {
+		return _isRealData;
+	}
+	private boolean _isRealData = false;
+	public void setIsRealData(boolean isRealData) {
+		_isRealData = isRealData;
+	}
 	/*
 	 * getters & setters
 	 */
@@ -207,6 +223,7 @@ public class PersonClient implements IsSerializable, PersonPublic {
 			 }
 		 }
 	}
+	
 	
 	
 }

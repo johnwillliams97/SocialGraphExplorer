@@ -1,9 +1,13 @@
 WORK LOG
 ========
 
-2009/09/08
+2009/09/09
 ----------
 Made startup state configurable OurConfiguration.INITIAL_UI_STATE
+Changed URL args from positional to key=val e.g. "key=1814285&idx=10"
+Allow author's name, description and location to be viewed.
+Used _variableName style consistently for internal class variables
+Added SystemState.java
 Posted a blog entry http://peterwilliams97.blogspot.com/2009/09/gae-gwt-starter-project-8-reflections.html
 Overwrote last stable versions! Oh well.
 	Release http://8.latest.peterwilliams9798.appspot.com/ 

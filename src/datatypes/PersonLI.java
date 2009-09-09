@@ -26,6 +26,7 @@ import cache.CacheTrait;
 import com.google.appengine.api.datastore.Text;
 
 import people.client.Misc;
+import people.client.OurConfiguration;
 import people.client.Statistics;
 import people.client.PersonPublic;
 import db.PMF;
@@ -223,7 +224,15 @@ public class PersonLI  implements Serializable, PersonPublic, CacheTrait {
 			  		(String)null,
 			  		(List<Long>)null);
 	  }
-	  
+	  /*
+		 * (non-Javadoc)
+		 * @see people.client.PersonPublic#isRealData()
+		 * PersonLI data is real!
+		 */
+	  @Override
+	  public boolean isRealData() {
+		return true;
+	  }
   	 /*
   	  * getters & setters
   	  */
@@ -241,16 +250,22 @@ public class PersonLI  implements Serializable, PersonPublic, CacheTrait {
 		  return this.nameLast;
 	  }
 	  
+	  @Override
 	  public void setNameFull(String nameFull) {
 		   this.nameFull = nameFull;
 	  }
+	  
+	  @Override
 	  public String getNameFull() {
 		  return this.nameFull;
 	  }
 	  
+	  @Override
 	  public void setLiUniqueID(long liUniqueID) {
 		  this.liUniqueID = liUniqueID;
 	  }
+	  
+	  @Override
 	  public long getLiUniqueID() {
 		  return this.liUniqueID;
 	  }
@@ -261,6 +276,7 @@ public class PersonLI  implements Serializable, PersonPublic, CacheTrait {
 		  
 		  return this.numConnectionIDs;
 	  }
+	  
 	  @Override
 	  public List<Long> getConnectionIDs() {
 		  return connectionIDs;
@@ -289,8 +305,9 @@ public class PersonLI  implements Serializable, PersonPublic, CacheTrait {
 	  
 	  public static final int MAX_DESCRIPTION = 400;
 
-	  public static final long DEFAULT_LI_UNIQUEID = 1960788L; // Me
+	  public static final long DEFAULT_LI_UNIQUEID = OurConfiguration.AUTHOR_UNIQUEID; // Me
 	
+	  @Override
 	  public void setDescription(String description) {
 		  if (description!= null && description.length() > MAX_DESCRIPTION) {
 			 logger.info("description (b)[" + description.length()+ "] " + description);
@@ -299,10 +316,12 @@ public class PersonLI  implements Serializable, PersonPublic, CacheTrait {
 			  this.description = description;
 		  }
 	  }
+	  
 		@Override
 		public String getEmployer() {
 			return this.employer;
 		}
+		
 		@Override
 		public void setEmployer(String employer) {
 			this.employer = employer;
@@ -312,6 +331,7 @@ public class PersonLI  implements Serializable, PersonPublic, CacheTrait {
 		public void setLocation(String location) {
 			this.location = location;
 		}
+		
 		@Override
 		public String getLocation() {
 	  		return this.location;
@@ -338,6 +358,7 @@ public class PersonLI  implements Serializable, PersonPublic, CacheTrait {
 	public void setIsChildConnectionInProgress(boolean isChildConnectionInProgress) {
 		this.isChildConnectionInProgress = isChildConnectionInProgress;	
 	}
+	
 	@Override
 	public boolean getIsChildConnectionInProgress() {
 		// This flag is currently broken !@#$
@@ -379,9 +400,8 @@ public class PersonLI  implements Serializable, PersonPublic, CacheTrait {
 	  }
 	  
 	  
-	  
-	 
-  
+	
+ 
   	public long getRank() {
   		return rank;
   	}
@@ -410,6 +430,8 @@ public class PersonLI  implements Serializable, PersonPublic, CacheTrait {
   		}
   		return descClean;
   	}
+  	
+    @Override
 	public String getDescription() {
   		String descClean = decodeUrl(this.description);
   		return descClean;
@@ -593,6 +615,7 @@ public class PersonLI  implements Serializable, PersonPublic, CacheTrait {
 	  		}
   		}
    	}
+  	
   	public  void saveToDB0() {
   		this.whenReadLast = Calendar.getInstance().getTime();
   		if (this.whenReadFirst == null)
@@ -767,4 +790,6 @@ public class PersonLI  implements Serializable, PersonPublic, CacheTrait {
 	  		"Disneyland",
 	  		"A Duck in the Entertainment Business",
 	  		null);
+
+	
 }

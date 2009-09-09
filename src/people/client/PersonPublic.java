@@ -16,6 +16,11 @@ public interface PersonPublic {
 		RECORD_READ_FULL
 	}
 	long NO_PERSON_UNIQUEID = 1L;
+	
+	/*
+	 * Real data must be protected
+	 */
+	public boolean 		isRealData();
 	 /*
  	  * getters & setters
  	  */

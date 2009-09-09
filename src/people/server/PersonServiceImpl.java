@@ -123,6 +123,7 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 		if (ps != null) {
 			PersonClient.debugValidate(ps);
 			pc = new PersonClient();
+			pc.setIsRealData(ps.isRealData());
 			pc.setLiUniqueID(ps.getLiUniqueID());
 			pc.setRequestedID(requestedID);
 			pc.setNameFull(ps.getNameFull());

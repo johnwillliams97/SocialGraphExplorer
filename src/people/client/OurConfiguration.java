@@ -12,8 +12,8 @@ package people.client;
 public class OurConfiguration {
 
 	// Debugging. All flags == false => release mode.
-	public static final boolean DEBUG_MODE = false;
-	public static final boolean SHORT_LIST = false;
+	public static final boolean DEBUG_MODE = true;
+	public static final boolean SHORT_LIST = true;
 	public static final boolean VALIDATION_MODE = true;
 	public static final boolean NO_SERVER_TIME_LIMIT = false;
 	public static final boolean SUPRESS_ERRORS = false;
@@ -21,7 +21,10 @@ public class OurConfiguration {
 	
 	// Determines the system's starting state. null => default
 	// Handy for debugging
-	public static final String INITIAL_UI_STATE = null; // "key=1814285&idx=10";
+	public static final String INITIAL_UI_STATE = null; // e.g. "key=1814285&idx=10";
+	
+	// The one person whose details you can make public
+	public static final long AUTHOR_UNIQUEID = 1960788L;
 	
 	// For RequestsInProgress
 	public static final  int MAX_REQUESTS_IN_PROGRESS = 20;
