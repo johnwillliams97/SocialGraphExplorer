@@ -20,6 +20,7 @@ public class CanonicalState {
 		this.anchorUniqueID = anchorUniqueID;
 		this.startIndex = startIndex;
 	}
+	/*
 	CanonicalState(String stringRep) {
 		init();
 		String[] parts = stringRep.split(SEPARATOR);
@@ -28,6 +29,7 @@ public class CanonicalState {
 		if (parts.length > 1)
 			this.startIndex = Integer.parseInt(parts[1]);
 	}
+	*/
 	public CanonicalState(CanonicalState s1) {
 		this.anchorUniqueID = s1.anchorUniqueID;
 		this.startIndex = s1.startIndex;
@@ -40,10 +42,11 @@ public class CanonicalState {
 		this.anchorFetched = false;
 		this.visibleFetched = false;
 	}
+	/*
 	private static final String SEPARATOR = ",";
 	public String getAsString() {
 		return "" + this.anchorUniqueID + SEPARATOR + this.startIndex;
 	}
-	
+	*/
 	
 }

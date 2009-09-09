@@ -117,7 +117,9 @@ public class SocialGraphExplorer
 			@Override
 			public void onValueChange(ValueChangeEvent<String> event) {
 				String stringRep = event.getValue();
-				personList.updatePersonListExtern(stringRep, true);
+				SystemState systemState = new SystemState(stringRep);
+				CanonicalState canonicalState = new CanonicalState(systemState.getUniqueID(), systemState.getIndex());
+				personList.updatePersonListExtern(canonicalState, true);
 			}
 		};
 		History.addValueChangeHandler(historyHandler);
@@ -125,11 +127,14 @@ public class SocialGraphExplorer
 		// Determine the system's starting state. null => default
 		final String INITIAL_UI_STATE = OurConfiguration.INITIAL_UI_STATE; 
 		String initToken = History.getToken();
-		String startingState = (initToken != null && initToken.length() > 0) ? initToken : INITIAL_UI_STATE;
+		String stateString = (initToken != null && initToken.length() > 0) ? initToken : INITIAL_UI_STATE;
+		
+		SystemState systemState = new SystemState(stateString);
+		CanonicalState canonicalState = new CanonicalState(systemState.getUniqueID(), systemState.getIndex());
 		
 		// PersonList uses LoadsOfFun.get() in its constructor, so initialise it after
 		// 'singleton'.
-		personList = new PersonList(startingState);
+		personList = new PersonList(canonicalState);
 		personList.setWidth("100%");
 
 		// Create the right panel, containing the email list & details.
@@ -196,12 +201,12 @@ public class SocialGraphExplorer
     // Give the person detail widget a chance to resize itself as well.
 	  
 	  if (OurConfiguration.DEBUG_MODE) {
-		personDetail.adjustSize(width, height/10);
-		serverStatus.adjustSize(width, height);
+		  personDetail.adjustSize(width, height/10);
+		  serverStatus.adjustSize(width, height);
 	  }
 	  else {
-			personDetail.adjustSize(width, height);
-			serverStatus.adjustSize(width, 0);
+		  personDetail.adjustSize(width, height);
+		  serverStatus.adjustSize(width, 0);
 	  }
   }
 

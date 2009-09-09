@@ -105,7 +105,7 @@ public class PersonList extends Composite implements ClickHandler {
   	 * Set up the list UI
   	 * @param urlStringRep - String representation of URL
   	 */
-	public PersonList(String urlStringRep) {
+	public PersonList(CanonicalState canonicalState) {
 		// GWT sometimes calls this twice in hosted mode.
 		++debug_num_calls;
 		if (debug_num_calls > 1) {
@@ -173,8 +173,7 @@ public class PersonList extends Composite implements ClickHandler {
     	 * 	cacheCallbackUpdateList.handleReturn()
     	 * 
     	 */
-    	String stateString = (urlStringRep != null && urlStringRep.length() > 0) ? urlStringRep : this.state.getAsString();
-      	updatePersonListExtern(stateString, false);  
+       	updatePersonListExtern(canonicalState, false);  
 	}
 
 	/*
@@ -291,7 +290,7 @@ public class PersonList extends Composite implements ClickHandler {
 	             	*/
 	        		selectedRow = -1;
 	        		CanonicalState newState = new CanonicalState(getPersonForRow(row).getLiUniqueID(), 0);
-	             	updatePersonListExtern(newState.getAsString(), false);
+	             	updatePersonListExtern(newState, false);
 	        		//updatePersonList("new anchor = " + oldID + " => " + newState.getAsString());
 	        	}
 	        }
@@ -418,9 +417,9 @@ public class PersonList extends Composite implements ClickHandler {
    * !@#$ We can optimise this later by keeping old anchor persons
    * Resets state
    	*/
-  	public void updatePersonListExtern(String stringRep, boolean isRewind) {
+  	public void updatePersonListExtern(CanonicalState canonicalState, boolean isRewind) {
 	   
-  		SocialGraphExplorer.get().showInstantStatus("updatePersonListExtern(" + stringRep + ")", true);
+  		SocialGraphExplorer.get().showInstantStatus("updatePersonListExtern(" + canonicalState.anchorUniqueID + ":" + canonicalState.startIndex + ")", true);
 	  
   		long oldID = this.state.anchorUniqueID;
   		int  oldStartIndex = this.state.startIndex;
@@ -429,14 +428,14 @@ public class PersonList extends Composite implements ClickHandler {
   		resetState();
   		
   		// Apply new state over reset state
-  		state = new CanonicalState(stringRep);;
+  		state = new CanonicalState(canonicalState);
   		// Initially we get only anchor so we had better set indexes to 0
   		state.startIndex = -1;  // !@#$ Testing that state doesn't get used when there is a 2nd call: this._needs2ndCacheCall == true
   		// Eventually we get the full state
-		_2ndState = new CanonicalState(stringRep);; 
+		_2ndState = new CanonicalState(canonicalState); 
 		
 		//handleReturn() will call updateAnchor()
-  		updatePersonList_("updatePersonListExtern(" + stringRep +") from " + oldID + ":" + oldStartIndex, isRewind);
+  		updatePersonList_("updatePersonListExtern(" + canonicalState.anchorUniqueID + ":" + canonicalState.startIndex  +") from " + oldID + ":" + oldStartIndex, isRewind);
   	}
   
   	/*
@@ -477,7 +476,7 @@ public class PersonList extends Composite implements ClickHandler {
 			saveState.anchorUniqueID = theAnchor.getLiUniqueID();
 			
 	  	// Save in web history
-	  	saveStateInHistory(saveState.getAsString(), isRewind, this._needs2ndCacheCall);
+	  	saveStateInHistory(saveState, isRewind, this._needs2ndCacheCall);
 	
 	  	SocialGraphExplorer.get().showInstantStatus("updatePersonList(" + dbgMsg +  ", " + !this.state.anchorFetched + ", " + !this.state.visibleFetched + ", " + isRewind + ")");
 	 
@@ -526,7 +525,10 @@ public class PersonList extends Composite implements ClickHandler {
   	 * @param needs2ndCacheCall - true if 2 cache calls will be needed (1 to fetch list of 
   	 *                             + 1 to fetch persons with those IDs
   	 */
-  	private void saveStateInHistory(String historyItem, boolean isRewind, boolean needs2ndCacheCall) {
+  	private void saveStateInHistory(CanonicalState canonicalState, boolean isRewind, boolean needs2ndCacheCall) {
+  		SystemState systemState = new SystemState(canonicalState.anchorUniqueID, canonicalState.startIndex);
+  		String historyItem = systemState.getAsString();
+  		
   		if (needs2ndCacheCall) { 		// This is the first part of a 2 part call. 
   			_savedIsRewind = isRewind;	// Record state and wait
   			_savedFor2ndCall = true;
