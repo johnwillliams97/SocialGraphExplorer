@@ -11,7 +11,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  */
 public class PersonClient implements IsSerializable, PersonPublic {
 	
-	private long   	liUniqueID = UNIQUE_ID_NOT_FOUND;
+	private long   	uniqueID = UNIQUE_ID_NOT_FOUND;
 	private long    requestedID = UNIQUE_ID_NOT_FOUND;
 	private String 	nameFull;
 	private String 	description;
@@ -43,7 +43,7 @@ public class PersonClient implements IsSerializable, PersonPublic {
 	// Magic object constructor
 	public PersonClient(String name, long liUniqueID) {
 		this(MAGIC_STRING, name, MAGIC_STRING);
-		this.liUniqueID = liUniqueID;
+		this.uniqueID = liUniqueID;
 	}
 	public PersonClient() {
 		this(null, null, null);
@@ -81,11 +81,11 @@ public class PersonClient implements IsSerializable, PersonPublic {
 	}
 	@Override
 	public void   setUniqueID(long liUniqueID) {
-		this.liUniqueID = liUniqueID;
+		this.uniqueID = liUniqueID;
 	}
 	@Override
 	public long  getUniqueID() {
-		return this.liUniqueID;
+		return this.uniqueID;
 	}
 	@Override
 	public List<Long> getConnectionIDs() {

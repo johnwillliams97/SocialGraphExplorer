@@ -249,23 +249,23 @@ public class WebSiteReader_UserProfile {
 	}
 	
 	/* 	Program flow
-	 * 	FindLinks(<liUniqueID, depth, maxDepth>) {
-	 * 		Get http://www.linkedin.com/profile?viewProfile=&key=<liUniqueID>
+	 * 	FindLinks(<uniqueID, depth, maxDepth>) {
+	 * 		Get http://www.linkedin.com/profile?viewProfile=&key=<uniqueID>
 	 * 		Save details to database
 	 * 		if ("See all Connections »" enabled) && (depth < maxDepth)
-	 *  		for all links <L> in http://www.linkedin.com/profile?viewConns=&key=<liUniqueID>
+	 *  		for all links <L> in http://www.linkedin.com/profile?viewConns=&key=<uniqueID>
 	 *  			FindLinks(<L, depth+1, maxDepth>)
 	 *  }
 	 *  
 	 *  http://www.linkedin.com/profile?viewProfile=&key=2532782
 	 * 	http://www.linkedin.com/profile?viewConns=&key=2532782
 	 */
-	public static String makeLiProfileUrl(long liUniqueID) {
-		String url = "http://www.linkedin.com/profile?viewProfile=&key=" + liUniqueID;
+	public static String makeLiProfileUrl(long uniqueID) {
+		String url = "http://www.linkedin.com/profile?viewProfile=&key=" + uniqueID;
 		return url;
 	}
-	public static  String makeLiConnectionsUrl(long liUniqueID) {
-		String url = "http://www.linkedin.com/profile?viewConns=&key=" + liUniqueID;
+	public static  String makeLiConnectionsUrl(long uniqueID) {
+		String url = "http://www.linkedin.com/profile?viewConns=&key=" + uniqueID;
 		return url;
 	}
 	/*
@@ -273,14 +273,14 @@ public class WebSiteReader_UserProfile {
 	 */
 	String  _wholePageBuffer = null;
 	
-	private void doMakeLiUserProfile(long liUniqueID, 
+	private void doMakeLiUserProfile(long uniqueID, 
 									 boolean parsePage,
 									 boolean fetchWholePage)  
 		throws NullPointerException {
-		String target = makeLiProfileUrl(liUniqueID);
+		String target = makeLiProfileUrl(uniqueID);
 		_target = target; // for debugging
 	
-		_person.setUniqueID(liUniqueID);
+		_person.setUniqueID(uniqueID);
 	
 		setHasMoreConnections(_person, false);  // Until proven otherwise
 	
@@ -317,12 +317,12 @@ public class WebSiteReader_UserProfile {
 	 * 	doGetLiUserProfile() gets a summary of the person
 	 * 	doGetLiUserProfilePage() fetches the whole page
 	 */
-	public static PersonLI doGetLiUserProfile(long liUniqueID, double timeBoundSec)  {
+	public static PersonLI doGetLiUserProfile(long uniqueID, double timeBoundSec)  {
 		PersonLI person = null;
 		boolean fetchWholePage = false;
 		try {
 			WebSiteReader_UserProfile wsr = new WebSiteReader_UserProfile(timeBoundSec);
-			wsr.doMakeLiUserProfile(liUniqueID,true, fetchWholePage) ;
+			wsr.doMakeLiUserProfile(uniqueID,true, fetchWholePage) ;
 			person = wsr._outPerson;
 		} 
 		catch (Exception e) {
@@ -330,9 +330,9 @@ public class WebSiteReader_UserProfile {
 		}
 		return person;
 	}
-	public static String doGetLiUserProfilePage(long liUniqueID, double timeBoundSec)  {
+	public static String doGetLiUserProfilePage(long uniqueID, double timeBoundSec)  {
 		WebSiteReader_UserProfile wsr = new WebSiteReader_UserProfile(timeBoundSec);
-		wsr.doMakeLiUserProfile(liUniqueID, false, true) ;
+		wsr.doMakeLiUserProfile(uniqueID, false, true) ;
 		return wsr._wholePageBuffer;
 	}
 	

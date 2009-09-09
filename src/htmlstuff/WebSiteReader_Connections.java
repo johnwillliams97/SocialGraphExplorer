@@ -172,11 +172,11 @@ public class WebSiteReader_Connections {
 	}
 	
 	/* 	Program flow
-	 * 	FindLinks(<liUniqueID, depth, maxDepth>) {
-	 * 		Get http://www.linkedin.com/profile?viewProfile=&key=<liUniqueID>
+	 * 	FindLinks(<uniqueID, depth, maxDepth>) {
+	 * 		Get http://www.linkedin.com/profile?viewProfile=&key=<uniqueID>
 	 * 		Save details to database
 	 * 		if ("See all Connections »" enabled) && (depth < maxDepth)
-	 *  		for all links <L> in http://www.linkedin.com/profile?viewConns=&key=<liUniqueID>
+	 *  		for all links <L> in http://www.linkedin.com/profile?viewConns=&key=<uniqueID>
 	 *  			FindLinks(<L, depth+1, maxDepth>)
 	 *  }
 	 *  
@@ -184,13 +184,13 @@ public class WebSiteReader_Connections {
 	 * 	http://www.linkedin.com/profile?viewConns=&key=2532782
 	 */
 	// http://www.linkedin.com/profile?viewConns=&key=2532782&split_page=2
-	public static String makeLiConnectionsUrl(long liUniqueID, long partPageNum) {
+	public static String makeLiConnectionsUrl(long uniqueID, long partPageNum) {
 		String url = null;
 		if (partPageNum < 0)  {  // No part page
-			url = "http://www.linkedin.com/profile?viewConns=&key=" + liUniqueID;
+			url = "http://www.linkedin.com/profile?viewConns=&key=" + uniqueID;
 		}
 		else {				  // Part page
-			url = "http://www.linkedin.com/profile?viewConns=&key=" + liUniqueID
+			url = "http://www.linkedin.com/profile?viewConns=&key=" + uniqueID
 			    + "&split_page=" + partPageNum;
 		}
 		return url;
@@ -241,7 +241,7 @@ public class WebSiteReader_Connections {
 			>0 = number of pages read
 			need to distinguish between no attempt to read and failure
 	 */
-	public static ConnectionsReaderState  doGetLiConnections(long liUniqueID, long lastPageNumRead, double timeBoundSec)  {
+	public static ConnectionsReaderState  doGetLiConnections(long uniqueID, long lastPageNumRead, double timeBoundSec)  {
 		assert(lastPageNumRead != PersonLI.PROGRESS_COMPLETED);  // This function should not be called if the person's connection list is complete
 		assert(lastPageNumRead == PersonLI.PROGRESS_NOT_STARTED || lastPageNumRead > 0);
 
@@ -251,7 +251,7 @@ public class WebSiteReader_Connections {
 		
 		long firstPageNumRead = (lastPageNumRead == PersonLI.PROGRESS_NOT_STARTED) ? 1 : lastPageNumRead + 1 ;
 		long currPageNumRead = firstPageNumRead;
-		String nextPage = makeLiConnectionsUrl(liUniqueID, currPageNumRead);
+		String nextPage = makeLiConnectionsUrl(uniqueID, currPageNumRead);
 		int numPasses = 0;
 		
 		do {
@@ -282,10 +282,10 @@ public class WebSiteReader_Connections {
 		return readerState.connected ? readerState : null;
 	}
 	
-	public static String doGetLiConnectionsPage(long liUniqueID, long lastPageNumRead, double timeBoundSec)  {
+	public static String doGetLiConnectionsPage(long uniqueID, long lastPageNumRead, double timeBoundSec)  {
 		WebSiteReader_Connections wsr = new WebSiteReader_Connections(timeBoundSec);
 		wsr._fetchWholePage = true;
-		String nextPage = makeLiConnectionsUrl(liUniqueID,  lastPageNumRead);
+		String nextPage = makeLiConnectionsUrl(uniqueID,  lastPageNumRead);
 		wsr.doMakeLiConnectionsOneSplit(nextPage) ;
 		return wsr._wholePageBuffer;
 	}
