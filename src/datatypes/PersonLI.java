@@ -203,6 +203,7 @@ public class PersonLI  implements Serializable, PersonPublic, CacheTrait {
 			  		List<Long> connectionIDs) {
 		    this.nameFirst = nameFirst;
 		    this.nameLast  = nameLast;
+		    this.nameFull  = nameFirst + " " + nameLast;
 		    this.liUniqueID = liUniqueID;
 		    this.rank = rank;
 		    this.location = location;

@@ -1,5 +1,6 @@
 package htmlstuff;
 
+import people.client.OurConfiguration;
 import people.client.Statistics;
 import datatypes.PersonLI;
 
@@ -13,10 +14,22 @@ public class WebSiteReader_EntryPoint {
 	 * This function does a single web page fetch as part of a sequence of page fetches.
 	 * - partPerson has the part state from the previous page fetch
 	 */
+
+	public PersonLI getPersonFromLI(
+				long     key,
+				PersonLI partPerson,    // whatever we got in previous fetches, null if no prev fetches
+				boolean  forceLiRead,	// forces a LI read
+				double timeBoundSec) {
+		PersonLI person = null;
+		if (OurConfiguration.ALLOW_LINKED_READS)
+			person = getPersonFromLI_(key, partPerson, forceLiRead, timeBoundSec);
+		return person;
+	}
+	
 	@SuppressWarnings("unused")
 	private boolean _debug_scrape = false;
 	
-	public PersonLI getPersonFromLI(
+	private PersonLI getPersonFromLI_(
 				long     key,
 				PersonLI partPerson,    // whatever we got in previous fetches, null if no prev fetches
 				boolean  forceLiRead,	// forces a LI read

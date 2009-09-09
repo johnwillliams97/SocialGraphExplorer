@@ -3,6 +3,7 @@ package cache;
 import java.util.logging.Logger;
 
 import people.client.Misc;
+import people.client.OurConfiguration;
 
 import cache.CacheActual.WebReadPolicy;
 
@@ -79,7 +80,8 @@ public class CacheStage<K, V extends CacheTrait> {
 	
 	public void put(K key, V value, double timeBoundSec) {
 		++cacheStats.numPuts;
-		V val = cacheActual.get(key, WebReadPolicy.AUTO,  timeBoundSec);
+		final WebReadPolicy webReadPolicy = OurConfiguration.ALLOW_LINKED_READS ? WebReadPolicy.AUTO : WebReadPolicy.NEVER;
+		V val = cacheActual.get(key, webReadPolicy, timeBoundSec);
 		if (!(val != null && val.equals(value))) {
 			cacheActual.put(key, value);
 			if (nextStage != null) {

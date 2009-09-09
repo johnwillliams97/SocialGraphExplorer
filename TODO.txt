@@ -4,7 +4,6 @@ Add versioning to database (e.g. Long version) and fix data problems such as dup
 Clean up 'details' person html.
 	Check if html is in messy format and delete it if it is.
 Add authentication.
-Remove my LI cookies from  git so people cannot access my account
 Add cookies to save state between uses (anchor:start)
 Add Gears support
 Remove anchor from client cache. No need for it.
@@ -40,6 +39,7 @@ Cron jobs to update more records
 Test on all browsers and OSes
 	Vista + Chrome, Opera, IE, Safari, Firefox ok
 * Write unit tests
+	http://code.google.com/webtoolkit/doc/1.6/DevGuideTesting.html
 Inject server bugs and test client recovery	
 	http://easymock.org/EasyMock2_5_1_Documentation.html
 	JUnit

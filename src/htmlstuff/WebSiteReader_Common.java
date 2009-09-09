@@ -41,12 +41,10 @@ public class WebSiteReader_Common {
 	
 	/* 
 	 * The cookies set by LinkedIn then used to bypass future authentication
-	 * 
-	 * bcookie 			d2375dea-b963-49e4-90f9-71a30eeccd25 www.linkedin.com
-	 * srchId  			649ee890-b59e-472c-bb88-86301185d410
-	 * leo_auth_token  LIM:1960788:i:1244080991:77a7f084f010a8f668d6f226805e34ef2d6eb60a
-	 * NSC_MC_WT_DTQ_IUUQ  e2420fbd199f
-	 * NSC_MC_QH_MFP       e2420d8429a0
+	 * You must use your own cookies so that you do not take other people's data
+     * The cookies are stored in MagicLICookies.java 
+     * You will need to create your own version of MagicLICookies.java to access LinkedIn
+ 	 * 
 	 */
 	private void setupCookies(boolean isForced) throws ParserException {
 		if (!_cookiesHaveBeenSet || isForced) {

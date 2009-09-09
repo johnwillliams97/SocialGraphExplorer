@@ -19,6 +19,7 @@ import people.client.OurConfiguration;
 import people.client.PersonFetch;
 import people.client.PersonClient;
 import people.client.PersonClientGroup;
+import people.client.PersonPublic;
 import people.client.Statistics;
 import people.client.PersonService;
 
@@ -29,7 +30,7 @@ import people.client.PersonService;
 @SuppressWarnings("serial")
 public class PersonServiceImpl extends RemoteServiceServlet implements PersonService {
 	private static final Logger logger = Logger.getLogger(PersonServiceImpl.class.getName());
-	
+	private static final WebReadPolicy _webReadPolicy = OurConfiguration.ALLOW_LINKED_READS ? WebReadPolicy.AUTO : WebReadPolicy.NEVER;
 	private static final double _maxTime = OurConfiguration.MAX_TIME_FOR_SERVLET_RESPONSE; 
 	private final long _servletLoadTimeMillis = System.currentTimeMillis();
 	private long _firstCallTimeMillis = -1L;
@@ -117,7 +118,7 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 	
 	
 		
-	private static PersonClient personServerToPersonClient(PersonLI ps, long requestedID) {
+	private static PersonClient personServerToPersonClient(PersonPublic ps, long requestedID) {
 		PersonClient pc = null;
 		if (ps != null) {
 			PersonClient.debugValidate(ps);
@@ -253,7 +254,7 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 				liUniqueID = PersonLI.DEFAULT_LI_UNIQUEID;
 			PersonLI person = null;
 			try {
-				 person = cachePipelineInstance.get(liUniqueID, WebReadPolicy.AUTO, start + maxTime1);
+				 person = cachePipelineInstance.get(liUniqueID, _webReadPolicy, start + maxTime1);
 			}
 			catch (Exception e) {
 				// Best effort response to an exception
@@ -297,7 +298,8 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 				PersonFetch fetch = new PersonFetch();
 				fetch.level = fetch2.level;
 				fetch.requestedUniqueID = fetch2.requestedUniqueID;
-				fetch.person = personServerToPersonClient(fetch2.person, fetch2.requestedUniqueID);
+				PersonClient rawPerson = personServerToPersonClient(fetch2.person, fetch2.requestedUniqueID);
+				fetch.person = MangleNames.manglePerson((rawPerson));
 				fetches[i] = fetch;										
 			}
 			resultsMain.fetches = fetches; //getUniqueNonNullEntries(results, 1000);

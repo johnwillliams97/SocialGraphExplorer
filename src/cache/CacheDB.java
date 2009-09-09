@@ -3,6 +3,7 @@ package cache;
  * Wrapper for DB access
  */
 
+
 import java.util.logging.Logger;
 
 import people.client.OurConfiguration;
@@ -16,6 +17,16 @@ public class CacheDB implements CacheActual<Long, PersonLI> {
 	private static String 		LINKED_IN = "LinkedIn";
 	private WebSiteReader_EntryPoint 	webSiteReaderEntry = new WebSiteReader_EntryPoint();
 	private double 				longestLIReadDuration = 0.0; // For profiling
+	private static final PersonLI NO_PERSON = new PersonLI(
+			"Donald", 
+	  		"Duck", 
+	  		1L,
+	  		0,
+	  		"Disneyland",
+	  		"A Duck in the Entertainment Business",
+	  		null);
+	
+	
 	
 	private static boolean isNullOrEmpty(String s) {
 		return s == null || s.isEmpty();
@@ -29,7 +40,9 @@ public class CacheDB implements CacheActual<Long, PersonLI> {
 		boolean 	needsLIRead = false;
 		
 		Statistics.getInstance().recordEvent("CacheDB.getFromDBandLI()");
-		if (doCheckLI && policy != WebReadPolicy.NEVER) {
+		if (doCheckLI && policy == WebReadPolicy.NEVER && person == null)
+			person = NO_PERSON;
+		else if (doCheckLI && policy != WebReadPolicy.NEVER) {
 			if 	(person == null) {
 				needsLIRead = true;
 			}
@@ -83,12 +96,7 @@ public class CacheDB implements CacheActual<Long, PersonLI> {
 		return person;
 	}
 	
-/*	@Override
-	public boolean containsKey(Long key,double timeBoundSec) {
-		Statistics.getInstance().recordEvent("CacheDB.containsKey()");
-		return (this.getFromDBandLI(key, false, WebReadPolicy.AUTO) != null);
-	} 
-*/
+
 	@Override
 	public PersonLI get(Long key, WebReadPolicy policy, double timeBoundSec) {
 		PersonLI person = this.getFromDBandLI(key, true, policy, timeBoundSec);
