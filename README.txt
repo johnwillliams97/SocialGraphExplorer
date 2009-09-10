@@ -7,9 +7,9 @@ Status:  http://code.google.com/status/appengine
 
 Product Definition
 ------------------
-The application will be a Social Network Navigator. It will navigate a person's list of social network connections 
-show each connection's information (extracted from or linked to some social networking sites) allow the connection 
-to become the person so their connections can be navigated. 
+The application will be a (dummy) Social Network Navigator. It will navigate a person's list of social network 
+connections show each connection's information allow the connection to become the person so their connections 
+can be navigated. 
 
 High Level Design - User Interface 
 ----------------------------------
@@ -25,8 +25,8 @@ UI Actions
 
 High Level Design - Client Cache 
 --------------------------------
-The server will be fetching data from somewhere, either a data store or from some other website or web service. 
-This is going to be slow compared to desired UI response time so we need to keep a client side cache with the data 
+The server will be fetching data from the Google datastore and sending it back to the client. This is 
+going to be slow compared to desired UI response time so we need to keep a client side cache with the data 
 people will be likely to be requesting. The client cache needs to fetch data from the server before the user 
 requests viewing them. One way to arrange the cache is in terms of the number of mouse clicks a person is from 
 being visible on the main screen.
@@ -58,10 +58,12 @@ between the UI and cache.
 	UI enables user controls.
 	
 This is simple interaction which is good for a small project like this.
-Client Cache Effectiveness and Tuning
 
-The effectivenees of the cache will depend on how often it fetched the m-click-away persons from the server 
-before the user makes those clicks.
+Client Cache Effectiveness and Tuning
+-------------------------------------
+
+The effectiveness of the client cache will depend on how often it fetched the m-click-away persons from 
+the server before the user makes those clicks.
 
 There are some obvious trade-offs. 
 	Fewer navigation controls in the UI makes caching easier but leads to a less flexibiltiy
@@ -75,29 +77,20 @@ This is simple in principle. Fetch data from the server. Some things will need t
 
 High Level Design - Server
 --------------------------
-We are going to be fetching some data from one or more social networking sites and extracting some 
-meta-data from it. 
+Each person will have some possibly data and some searchable meta-data.
+
 	Person = summary (name, address, ...) + detail + list of connections (other persons)
-	
-Since we want to access this rapidly for each person we will need to store it on our server in our 
-format. Most likely we will have a multi-stage cache:
-	Fetch raw data from web-page or web-service (and store it Google datastore)
+
+Since we want to access this rapidly for each person we will need to store it on our server in our format. Most 
+likely we will have a multi-stage cache.
 	Fetch data from datastore (and store it memcache)
 	Fetch data from memcache.
-	
-We will need to run this a little to get some idea of the relative speeds of 1,2 and 3 to see how 
-we will tune this. At first glance, it is difficult to see how we will be able to get by without 
-the datastore and memcache so the first iteration design will have a multi-level cache.
+We will need to run this a little to get some idea of the relative speeds of 1 and 2 to see how we will tune this.
 
-Raw fetches from an external web-service are going to be slow so pre-populating the datastore with 
-person data will give much better results. However this would mean a big hit on the webservices for 
-data that might never be used. Therefore in the first iteration we will fetch raw data from the 
-webservices as it is requested.
-
-High Level Design - Person Data Structure
+High Level Design - Person Data Structure 
 -----------------------------------------
-The person data structure is mostly straightforward, a big chunk of data with some meta-data. The 
-obvious wrinkle is the relationships between persons. Each person has connections to other persons. 
-If there needs to be any work on connections, such as sorting the connections by the connections' 
-meta-data then we have to decide how much meta-data to store with each connection, or see how the 
-datastore can assist in one to many relationships.
+The person data structure is mostly straightforward, a big chunk of data with some meta-data. The obvious wrinkle 
+is the relationships between persons. Each person has connections to other persons. If there needs to be any work
+ on connections, such as sorting the connections by the connections' meta-data then we have to decide how much 
+ meta-data to store with each connection, or see how the datastore can assist in one to many relationships.
+

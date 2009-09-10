@@ -918,6 +918,7 @@ public class PersonClientCache {
 		  		for (int i = 0; i < fetches.length; ++i) {
 					int level = fetches[i].level;
 					PersonClient person = fetches[i].person;
+					Misc.myAssert(person != null, "person != null");
 					person.setCacheLevel(level);
 					
 					PersonClientCacheEntry[] cache = _theClientCache[level];
@@ -927,7 +928,7 @@ public class PersonClientCache {
 						cache[index].setState(CacheEntryState.FILLED);
 					}
 					else {
-						Misc.myAssert(false, "Can't happen because clearPendingCacheEntries()");
+						Misc.myAssert(false, "PersonClientCache.addToCache: " + level + ":" + person.getUniqueID() + "> " + getCacheAsString());
 						misses.add(person.getRequestedID());
 					}
 					validateCache();
@@ -1136,27 +1137,32 @@ public class PersonClientCache {
 			  }
 		  }  
 		  if (OurConfiguration.DEBUG_MODE) {
-			  int numOccupied = 0;
-			  String msg = "" ;
-			  for (int level = 0; level < CACHE_LEVEL_NUMBER_LEVELS; ++level) {
-		  			PersonClientCacheEntry[] cache = _theClientCache[level];
-		  			msg += "Level " + level + " [" + cache.length + "]: ";
-		  			int index = 0;
-			  		for (PersonClientCacheEntry cacheEntry: cache) {
-				    	if (cacheEntry.getRequestedUniqueID() != PersonClient.UNIQUE_ID_NOT_FOUND) {
-				    		msg +=  "" + index
-										+   "{" + cacheEntry.getRequestedUniqueID()
-								        +   "," + cacheEntry.getState()
-								        +   "}, ";
-				    		++numOccupied;
-				    		++index;
-				    	}
-			  		}
-			  		msg += ";; ";
-			  }
+			  String msg = getCacheAsString();
 			  SocialGraphExplorer.get().log("dumpCache(" + location + ")", msg);
 			  System.err.println("dumpCache(" + location + ")" + ": " + msg);
 		  }
+	  }
+	  
+	  private String getCacheAsString() {
+		  int numOccupied = 0;
+		  String msg = "" ;
+		  for (int level = 0; level < CACHE_LEVEL_NUMBER_LEVELS; ++level) {
+	  			PersonClientCacheEntry[] cache = _theClientCache[level];
+	  			msg += "Level " + level + " [" + cache.length + "]: ";
+	  			int index = 0;
+		  		for (PersonClientCacheEntry cacheEntry: cache) {
+			    	if (cacheEntry.getRequestedUniqueID() != PersonClient.UNIQUE_ID_NOT_FOUND) {
+			    		msg +=  "" + index
+									+   "{" + cacheEntry.getRequestedUniqueID()
+							        +   "," + cacheEntry.getState()
+							        +   "}, ";
+			    		++numOccupied;
+			    		++index;
+			    	}
+		  		}
+		  		msg += ";; ";
+		  }
+		  return msg;
 	  }
 	  
 	  static private boolean anchor_has_been_filled = false;
