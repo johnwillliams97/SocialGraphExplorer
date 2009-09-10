@@ -34,13 +34,9 @@ import db.PMF;
 @PersistenceCapable(identityType=IdentityType.APPLICATION)
 public class PersonLI  implements Serializable, PersonTrait, CacheTrait {
 	
-	//private static final long serialVersionUID = 1L;
-//	private static final long serialVersionUID = 6745964760100019554L;
-//	private static final long serialVersionUID = -3088974083721413636L;
-//	private static final long serialVersionUID = 7683849060655852899L;
 	private static final long serialVersionUID = -6983889227350201932L;
 
-	 private static final Logger logger = Logger.getLogger(PersonLI.class.getName());
+	private static final Logger logger = Logger.getLogger(PersonLI.class.getName());
 /*
 	private String show() {
 		String out = " ";
@@ -674,18 +670,7 @@ public class PersonLI  implements Serializable, PersonTrait, CacheTrait {
 	    pm.close();
   	}
   	
- 	/*
-  	@SuppressWarnings("unchecked")
- 	private static List<PersonLI> getEntries() {
-	    PersistenceManager pm = PMF.get().getPersistenceManager();
-	    Query query = pm.newQuery(PersonLI.class);
-	    query.setOrdering("liUniqueID ASC");
-	    List<PersonLI> entries = (List<PersonLI>) query.execute();
-	    query.closeAll();
-	    return entries;
-  	}
-  	*/
-  	
+ 	  	
 	/*
 	 * !Public interface to this module
 	 * 

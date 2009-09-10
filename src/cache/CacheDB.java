@@ -6,17 +6,19 @@ package cache;
 
 import java.util.logging.Logger;
 
+import datatypes.PersonLI;
+
 import people.client.OurConfiguration;
 import people.client.Statistics;
 import htmlstuff.WebSiteReader_EntryPoint;
-import datatypes.PersonLI;
+
 
 public class CacheDB implements CacheActual<Long, PersonLI> {
 	private static final Logger logger = Logger.getLogger(CacheActual.class.getName());
 	
 	private static String 		LINKED_IN = "LinkedIn";
 	private WebSiteReader_EntryPoint _webSiteReaderEntry = new WebSiteReader_EntryPoint();
-	private double 				_longestLIReadDuration = 0.0; // For profiling
+	private double 				 _longestLIReadDuration = 0.0; // For profiling
 	
 	
 	private static boolean isNullOrEmpty(String s) {
