@@ -35,9 +35,6 @@ public class MiscCollections {
 		long[] array = null;
 		if (list != null) {
 			array = new long[list.size()];
-			//for (int i = 0; i < list.size(); ++i) {
-			//	array[i] = list.get(i);
-			//}
 			int i = 0;
 			for (Long e: list) {
 				array[i++] = e;

@@ -36,11 +36,7 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 	private final long _servletLoadTimeMillis = System.currentTimeMillis();
 	private long _firstCallTimeMillis = -1L;
 
-	private class Fetch2 {
-		public int level;					// client cache level requested
-		public long requestedUniqueID;		// person requested
-		public PersonLI person;				// persons returned
-	}
+	
 	/*
 	 * Tiny class for capturing cache pipeline stats
 	 */
@@ -252,14 +248,14 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 	
 		CachePipelineInstance cachePipelineInstance = new CachePipelineInstance(this.cachePipeline);
 		
-		List<Fetch2> fetchList = new ArrayList<Fetch2>();
+		List<PersonFetch> fetchList = new ArrayList<PersonFetch>();
 		
 		final double maxTime1 = _maxTime / 2;
 		double start = Statistics.getCurrentTime(); // !@#$ Change all times to double sec Statistics.getCurrentTime()
 		double end = 0.0;
 		
-		if (this._firstCallTimeMillis < 0L)
-			this._firstCallTimeMillis = System.currentTimeMillis();
+		if (_firstCallTimeMillis < 0L)
+			_firstCallTimeMillis = System.currentTimeMillis();
 	
 		//First look at the people requested
 		for (int i = 0; i < requestedUniqueIDs.length; ++i) {
@@ -277,15 +273,10 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 				Misc.reportException(e);
 				break;
 			}
-			/*
-			if (i == (int)(Math.random()*4.0) ) {
-				System.err.println("Simulating a server fault! i=" + i); // !@#$  !@#$
-				break;
-			}
-			*/
 			if (person != null) {
-				Fetch2 fetch = new Fetch2();
-				fetch.person = person;
+				PersonFetch fetch = new PersonFetch();
+				PersonClient rawPerson = personServerToPersonClient(person, requestedUniqueIDs[i]);
+				fetch.person = MangleNames.manglePerson(rawPerson);
 				fetch.requestedUniqueID = requestedUniqueIDs[i];
 				fetch.level = requestedLevels[i];
 				fetchList.add(fetch);
@@ -309,13 +300,7 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 			resultsMain.responseDuration3 = Statistics.round3(Statistics.getCurrentTime() - start);
 			PersonFetch[] fetches = new PersonFetch[fetchList.size()];
 			for (int i = 0; i < fetches.length; ++i) {
-				Fetch2 fetch2 = fetchList.get(i);
-				PersonFetch fetch = new PersonFetch();
-				fetch.level = fetch2.level;
-				fetch.requestedUniqueID = fetch2.requestedUniqueID;
-				PersonClient rawPerson = personServerToPersonClient(fetch2.person, fetch2.requestedUniqueID);
-				fetch.person = MangleNames.manglePerson(rawPerson);
-				fetches[i] = fetch;										
+				fetches[i] = fetchList.get(i);;										
 			}
 			resultsMain.fetches = fetches; //getUniqueNonNullEntries(results, 1000);
 			logger.info("num fetches = " + fetches.length);
@@ -341,14 +326,16 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 		return resultsMain;
 	}
 
-	private static void showPersonList(List<Fetch2> fetchList, String name) {
+	private static void showPersonList(List<PersonFetch> fetchList, String name) {
 		logger.info("------ " + name + " : " + fetchList.size());
 		for (int i = 0; i < fetchList.size(); ++i) {
-			PersonLI person = fetchList.get(i).person;
+			PersonClient person = fetchList.get(i).person;
+			List<Long> connectionIDs = person.getConnectionIDs();
+			int numConnections = connectionIDs != null ? connectionIDs.size() : 0;
 			logger.info("  " + i + ": " 
 					+ person.getNameFull() + ", " 
 					+ person.getLocation() + ", " 
-					+ person.getNumConnections() + ", " 
+					+ numConnections + ", " 
 					+ person.getUniqueID()  );
 		}
 	}

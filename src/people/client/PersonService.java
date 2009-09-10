@@ -17,6 +17,7 @@ public interface PersonService extends RemoteService {
 	 * @param numCallsForThisClientSequenceNumber - Number of calls for this clientSequenceNumber
 	 * @param sequenceNumber - tracks client requests
 	 * @param callTime - Time function was called in seconds
+	 * @param urlArgs - pass some of the URL args along to the server
 	 * @return list of persons fetched from the data store
 	 */
 	PersonClientGroup getPeople(long[] requestedUniqueIDs, int[] levels, 
