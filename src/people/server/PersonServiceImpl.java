@@ -43,23 +43,23 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 	class CachePipelineInstance {
 	//	private static final Logger logger = Logger.getLogger(CachePipelineInstance.class.getName());
 		
-		private int numFetches = 0;
-		private int numMemCacheFetches = 0;
-		private int numDBCacheFetches = 0;
-		private int numWTFCacheFetches = 0;
-		private CachePipeline<Long, PersonLI> cachePipeline;
-		private int numCacheMisses = 0;;
+		private int _numFetches = 0;
+		private int _numMemCacheFetches = 0;
+		private int _numDBCacheFetches = 0;
+		private int _numWTFCacheFetches = 0;
+		private CachePipeline<Long, PersonLI> _cachePipeline;
+		private int _numCacheMisses = 0;;
 		public CachePipelineInstance(CachePipeline<Long, PersonLI> cachePipeline) {
-			numFetches = 0;
-			this.cachePipeline = cachePipeline;
+			_numFetches = 0;
+			_cachePipeline = cachePipeline;
 		}
 		public PersonLI get(long idIn, WebReadPolicy policy, double timeBoundSec) {
 			double start = Statistics.getCurrentTime();
 			
 			long id = mapUnknownID(idIn);
-			PersonLI person = this.cachePipeline.get(id, policy, timeBoundSec);
+			PersonLI person = _cachePipeline.get(id, policy, timeBoundSec);
 			cleanPersonConnections(person);
-			++this.numFetches;
+			++_numFetches;
 			String whence = "none";
 						
 			if (person != null) {
@@ -68,20 +68,17 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 				whence = person.getWhence();
 				if (whence != null) {
 					if (whence.contains("CacheDB"))
-						++this.numDBCacheFetches;
+						++_numDBCacheFetches;
 					else if (whence.contains("CacheCache"))
-						++this.numMemCacheFetches;
+						++_numMemCacheFetches;
 					else {
-						++this.numWTFCacheFetches;
+						++_numWTFCacheFetches;
 					}
 				}
 			}
 			else {
-				++this.numCacheMisses ;
+				++_numCacheMisses ;
 			}
-			
-		//	String nameFull = person != null ? person.getNameFull() : "not found";
-		//	logger.warning(id + ":" + nameFull + " - " + whence);
 			
 			return person;
 		}
@@ -92,17 +89,17 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 			return id;
 		}
 		int getNumFetches() {
-			return this.numFetches;
+			return _numFetches;
 		}
 		int getNumMemCacheFetches() {
-			return this.numMemCacheFetches;
+			return _numMemCacheFetches;
 		}
 		int getNumDBCacheFetches() {
-			return this.numDBCacheFetches;
+			return _numDBCacheFetches;
 		}
 	}
 //	 private static final PersonLIClientGroup NO_PEOPLE = new PersonLIClientGroup();
-	 private CachePipeline<Long, PersonLI> cachePipeline = null;
+	 private CachePipeline<Long, PersonLI> _cachePipeline = null;
 			 
 	 public static CachePipeline<Long, PersonLI> makeCachePipeline() {
 		List<CacheActual<Long,PersonLI>> stagesActual = new ArrayList<CacheActual<Long,PersonLI>>();
@@ -116,8 +113,8 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 	}
   
 	public PersonServiceImpl() {
-		assert(cachePipeline == null);
-		cachePipeline = makeCachePipeline();
+		assert(_cachePipeline == null);
+		_cachePipeline = makeCachePipeline();
 		logger.warning("Hi there!");
 	}
 	
@@ -246,7 +243,7 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 						int    numCallsForThisClientSequenceNumber,
 						long   sequenceNumber) {
 	
-		CachePipelineInstance cachePipelineInstance = new CachePipelineInstance(this.cachePipeline);
+		CachePipelineInstance cachePipelineInstance = new CachePipelineInstance(_cachePipeline);
 		
 		List<PersonFetch> fetchList = new ArrayList<PersonFetch>();
 		
