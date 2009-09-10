@@ -2,7 +2,7 @@ package datatypes;
 /*
  * http://www.youtube.com/watch?v=tx5gdoNpcZM&feature=channel 
  */
-import java.io.Serializable;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.security.MessageDigest;
@@ -20,11 +20,8 @@ import javax.jdo.annotations.NotPersistent;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
-
-import cache.CacheTrait;
-
 import com.google.appengine.api.datastore.Text;
-
+import cache.CacheTrait;
 import people.client.Misc;
 import people.client.OurConfiguration;
 import people.client.Statistics;
@@ -32,7 +29,7 @@ import people.client.PersonTrait;
 import db.PMF;
 
 @PersistenceCapable(identityType=IdentityType.APPLICATION)
-public class PersonLI  implements Serializable, PersonTrait, CacheTrait {
+public class PersonLI  implements PersistentPersonTrait, CacheTrait {
 	
 	private static final long serialVersionUID = -6983889227350201932L;
 
