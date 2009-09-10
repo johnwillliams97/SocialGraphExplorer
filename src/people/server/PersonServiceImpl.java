@@ -31,7 +31,7 @@ import people.client.PersonService;
 @SuppressWarnings("serial")
 public class PersonServiceImpl extends RemoteServiceServlet implements PersonService {
 	private static final Logger logger = Logger.getLogger(PersonServiceImpl.class.getName());
-	private static final WebReadPolicy _webReadPolicy = OurConfiguration.ALLOW_LINKED_READS ? WebReadPolicy.AUTO : WebReadPolicy.NEVER;
+	private static final WebReadPolicy _webReadPolicy = OurConfiguration.ALLOW_LINKEDIN_READS ? WebReadPolicy.AUTO : WebReadPolicy.NEVER;
 	private static final double _maxTime = OurConfiguration.MAX_TIME_FOR_SERVLET_RESPONSE; 
 	private final long _servletLoadTimeMillis = System.currentTimeMillis();
 	private long _firstCallTimeMillis = -1L;

@@ -21,7 +21,7 @@ public class WebSiteReader_EntryPoint {
 				boolean  forceLiRead,	// forces a LI read
 				double timeBoundSec) {
 		PersonLI person = null;
-		if (OurConfiguration.ALLOW_LINKED_READS)
+		if (OurConfiguration.ALLOW_LINKEDIN_READS)
 			person = getPersonFromLI_(key, partPerson, forceLiRead, timeBoundSec);
 		return person;
 	}

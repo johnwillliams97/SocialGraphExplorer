@@ -80,7 +80,7 @@ public class CacheStage<K, V extends CacheTrait> {
 	
 	public void put(K key, V value, double timeBoundSec) {
 		++_cacheStats.numPuts;
-		final WebReadPolicy webReadPolicy = OurConfiguration.ALLOW_LINKED_READS ? WebReadPolicy.AUTO : WebReadPolicy.NEVER;
+		final WebReadPolicy webReadPolicy = OurConfiguration.ALLOW_LINKEDIN_READS ? WebReadPolicy.AUTO : WebReadPolicy.NEVER;
 		V val = _cacheActual.get(key, webReadPolicy, timeBoundSec);
 		if (!(val != null && val.equals(value))) {
 			_cacheActual.put(key, value);

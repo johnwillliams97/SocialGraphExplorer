@@ -43,7 +43,7 @@ public class OurConfiguration {
 	public static final int INVISIBLE_FETCH_DELAY_CLICK2 = 200;		// msec
 	
 	// For reading from 3rd party web-sites
-	public static final boolean ALLOW_LINKED_READS = false;
+	public static final boolean ALLOW_LINKEDIN_READS = false;
 	
 	 
 	
