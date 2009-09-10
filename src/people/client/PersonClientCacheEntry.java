@@ -2,7 +2,7 @@ package people.client;
 
 
 /**
- * Client side cache entry for a PersonLIClient
+ * Client side cache entry for a PersonClient
  */
 public class PersonClientCacheEntry {
 	

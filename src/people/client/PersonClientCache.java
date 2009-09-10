@@ -92,12 +92,26 @@ public class PersonClientCache {
 	
 	// The visible persons currently requested !@#$ Probably should not return until these are fetched
 	private long[] _requestedVisibleIDs = null;
-		  
-	public PersonClientCache(int[] cacheLevelSize) {
+	
+	private int    _maxServerCallsPerRequest = -1; // Ridiculous value so we can assert it
+	
+	private RequestsInProgress _requestsInProgress = null;
+	
+	/* Set up the client cache
+	 * @param cacheLevelSize - Number of elements in cache (by level)
+  	 * @param maxServerCallsPerRequest - Dynamic (overridable from URL) version of OurConfiguration.MAX_SERVER_CALLS_PER_REQUEST
+  	 * @param maxServerCallsInProgress - Dynamic (overridable from URL) version of OurConfiguration.MAX_REQUESTS_IN_PROGRESS
+     */
+	public PersonClientCache(int[] cacheLevelSize,
+							 int maxServerCallsPerRequest,
+							 int maxRequestsInProgress) {
 	 	
 		Misc.myAssert(cacheLevelSize != null, "cacheLevelSize != null") ;
 		Misc.myAssert(cacheLevelSize.length == CACHE_LEVEL_NUMBER_LEVELS, "cacheLevelSize.length == CACHE_LEVEL_NUMBER_LEVELS");
+		Misc.myAssert(maxServerCallsPerRequest > 0, "maxServerCallsPerRequest > 0") ;
 		
+		_maxServerCallsPerRequest = maxServerCallsPerRequest;
+		_requestsInProgress = new RequestsInProgress(maxRequestsInProgress);
 		_theClientCache = new PersonClientCacheEntry[CACHE_LEVEL_NUMBER_LEVELS][];
 		for (int level = 0; level < CACHE_LEVEL_NUMBER_LEVELS; ++level) {
 			_theClientCache[level] = new PersonClientCacheEntry[cacheLevelSize[level]];
@@ -672,7 +686,7 @@ public class PersonClientCache {
 		//  SocialGraphExplorer.get().showInstantStatus2("dispatchPendingFetches", "out");
 	  }
 	  
-	  private RequestsInProgress _requestsInProgress = new RequestsInProgress();
+	  
 	  /*
 	   * Request a best-effort (time limited) person fetch from server
 	   * 
@@ -775,7 +789,7 @@ public class PersonClientCache {
 		  			List<IDsAtLevel> incompletePersonIDs = RPCWrapper.meldIDsAtLevelLists(incompletePersonIDsVisible, incompletePersonIDsInvisible);
 		  			List<IDsAtLevel> idsToFetch = RPCWrapper.meldIDsAtLevelLists(unfetchedIDs, incompletePersonIDs);
 		  			int numCallsForThisClientSequenceNumber = _requestsInProgress.getNumCalls(clientSequenceNumber);
-		  			if (idsToFetch.size() > 0 && numCallsForThisClientSequenceNumber <= RequestsInProgress.MAX_SERVER_CALLS_PER_REQUEST) {
+		  			if (idsToFetch.size() > 0 && numCallsForThisClientSequenceNumber <= _maxServerCallsPerRequest) {
 		  				SocialGraphExplorer.get().log("Incomplete fetch ", clientSequenceNumber 
 		  						+ ": " + RPCWrapper.getTotalNumberOfIDs(unfetchedIDs) + " unfetched "
 		  						+ "+ " + RPCWrapper.getTotalNumberOfIDs(incompletePersonIDsVisible) + " visible incomplete "

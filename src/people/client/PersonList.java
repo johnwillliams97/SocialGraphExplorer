@@ -49,7 +49,7 @@ import people.client.Interval;
 public class PersonList extends Composite implements ClickHandler {
 	
 	// The person cache
-	private final PersonClientCache personClientCache;
+	private final PersonClientCache _personClientCache;
 	
 	// UI behaviour
 	// Total number of entries on a screen
@@ -101,11 +101,16 @@ public class PersonList extends Composite implements ClickHandler {
 	static int debug_num_calls = 0; // !@#$ Why is PersonList() getting called multiple times???
 	
 	private static int[] _cacheLevelSize = null;
+	
   	/*
   	 * Set up the list UI
-  	 * @param urlStringRep - String representation of URL
-  	 */
-	public PersonList(CanonicalState canonicalState) {
+  	 * @param canonicalState - Cannonical state read from  URL
+  	 * @param maxServerCallsPerRequest - Dynamic (overridable from URL) version of OurConfiguration.MAX_SERVER_CALLS_PER_REQUEST
+  	 * @param maxServerCallsInProgress - Dynamic (overridable from URL) version of OurConfiguration.MAX_REQUESTS_IN_PROGRESS
+   */
+	public PersonList(CanonicalState canonicalState, 
+				      int maxServerCallsPerRequest,
+				      int maxRequestsInProgress) {
 		// GWT sometimes calls this twice in hosted mode.
 		++debug_num_calls;
 		if (debug_num_calls > 1) {
@@ -119,7 +124,7 @@ public class PersonList extends Composite implements ClickHandler {
 		_cacheLevelSize[PersonClientCache.CACHE_LEVEL_CLICK1] =  4 * CONNECTIONS_PER_SCREEN;
 		_cacheLevelSize[PersonClientCache.CACHE_LEVEL_CLICK2] =  4 * CONNECTIONS_PER_SCREEN;
 		_cacheLevelSize[PersonClientCache.CACHE_LEVEL_RECENT] = OurConfiguration.CACHE_SIZE_LRU;
-		personClientCache = new PersonClientCache(_cacheLevelSize);
+		_personClientCache = new PersonClientCache(_cacheLevelSize, maxServerCallsPerRequest, maxRequestsInProgress);
 	
 		// Setup the table UI.
 		_table.setCellSpacing(0);
@@ -505,7 +510,7 @@ public class PersonList extends Composite implements ClickHandler {
 	  	// cacheCallbackUpdateList() will call redrawUII() to re-enable the buttons after the server fetch
 	  	if (!_state.anchorFetched || !_state.visibleFetched) {
 	  		disableNavigation();
-	  		personClientCache.updateCacheAndGetVisible(fetchList, cacheCallbackUpdateList);
+	  		_personClientCache.updateCacheAndGetVisible(fetchList, cacheCallbackUpdateList);
 	  	}
 
 	}

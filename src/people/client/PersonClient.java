@@ -27,8 +27,8 @@ public class PersonClient implements IsSerializable, PersonTrait {
 	// uniqueID pseudo-value for when no uniqueID is found
 	public static final long UNIQUE_ID_NOT_FOUND = -1L;
 	
-	// First magic person
-	public static final long  MAGIC_PERSON_CLIENT_1_UNIQUE_ID = -101L;
+	// Marker for the default person to fetch from the DB. Needed for bootstrapping
+	public static final long  MAGIC_PERSON_CLIENT_1_UNIQUE_ID = PersonTrait.GET_DEFAULT_PERSON_UNIQUEID;
 	public static final PersonClient MAGIC_PERSON_CLIENT_1 = new PersonClient("Initialising server", MAGIC_PERSON_CLIENT_1_UNIQUE_ID);
 
 	// Token for cases when person not in cache
@@ -53,21 +53,14 @@ public class PersonClient implements IsSerializable, PersonTrait {
 		return (this.location != null && this.location.equals(MAGIC_STRING));
 	}
 	
-	
-	/*
-	 * Is this record base on real data?
-	 * On the client this for information only
-	 * (non-Javadoc)
-	 * @see people.client.PersonTrait#isRealData()
-	 */
-	@Override
-	public boolean isRealData() {
-		return _isRealData;
-	}
-	private boolean _isRealData = false;
+	private boolean _isRealData = true;  // assume the worst
 	public void setIsRealData(boolean isRealData) {
 		_isRealData = isRealData;
 	}
+	public boolean getIsRealData() {
+		return _isRealData;
+	}
+	
 	/*
 	 * getters & setters
 	 */

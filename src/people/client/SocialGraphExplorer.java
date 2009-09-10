@@ -134,7 +134,9 @@ public class SocialGraphExplorer
 		
 		// PersonList uses LoadsOfFun.get() in its constructor, so initialise it after
 		// 'singleton'.
-		personList = new PersonList(canonicalState);
+		personList = new PersonList(canonicalState, 
+				OurConfiguration.MAX_SERVER_CALLS_PER_REQUEST,
+				OurConfiguration.MAX_REQUESTS_IN_PROGRESS);
 		personList.setWidth("100%");
 
 		// Create the right panel, containing the email list & details.

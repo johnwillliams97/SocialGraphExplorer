@@ -6,8 +6,12 @@ import java.util.List;
 
 public class RequestsInProgress {
 
-	public static final int MAX_REQUESTS_IN_PROGRESS = OurConfiguration.MAX_REQUESTS_IN_PROGRESS;
-	public static final int MAX_SERVER_CALLS_PER_REQUEST = OurConfiguration.MAX_SERVER_CALLS_PER_REQUEST;
+	private static int _maxRequestsInProgress = OurConfiguration.MAX_REQUESTS_IN_PROGRESS;
+	
+	public RequestsInProgress(int maxRequestsInProgress) {
+		if (maxRequestsInProgress > 0)
+			_maxRequestsInProgress = maxRequestsInProgress;
+	}
 	
 	private class Request {
 		long clientSequenceNumber;  // unique ID for a request
@@ -24,7 +28,7 @@ public class RequestsInProgress {
 		Request request = find(clientSequenceNumber);
 		Misc.myAssert(request == null, "startRequest null");
 		request = new Request(clientSequenceNumber);
-		if (requestsInProgress.size() >= MAX_REQUESTS_IN_PROGRESS)
+		if (requestsInProgress.size() >= _maxRequestsInProgress)
 			requestsInProgress.remove(0);;
 		requestsInProgress.add(request);
 		++request.numCalls;

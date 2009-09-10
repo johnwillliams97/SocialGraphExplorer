@@ -4,6 +4,7 @@ WORK LOG
 2009/09/10
 ---------
 Generalised server side PersonTrait records with PersistentPersonTrait.java
+Cache instance handles case of requested uniqueID < 0
 
 2009/09/09
 ----------

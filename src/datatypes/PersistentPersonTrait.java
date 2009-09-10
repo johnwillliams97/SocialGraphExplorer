@@ -12,4 +12,12 @@ import people.client.PersonTrait;
 public interface PersistentPersonTrait extends Serializable, PersonTrait {
 	
 	
+	// uniqueID for default record in the database
+	public static final long DEFAULT_PERSON_RECORD_UNIQUEID = -1;
+	
+	/*
+	 * Real data must be protected
+	 */
+	public boolean 		isRealData();
+	
 }

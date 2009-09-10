@@ -12,6 +12,7 @@ import cache.CacheCache;
 import cache.CacheDB;
 import cache.CachePipeline;
 import cache.CacheActual.WebReadPolicy;
+import datatypes.PersistentPersonTrait;
 import datatypes.PersonLI;
 import people.client.Misc;
 import people.client.MiscCollections;
@@ -56,12 +57,15 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 			numFetches = 0;
 			this.cachePipeline = cachePipeline;
 		}
-		public PersonLI get(long id, WebReadPolicy policy, double timeBoundSec) {
+		public PersonLI get(long idIn, WebReadPolicy policy, double timeBoundSec) {
 			double start = Statistics.getCurrentTime();
+			
+			long id = mapUnknownID(idIn);
 			PersonLI person = this.cachePipeline.get(id, policy, timeBoundSec);
 			cleanPersonConnections(person);
 			++this.numFetches;
 			String whence = "none";
+						
 			if (person != null) {
 				double end = Statistics.getCurrentTime();
 				person.setFetchDuration(Statistics.round3(end-start));
@@ -84,6 +88,12 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 		//	logger.warning(id + ":" + nameFull + " - " + whence);
 			
 			return person;
+		}
+		// !@#$ Generalise this for PersistentPersonTrait.
+		private long mapUnknownID(long id) {
+			if (id == PersonTrait.GET_DEFAULT_PERSON_UNIQUEID)
+				id = PersonLI.DEFAULT_PERSON_RECORD_UNIQUEID;
+			return id;
 		}
 		int getNumFetches() {
 			return this.numFetches;
@@ -118,7 +128,7 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 	
 	
 		
-	private static PersonClient personServerToPersonClient(PersonTrait ps, long requestedID) {
+	private static PersonClient personServerToPersonClient(PersistentPersonTrait ps, long requestedID) {
 		PersonClient pc = null;
 		if (ps != null) {
 			PersonClient.debugValidate(ps);
@@ -134,7 +144,13 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 			pc.setIsChildConnectionInProgress(ps.getIsChildConnectionInProgress());
 			pc.setWhence(ps.getWhence());
 			pc.setFetchDuration(ps.getFetchDuration());
-			pc.setHtmlPage(ps.getHtmlPage());
+			String htmlPage = ps.getHtmlPage();
+			if (htmlPage != null && OurConfiguration.HTML_DATA_MAX_SIZE > 0) {
+				int maxSize = Math.min(OurConfiguration.HTML_DATA_MAX_SIZE, htmlPage.length());
+				if (maxSize > 1)
+					htmlPage = htmlPage.substring(0, maxSize-1);
+			}
+			pc.setHtmlPage(htmlPage);
 			PersonClient.debugValidate(pc);
 		}
 		return pc;
@@ -251,8 +267,6 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 			if (end - start > maxTime1)
 				break;
 			long uniqueID = requestedUniqueIDs[i];
-			if (uniqueID <= 0L)
-				uniqueID = PersonLI.DEFAULT_LI_UNIQUEID;
 			PersonLI person = null;
 			try {
 				 person = cachePipelineInstance.get(uniqueID, _webReadPolicy, start + maxTime1);
@@ -300,7 +314,7 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 				fetch.level = fetch2.level;
 				fetch.requestedUniqueID = fetch2.requestedUniqueID;
 				PersonClient rawPerson = personServerToPersonClient(fetch2.person, fetch2.requestedUniqueID);
-				fetch.person = MangleNames.manglePerson((rawPerson));
+				fetch.person = MangleNames.manglePerson(rawPerson);
 				fetches[i] = fetch;										
 			}
 			resultsMain.fetches = fetches; //getUniqueNonNullEntries(results, 1000);

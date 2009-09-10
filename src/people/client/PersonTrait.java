@@ -15,12 +15,13 @@ public interface PersonTrait {
 		RECORD_READ_BASIC,
 		RECORD_READ_FULL
 	}
-	long NO_PERSON_UNIQUEID = 1L;
 	
-	/*
-	 * Real data must be protected
-	 */
-	public boolean 		isRealData();
+	// Marker for invalid uniqueIDs
+	public static final long  NO_PERSON_UNIQUEID = 1L;
+	
+	// Marker for "please retrieve default person fromo your database
+	public static final long  GET_DEFAULT_PERSON_UNIQUEID = -101L;
+	
 	 /*
  	  * getters & setters
  	  */

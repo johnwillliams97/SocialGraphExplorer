@@ -34,6 +34,8 @@ public class PersonLI  implements PersistentPersonTrait, CacheTrait {
 	private static final long serialVersionUID = -6983889227350201932L;
 
 	private static final Logger logger = Logger.getLogger(PersonLI.class.getName());
+
+	public static final long DEFAULT_PERSON_RECORD_UNIQUEID = OurConfiguration.AUTHOR_UNIQUEID;
 /*
 	private String show() {
 		String out = " ";
@@ -298,8 +300,7 @@ public class PersonLI  implements PersistentPersonTrait, CacheTrait {
 	  
 	  public static final int MAX_DESCRIPTION = 400;
 
-	  public static final long DEFAULT_LI_UNIQUEID = OurConfiguration.AUTHOR_UNIQUEID; // Me
-	
+	 
 	  @Override
 	  public void setDescription(String description) {
 		  if (description!= null && description.length() > MAX_DESCRIPTION) {
@@ -773,5 +774,6 @@ public class PersonLI  implements PersistentPersonTrait, CacheTrait {
 	  		"A Duck in the Entertainment Business",
 	  		null);
 
+	
 	
 }

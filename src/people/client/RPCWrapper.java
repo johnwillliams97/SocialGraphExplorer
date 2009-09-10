@@ -319,21 +319,7 @@ public class RPCWrapper {
 	/*
 	 * Utility functions
 	 */
-  /*  
-	
-	*/
- 	/*
- 	private static String getIDsAsString(PersonLIClient[] persons) {
- 		long[] ids = null;
- 		if (persons != null)  {
- 			int numPersons = persons.length;
- 			ids = new long[numPersons];
- 			for (int i = 0; i < numPersons; ++i)
- 				ids[i] = persons[i].getLiUniqueID();
- 		}
- 		return arrayToString(ids);
- 	}
- 	*/
+  
  	
 	/*
 	 * Error handling fetchPersonsFromServer

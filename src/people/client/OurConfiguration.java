@@ -18,6 +18,7 @@ public class OurConfiguration {
 	public static final boolean NO_SERVER_TIME_LIMIT = false;
 	public static final boolean SUPRESS_ERRORS = false;
 	public static final boolean SHORT_SERVER_RESPONSE = false;
+	public static final int     HTML_DATA_MAX_SIZE = 500;
 	
 	// Determines the system's starting state. null => default
 	// Handy for debugging
