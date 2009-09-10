@@ -18,32 +18,34 @@ import com.google.gwt.user.client.rpc.ServiceDefTarget;
 public class RPCWrapper {
 
 	// The RPC service !
- 	private final PersonServiceAsync personService;
+ 	private final PersonServiceAsync _personService;
 	
  	// Various statistics
- 	private long sequenceNumber = 0L;  // Identifies server requests
-	private long baseServletLoadTime = -1L;  // Used to shorten long times. 
-	private int  totalFetches = 0; // Total # person fetched from server
+ 	private long _sequenceNumber = 0L;  // Identifies server requests
+	private long _baseServletLoadTime = -1L;  // Used to shorten long times. 
+	private int  _totalFetches = 0; // Total # person fetched from server
 		  	
 	// Keep a list of servlet instance called. 
 	// Each servlet instance is identified by its start time, which should be somewhat unique.
-  	private static final int maxServletInstances = 200;
-  	private List<Long> servletLoadTimeInstances = new ArrayList<Long> ();
+  	private static final int _maxServletInstances = 200;
+  	private List<Long> _servletLoadTimeInstances = new ArrayList<Long> ();
+  	
   	private int getNumServlets() {
-  		return servletLoadTimeInstances.size();
+  		return _servletLoadTimeInstances.size();
   	}
+  	
   	private int getServletIndex(long servletLoadTime) {
   		int index = -1;
-  		for (int i = 0; i < servletLoadTimeInstances.size(); ++i) {
-  			if (servletLoadTimeInstances.get(i) == servletLoadTime) {
+  		for (int i = 0; i < _servletLoadTimeInstances.size(); ++i) {
+  			if (_servletLoadTimeInstances.get(i) == servletLoadTime) {
   				index = i;
   				break;
   			}
   		}
   		// No match so add the new time to the end of the list, if space
-  		if (index < 0 && servletLoadTimeInstances.size() < maxServletInstances) {
-  			servletLoadTimeInstances.add(servletLoadTime);
-  			index = servletLoadTimeInstances.size() -1;
+  		if (index < 0 && _servletLoadTimeInstances.size() < _maxServletInstances) {
+  			_servletLoadTimeInstances.add(servletLoadTime);
+  			index = _servletLoadTimeInstances.size() -1;
   		}
   		// No space?
   		if (index < 0) {
@@ -57,10 +59,10 @@ public class RPCWrapper {
   	 */
     public RPCWrapper() {
     	// Initialise the service.
-    	personService = (PersonServiceAsync) GWT.create(PersonService.class);
+    	_personService = (PersonServiceAsync) GWT.create(PersonService.class);
 
       // By default, we assume we'll make RPCs to a servlet,
-    	ServiceDefTarget target = (ServiceDefTarget) personService;
+    	ServiceDefTarget target = (ServiceDefTarget) _personService;
 
       // Use a module-relative URL to ensure that this client code can find
       // its way home, even when the URL changes (as might happen when you
@@ -202,13 +204,13 @@ public class RPCWrapper {
 		    // This is an async call that returns immediately 
 	    	// Do a best-effort (time limited) fetch. If partial list is returned then 
 	       	// keep calling server and get more partial lists until whole list is returned
-	        ++this.sequenceNumber;
-	        personService.getPeople(
+	        ++_sequenceNumber;
+	        _personService.getPeople(
 	        	getArrayOfIDs(idsAtLevelList),
 	        	getArrayOfLevels(idsAtLevelList),
 	        	clientSequenceNumber,
 	        	numCallsForThisClientSequenceNumber,
-	        	this.sequenceNumber,
+	        	_sequenceNumber,
 	        	Statistics.getCurrentTime(),
 	        	new AsyncCallback<PersonClientGroup>() {
 	        		public void onFailure(Throwable caught) {
@@ -255,10 +257,10 @@ public class RPCWrapper {
     	//myAssert(result.fetches != null);
     	
     	// House keeping
-    	if (baseServletLoadTime < 0)	
-			baseServletLoadTime = result.timeSignatureMillis;
+    	if (_baseServletLoadTime < 0)	
+			_baseServletLoadTime = result.timeSignatureMillis;
 		int numFetches = result.fetches != null ? result.fetches.length : 0;
-		totalFetches += numFetches;
+		_totalFetches += numFetches;
 		int numRequestedIDs = (result.requestedUniqueIDs != null) ? result.requestedUniqueIDs.length : 0; //!@#$ use empty collections instead of null
 		//SocialGraphExplorer.get().showInstantStatus2("onSuccessCallback", numFetches + " of " + numRequestedIDs);
 		
@@ -290,8 +292,8 @@ public class RPCWrapper {
 					+ " (" + result.sequenceNumber + ")"
 					+ " Levels: " + uniqueLevelsString
 					+ " <" + result.requestedUniqueIDs.length + " requested, " + numFetches + " fetched> "
-					+ "(" + totalFetches + " total) "
-					+ " (servlet " + getServletIndex(result.timeSignatureMillis - baseServletLoadTime) 	+ " of " + getNumServlets() +")" 
+					+ "(" + _totalFetches + " total) "
+					+ " (servlet " + getServletIndex(result.timeSignatureMillis - _baseServletLoadTime) 	+ " of " + getNumServlets() +")" 
 				//	+ arrayToString(result.requestedUniqueIDs)
 					);
 			SocialGraphExplorer.get().showStatus("Fetches", 
