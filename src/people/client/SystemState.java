@@ -9,29 +9,47 @@ package people.client;
  */
 public class SystemState {
 	
-	public static final String KEY_UNIQUEID   = "key";
-	public static final String KEY_INDEX = "idx";
+	private static final String SEP_INTER = "&";
+	private static final String SEP_INTRA = "=";
 	
+	public static final String KEY_VERBOSE  = "verbose";
+	public static final String KEY_UNIQUEID = "key";
+	public static final String KEY_INDEX    = "idx";
+	public static final String KEY_MAX_SERVER_CALLS_PER_REQUEST  = "scr";
+	public static final String KEY_MAX_REQUESTS_IN_PROGRESS      = "rip";
+	public static final String KEY_MAX_SERVER_CALLS_IN_PROGRESS  = "cip";
+	
+	private boolean _verbose = false; // Verbosity of URL only so a private variable
 	private long _uniqueID = PersonClient.MAGIC_PERSON_CLIENT_1_UNIQUE_ID;
 	private int  _index = 0;
+	private int  _maxServerCallsPerRequest = OurConfiguration.MAX_SERVER_CALLS_PER_REQUEST;
+	private int  _maxRequestsInProgress    = OurConfiguration.MAX_REQUESTS_IN_PROGRESS;
+	private int  _maxServerCallsInProgress = OurConfiguration.MAX_SERVER_CALLS_IN_PROGRESS;
 	
-	public SystemState(String stateString) {
-		parseStateString(stateString);
-	}
 	public SystemState(long uniqueID, int index) {
 		_uniqueID = uniqueID;
 		_index = index;
 	}
 
-	private static final String SEP_INTER = "&";
-	private static final String SEP_INTRA = "=";
-	
 	public String getAsString() {
-		String termUniqueID = KEY_UNIQUEID + SEP_INTRA + _uniqueID;
-		String termIndex = KEY_INDEX + SEP_INTRA + _index;
-		String stateString = termUniqueID + SEP_INTER + termIndex;
+		String stateString = makeTerm(KEY_UNIQUEID, _uniqueID);
+		stateString += makeTerm(KEY_INDEX, _index);
+		if (_verbose) {
+			stateString += addTerm(KEY_MAX_SERVER_CALLS_PER_REQUEST, _maxServerCallsPerRequest);
+			stateString += addTerm(KEY_MAX_REQUESTS_IN_PROGRESS,     _maxRequestsInProgress);
+			stateString += addTerm(KEY_MAX_SERVER_CALLS_IN_PROGRESS, _maxServerCallsInProgress);
+			stateString += addTerm(KEY_VERBOSE, _verbose);
+		}
 		return stateString;
 	}
+	
+	private static String addTerm(String key, Object val)  {
+		return SEP_INTER + makeTerm(key, val) ;
+	}
+	private static String makeTerm(String key, Object val)  {
+		return key + SEP_INTRA + val;
+	}
+	
 	private void parseStateString(String stateString) {
 		if (stateString != null) {
 			String[] terms = stateString.split(SEP_INTER);
@@ -56,6 +74,19 @@ public class SystemState {
 	}
 	public int getIndex() {
 		return _index;
+	}
+	public int getMaxServerCallsPerRequest() {
+		return _maxServerCallsPerRequest;
+	}
+	public int getMaxRequestsInProgress() {
+		return _maxRequestsInProgress;
+	}
+	public int getMaxServerCallsInProgress() {
+		return _maxServerCallsInProgress;
+	}
+	
+	public SystemState(String stateString) {
+		parseStateString(stateString);
 	}
 
 }

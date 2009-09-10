@@ -31,12 +31,9 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 	private static final double _maxTime = OurConfiguration.MAX_TIME_FOR_SERVLET_RESPONSE; 
 	private final long _servletLoadTimeMillis = System.currentTimeMillis();
 	private long _firstCallTimeMillis = -1L;
-
-	
-	
-	 private CachePipeline<Long, PersonLI> _cachePipeline = null;
+	private CachePipeline<Long, PersonLI> _cachePipeline = null;
 			 
-	 public static CachePipeline<Long, PersonLI> makeCachePipeline() {
+	public static CachePipeline<Long, PersonLI> makeCachePipeline() {
 		List<CacheActual<Long,PersonLI>> stagesActual = new ArrayList<CacheActual<Long,PersonLI>>();
 		CacheCache cacheCache = new CacheCache();
 		stagesActual.add(cacheCache);
@@ -52,7 +49,6 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 		_cachePipeline = makeCachePipeline();
 		logger.warning("Hi there!");
 	}
-		
 		
 	private static PersonClient personServerToPersonClient(PersistentPersonTrait ps, long requestedID) {
 		PersonClient pc = null;
@@ -83,8 +79,6 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 	}
 	
 	
-	
-
 
   /*
    * (non-Javadoc)
