@@ -5,6 +5,8 @@ WORK LOG
 ---------
 Generalised server side PersonTrait records with PersistentPersonTrait.java
 Cache instance handles case of requested uniqueID < 0
+Cleaned-up some comments
+Made startup state configurable through URL args: SystemState.java
 
 2009/09/09
 ----------
