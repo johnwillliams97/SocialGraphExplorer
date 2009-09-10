@@ -250,16 +250,16 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 			end =  Statistics.getCurrentTime();
 			if (end - start > maxTime1)
 				break;
-			long liUniqueID = requestedUniqueIDs[i];
-			if (liUniqueID <= 0L)
-				liUniqueID = PersonLI.DEFAULT_LI_UNIQUEID;
+			long uniqueID = requestedUniqueIDs[i];
+			if (uniqueID <= 0L)
+				uniqueID = PersonLI.DEFAULT_LI_UNIQUEID;
 			PersonLI person = null;
 			try {
-				 person = cachePipelineInstance.get(liUniqueID, _webReadPolicy, start + maxTime1);
+				 person = cachePipelineInstance.get(uniqueID, _webReadPolicy, start + maxTime1);
 			}
 			catch (Exception e) {
 				// Best effort response to an exception
-				logger.warning("Exception for person " + liUniqueID +  ", " + i+ ": " + e.getMessage() + "," + e.toString()); 
+				logger.warning("Exception for person " + uniqueID +  ", " + i+ ": " + e.getMessage() + "," + e.toString()); 
 				Misc.reportException(e);
 				break;
 			}
@@ -276,7 +276,7 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 				fetch.level = requestedLevels[i];
 				fetchList.add(fetch);
 			}
-			logger.info(liUniqueID + ":" + (person != null ? person.getNameFull() : "not found") + ", i = " + i + ". fetchList size = " + fetchList.size());
+			logger.info(uniqueID + ":" + (person != null ? person.getNameFull() : "not found") + ", i = " + i + ". fetchList size = " + fetchList.size());
 			
 		}
 		logger.info("outta there!");

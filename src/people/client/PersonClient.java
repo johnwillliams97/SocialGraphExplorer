@@ -41,9 +41,9 @@ public class PersonClient implements IsSerializable, PersonPublic {
 		this.location = location;
 	}
 	// Magic object constructor
-	public PersonClient(String name, long liUniqueID) {
+	public PersonClient(String name, long uniqueID) {
 		this(MAGIC_STRING, name, MAGIC_STRING);
-		this.uniqueID = liUniqueID;
+		this.uniqueID = uniqueID;
 	}
 	public PersonClient() {
 		this(null, null, null);
@@ -80,8 +80,8 @@ public class PersonClient implements IsSerializable, PersonPublic {
 		return this.nameFull;
 	}
 	@Override
-	public void   setUniqueID(long liUniqueID) {
-		this.uniqueID = liUniqueID;
+	public void   setUniqueID(long uniqueID) {
+		this.uniqueID = uniqueID;
 	}
 	@Override
 	public long  getUniqueID() {
