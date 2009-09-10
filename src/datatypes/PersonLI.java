@@ -36,15 +36,7 @@ public class PersonLI  implements PersistentPersonTrait, CacheTrait {
 	private static final Logger logger = Logger.getLogger(PersonLI.class.getName());
 
 	public static final long DEFAULT_PERSON_RECORD_UNIQUEID = OurConfiguration.AUTHOR_UNIQUEID;
-/*
-	private String show() {
-		String out = " ";
-		out += this.getUniqueID() + ", ";
-		out += this.getNameFull() + ", " ;
-		out += this.getNumConnections();
-		return out;
-	}
-*/
+
 	@SuppressWarnings("unused")
 	@PrimaryKey
 	@Persistent(valueStrategy=IdGeneratorStrategy.IDENTITY)
@@ -54,8 +46,8 @@ public class PersonLI  implements PersistentPersonTrait, CacheTrait {
 	private long revision = 0L;
 
 	@Persistent
-	private long liUniqueID = -1L;			// http://www.linkedin.com/profile?viewProfile=&key=258598
-  											// liUniqueID = 258598, taken from URL
+	private long liUniqueID = -1L;			
+  											
 
 /*
  * The public interface. Keys I care about.	
@@ -64,7 +56,7 @@ public class PersonLI  implements PersistentPersonTrait, CacheTrait {
 	private long rank;						// My ranking of the person
   
 	@Persistent
- 	private String nameFull;				//  <title>LinkedIn: ILYA KAUSHANSKY</title> 
+ 	private String nameFull;				
 	
 	@Persistent
  	private String nameFirst;				//  First name, for searching
@@ -78,15 +70,12 @@ public class PersonLI  implements PersistentPersonTrait, CacheTrait {
 	@Persistent
 	private String employer;
 	
-//	@Persistent
-//	private long degreeOfSeparation = -1L;
+
 	
 	@Persistent
 	private String description;
 	
-//	@Persistent
-//	private String email;
-	
+
 	/*
 	 * Encode booleans in flags. egg
 	 * 		isPotentialEmployer
@@ -130,14 +119,7 @@ public class PersonLI  implements PersistentPersonTrait, CacheTrait {
 	@Persistent
 	private List<Long> queriesForThis;					// List of indexes into the queries that returned this record
 	
-	/*
-	 * Internals
-	 * 	State of partial searches
-	 * 	LinkedIn page contents
-	 * 
-	 */
-	
-	
+		
 	@Persistent
 //	private long	recordReadProgress = 0;
 	/*
@@ -150,11 +132,7 @@ public class PersonLI  implements PersistentPersonTrait, CacheTrait {
 	public static final int NUM_PROGRESS_TYPES = 40;
 	
 	public static final int CHILDREN_CONNECTIONS = 0;
-	public static final int CHILDREN_RECOMMENDATIONS = 1;
-	public static final int CHILDREN_RECOMMENDED_BY = 2;
-	public static final int CHILDREN_ALSO_VIEWED = 3;
-	public static final int CHILDREN_WVMP = 4;
-
+		
 	public static final int RECORD_READ_PROGRESS = NUM_PROGRESS_TYPES - 1;
 	
 	public static final long PROGRESS_NOT_STARTED = -1L;
@@ -173,13 +151,13 @@ public class PersonLI  implements PersistentPersonTrait, CacheTrait {
 	  
 
 	@Persistent								
-	private Text htmlPage;				// Full html page. Keep for later analysis?
+	private Text htmlPage;					// Full html page for a person 
   
 	@Persistent
-	private Date whenReadFirst;				// When first read from LI
+	private Date whenReadFirst;				// When first read 
 	
 	@Persistent
-	private Date whenReadLast;				// When last read from LI
+	private Date whenReadLast;				// When last read 
 
 	// Track sorting of connections. This needs to be optimised since sorting requires 
 	// a DB access for every connection
@@ -451,14 +429,9 @@ public class PersonLI  implements PersistentPersonTrait, CacheTrait {
   		query.setOrdering("whenReadLast desc"); // If multiple records with liUniqueID then take most recent // was query.setOrdering("liUniqueID asc"); 
   		query.declareParameters("long liUniqueIDParam");
   		try {
-  			//logger.warning("before");
-  	        results = (List<PersonLI>) query.execute(uniqueID);
-  	       // logger.warning("after");
+  			results = (List<PersonLI>) query.execute(uniqueID);
   	        if (results != null) {
-  	        //	logger.warning("People = " + results.size());
-  	        //	for (PersonLI person: results) 
-  	        //		logger.warning(person.show());
-  	        	assert(results.size() <= 1);
+  	           	assert(results.size() <= 1);
   	        }
   	    } 
   		catch (Exception e) {
@@ -466,16 +439,14 @@ public class PersonLI  implements PersistentPersonTrait, CacheTrait {
   			Misc.reportException(e);
   		}
   		finally {
-  		//	logger.warning("finally");
-  	        query.closeAll();
-  	    //    logger.warning("finally2");
+  		    query.closeAll();
   	    }
-  	//	logger.warning("return");
+  	
   	    return results;
   	}
   	/*
   	 * Get the list of people with the specified list of IDs
-  	 * This is an attempt at optimisation by grouping db fetches
+  	 * This is an attempt at optimisation by grouping DB fetches
   	 * It may need some work.
   	 */
   	/*
@@ -515,9 +486,6 @@ public class PersonLI  implements PersistentPersonTrait, CacheTrait {
   	}
   	*/
 	private static PersonLI getPersonByUniqueId_(PersistenceManager pm, long uniqueID) {
-	//	Statistics.getInstance().recordEvent("PersonLI.getPersonByUniqueId_(" + uniqueID + ")");
-		//PersistenceManager pm = PMF.getQueryPm(); // PMF.get().getPersistenceManager();;
-	//	logger.info("getPersonByUniqueId_(" + uniqueID + ")");
   		PersonLI person = null;
   		List<PersonLI> results = getPersonsWithUniqueId(pm, uniqueID) ;
   		if (results != null) {
@@ -533,15 +501,7 @@ public class PersonLI  implements PersistentPersonTrait, CacheTrait {
   		
   		return person;
   	}
-	/*
-	 * Return all a person's connections
-	 */
-	/*
-	public static List<PersonLI> getConnectionsForPerson(PersonLI person) {
-		List<PersonLI> connections = getPersonsWithUniqueIdList(person.getConnectionIDs());
-		return connections; 	
-  	}
-  	*/
+	
   	/*
   	 * Will a simple to = from work?
   	 */
@@ -681,21 +641,17 @@ public class PersonLI  implements PersistentPersonTrait, CacheTrait {
   		PersonLI p = null;
   		try {
   			p = getPersonByUniqueId_(pm, liUniqueID);
-  		//	logger.warning("after");
   			if (p != null) {
-  		//		logger.warning("person = " + p.getNameFull());
-  	  			assert(p.getUniqueID() == liUniqueID);
+  				assert(p.getUniqueID() == liUniqueID);
    	  		}
   		} 
   		catch (Exception e) {
   			Misc.reportException(e);
   		}
   		finally {
-  	//		logger.warning("final");
-  			pm.close();
+   			pm.close();
   		}
-  //		logger.warning("return");
-  		return p;
+   		return p;
 	}
   	
 	/*
@@ -773,7 +729,6 @@ public class PersonLI  implements PersistentPersonTrait, CacheTrait {
 	  		"Disneyland",
 	  		"A Duck in the Entertainment Business",
 	  		null);
-
 	
 	
 }
