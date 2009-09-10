@@ -107,10 +107,12 @@ public class PersonList extends Composite implements ClickHandler {
   	 * @param canonicalState - Cannonical state read from  URL
   	 * @param maxServerCallsPerRequest - Dynamic (overridable from URL) version of OurConfiguration.MAX_SERVER_CALLS_PER_REQUEST
   	 * @param maxServerCallsInProgress - Dynamic (overridable from URL) version of OurConfiguration.MAX_REQUESTS_IN_PROGRESS
-   */
+  	 * @param maxServerCallsInProgress - Dynamic (overridable from URL) version of OurConfiguration.MAX_SERVER_CALLS_IN_PROGRESS
+  */
 	public PersonList(CanonicalState canonicalState, 
 				      int maxServerCallsPerRequest,
-				      int maxRequestsInProgress) {
+				      int maxRequestsInProgress,
+				      int maxServerCallsInProgress) {
 		// GWT sometimes calls this twice in hosted mode.
 		++debug_num_calls;
 		if (debug_num_calls > 1) {
@@ -124,7 +126,7 @@ public class PersonList extends Composite implements ClickHandler {
 		_cacheLevelSize[PersonClientCache.CACHE_LEVEL_CLICK1] =  4 * CONNECTIONS_PER_SCREEN;
 		_cacheLevelSize[PersonClientCache.CACHE_LEVEL_CLICK2] =  4 * CONNECTIONS_PER_SCREEN;
 		_cacheLevelSize[PersonClientCache.CACHE_LEVEL_RECENT] = OurConfiguration.CACHE_SIZE_LRU;
-		_personClientCache = new PersonClientCache(_cacheLevelSize, maxServerCallsPerRequest, maxRequestsInProgress);
+		_personClientCache = new PersonClientCache(_cacheLevelSize, maxServerCallsPerRequest, maxRequestsInProgress, maxServerCallsInProgress);
 	
 		// Setup the table UI.
 		_table.setCellSpacing(0);

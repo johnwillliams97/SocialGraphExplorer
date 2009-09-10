@@ -84,34 +84,43 @@ public class PersonClientCache {
 	
 	// Number of server calls in progress at any given time
 	// **** This is a key invariant. Note asserts on this variable
+	// Must be: 0 < _numServerCallsInProgress < _maxServerCallsInProgress
 	private int _numServerCallsInProgress = 0;
-	
-	// Maximum server calls in progress at any given time 
-	private static int MAX_CALLS_IN_PROGRESS = 2;
 	
 	
 	// The visible persons currently requested !@#$ Probably should not return until these are fetched
 	private long[] _requestedVisibleIDs = null;
 	
-	private int    _maxServerCallsPerRequest = -1; // Ridiculous value so we can assert it
+	//Dynamic (overridable from URL) version of OurConfiguration.MAX_SERVER_CALLS_PER_REQUEST
+	// Initialise ridiculous value so we can assert to see if it has been set
+	private int    _maxServerCallsPerRequest = -1; 
+	
+	// Maximum server calls in progress at any given time (see _numServerCallsInProgress)
+	//Dynamic (overridable from URL) version of OurConfiguration.MAX_SERVER_CALLS_IN_PROGRESS
+	// Initialise ridiculous value so we can assert to see if it has been set
+	private int    _maxServerCallsInProgress = -1; 
 	
 	private RequestsInProgress _requestsInProgress = null;
 	
 	/* Set up the client cache
 	 * @param cacheLevelSize - Number of elements in cache (by level)
   	 * @param maxServerCallsPerRequest - Dynamic (overridable from URL) version of OurConfiguration.MAX_SERVER_CALLS_PER_REQUEST
-  	 * @param maxServerCallsInProgress - Dynamic (overridable from URL) version of OurConfiguration.MAX_REQUESTS_IN_PROGRESS
+  	 * @param maxRequestsInProgress - Dynamic (overridable from URL) version of OurConfiguration.MAX_REQUESTS_IN_PROGRESS
+  	 * @param maxServerCallsInProgress - Dynamic (overridable from URL) version of OurConfiguration.MAX_SERVER_CALLS_IN_PROGRESS
      */
 	public PersonClientCache(int[] cacheLevelSize,
 							 int maxServerCallsPerRequest,
-							 int maxRequestsInProgress) {
+							 int maxRequestsInProgress,
+							 int maxServerCallsInProgress) {
 	 	
 		Misc.myAssert(cacheLevelSize != null, "cacheLevelSize != null") ;
 		Misc.myAssert(cacheLevelSize.length == CACHE_LEVEL_NUMBER_LEVELS, "cacheLevelSize.length == CACHE_LEVEL_NUMBER_LEVELS");
 		Misc.myAssert(maxServerCallsPerRequest > 0, "maxServerCallsPerRequest > 0") ;
+		Misc.myAssert(maxServerCallsInProgress > 0, "maxServerCallsInProgress > 0") ;
 		
 		_maxServerCallsPerRequest = maxServerCallsPerRequest;
 		_requestsInProgress = new RequestsInProgress(maxRequestsInProgress);
+		_maxServerCallsInProgress = maxServerCallsInProgress;
 		_theClientCache = new PersonClientCacheEntry[CACHE_LEVEL_NUMBER_LEVELS][];
 		for (int level = 0; level < CACHE_LEVEL_NUMBER_LEVELS; ++level) {
 			_theClientCache[level] = new PersonClientCacheEntry[cacheLevelSize[level]];
@@ -674,7 +683,7 @@ public class PersonClientCache {
 	
 	  private void dispatchPendingFetches() {
 		//  SocialGraphExplorer.get().showInstantStatus2("dispatchPendingFetches", "in");
-		  while (_numServerCallsInProgress < MAX_CALLS_IN_PROGRESS  &&
+		  while (_numServerCallsInProgress < _maxServerCallsInProgress  &&
 				  _serverFetchArgsList.size() > 0 ) {
 			  ServerFetchArgs args = _serverFetchArgsList.remove();
 			  callServerToFetchPersons_(args.idsAtLevel,
@@ -682,7 +691,7 @@ public class PersonClientCache {
 					  args.numCallsForThisClientSequenceNumber);
 		  }
 		  // All fetches will not necessarily be dispatches since _numServerCallsInProgress is limited
-		  Misc.myAssert(0 <=_numServerCallsInProgress && _numServerCallsInProgress <= MAX_CALLS_IN_PROGRESS, "_numServerCallsInProgress="+_numServerCallsInProgress+", MAX_CALLS_IN_PROGRESS" + MAX_CALLS_IN_PROGRESS);
+		  Misc.myAssert(0 <=_numServerCallsInProgress && _numServerCallsInProgress <= _maxServerCallsInProgress, "_numServerCallsInProgress="+_numServerCallsInProgress+", _maxServerCallsInProgress" + _maxServerCallsInProgress);
 		//  SocialGraphExplorer.get().showInstantStatus2("dispatchPendingFetches", "out");
 	  }
 	  
@@ -706,7 +715,7 @@ public class PersonClientCache {
 			  long clientSequenceNumber, int numCallsForThisClientSequenceNumber) {
 		  
 		  validateCache();
-		  Misc.myAssert(0 <= _numServerCallsInProgress && _numServerCallsInProgress < MAX_CALLS_IN_PROGRESS, "_numServerCallsInProgress="+_numServerCallsInProgress+", MAX_CALLS_IN_PROGRESS" + MAX_CALLS_IN_PROGRESS);
+		  Misc.myAssert(0 <= _numServerCallsInProgress && _numServerCallsInProgress < _maxServerCallsInProgress, "_numServerCallsInProgress="+_numServerCallsInProgress+", _maxServerCallsInProgress" + _maxServerCallsInProgress);
 		   ++_numServerCallsInProgress;
 		  
 		  SocialGraphExplorer.get().showInstantStatus2("callServerToFetchPersons_", 
@@ -742,7 +751,7 @@ public class PersonClientCache {
 					          long clientSequenceNumber, double callTime) {
 	  			  					
 	  			--_numServerCallsInProgress;
-	  			Misc.myAssert(0 <=_numServerCallsInProgress && _numServerCallsInProgress < MAX_CALLS_IN_PROGRESS,  "_numServerCallsInProgress="+_numServerCallsInProgress+", MAX_CALLS_IN_PROGRESS" + MAX_CALLS_IN_PROGRESS);
+	  			Misc.myAssert(0 <=_numServerCallsInProgress && _numServerCallsInProgress < _maxServerCallsInProgress,  "_numServerCallsInProgress="+_numServerCallsInProgress+", _maxServerCallsInProgress" + _maxServerCallsInProgress);
 	  				  			
 	  			SocialGraphExplorer.get().showInstantStatus2("accept", 
 						  clientSequenceNumber + ":"  + _requestsInProgress.getNumCalls(clientSequenceNumber) 

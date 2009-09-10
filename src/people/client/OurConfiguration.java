@@ -31,6 +31,9 @@ public class OurConfiguration {
 	public static final  int MAX_REQUESTS_IN_PROGRESS = 20;
 	public static final  int MAX_SERVER_CALLS_PER_REQUEST = SHORT_SERVER_RESPONSE ? 3 : 9;
 	
+	// Set to max # async calls allowed by browser
+	public static final  int MAX_SERVER_CALLS_IN_PROGRESS = 2;
+	
 	// For Server PersonServiceImpl
 	public static final double MAX_TIME_FOR_SERVLET_RESPONSE = NO_SERVER_TIME_LIMIT ? 1000.0 : 10.0; // seconds
 

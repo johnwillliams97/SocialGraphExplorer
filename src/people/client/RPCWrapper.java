@@ -77,26 +77,7 @@ public class RPCWrapper {
 		public void accept(List<Integer> uniqueRequestedLevels, PersonFetch[] fetches, long clientSequenceNumber, double callTime);
 	};
 	
-	/*
-	 * Map L[N], R[N][] => L'[M]
-	 * There is one uniqueLevel for each  requestedUniqueIDs[] array
-	 * This function returns one level for each requestedUniqueIDs[][] element
-	 * Inverse of getUniqueLevels
-	 */
-	/*
-	private int[] getAllLevels(List<Integer> uniqueLevels, long[][] requestedUniqueIDs) {
-		int[] allLevels = new int[MiscCollections.sizeOfArray(requestedUniqueIDs)];
-		int   index = 0;
-		for (int i = 0; i < uniqueLevels.size(); ++i) {
-			int level = uniqueLevels.get(i);
-			long[] ids = requestedUniqueIDs[i];
-			for (int j = 0; j < ids.length; ++j) {
-				allLevels[index++] = level;
-			}
-		}
-		return allLevels;
-	}
-	*/
+	
 	/*
 	 * Returns unique values in allLevels
 	 * Inverse of getAllLevels
@@ -131,6 +112,7 @@ public class RPCWrapper {
 		}
 		return ids;
 	}
+	
 	public static List<IDsAtLevel> meldIDsAtLevelLists(List<IDsAtLevel> list1, List<IDsAtLevel> list2) {
 		Set<Integer> allLevels = new LinkedHashSet<Integer>();
 		for (IDsAtLevel idsAtLevel: list1) {
@@ -155,6 +137,7 @@ public class RPCWrapper {
 			total += idsAtLevel.ids.size();
 		return total;
 	}
+	
 	public static long[] getArrayOfIDs(List<IDsAtLevel> idsAtLevelList) {
 		List<Long> idsList = new ArrayList<Long>();
 		for (IDsAtLevel idsAtLevel: idsAtLevelList) {
@@ -164,6 +147,7 @@ public class RPCWrapper {
 		}
 		return MiscCollections.listToArrayLong(idsList);
 	}
+	
 	public static int[] getArrayOfLevels(List<IDsAtLevel> idsAtLevelList) {
 		List<Integer> levelsList = new ArrayList<Integer>();
 		for (IDsAtLevel idsAtLevel: idsAtLevelList) {
@@ -174,7 +158,7 @@ public class RPCWrapper {
 		return MiscCollections.listToArrayInt(levelsList);
 	}
 	
-	
+	private PersonsAcceptor _theAcceptor; // !@#$ crappy global variable
 	/*
 	 * Fetch the requested uniqueIDs from the server
 	 * 
@@ -185,17 +169,13 @@ public class RPCWrapper {
 	 * @param requestedUniqueIDs - IDs to fetch
 	 * @param description - for debugging
 	 */
-	private PersonsAcceptor theAcceptor; // !@#$ crappy global variable
-//	private List<Integer>   theLevels;   // !@#$ crappy global variable
-	// !@#$ Replace  levels + requestedUniqueIDs with an {level+uniuqIDs[]}[]
 	public void getPersonsFromServer(final PersonsAcceptor acceptor, 
 	    							 List<IDsAtLevel> idsAtLevelList,
 	    							 long clientSequenceNumber,
 	    							 int numCallsForThisClientSequenceNumber,
 	    							 String description) {
 	    
-    	this.theAcceptor = acceptor;
-    //	this.theLevels = levels;
+    	_theAcceptor = acceptor;
     	
     	if (idsAtLevelList.size() > 0) {
 	       	System.err.println("getPersonsFromServer(" + description + ", " + getTotalNumberOfIDs(idsAtLevelList) + ") " + MiscCollections.arrayToString(getArrayOfIDs(idsAtLevelList)));
@@ -241,7 +221,7 @@ public class RPCWrapper {
 		
 		// Update the cache !!!! , call back to UI 
 		// getPersonsFromServer() will get called again if data incomplete
-		this.theAcceptor.accept(uniqueLevels, result.fetches, result.clientSequenceNumber, result.callTime);
+		_theAcceptor.accept(uniqueLevels, result.fetches, result.clientSequenceNumber, result.callTime);
  	}
 
     
