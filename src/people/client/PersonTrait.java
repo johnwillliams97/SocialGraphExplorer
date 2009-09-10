@@ -6,7 +6,7 @@ import java.util.List;
 /*
  * Public interface to a person
  */
-public interface PersonPublic {
+public interface PersonTrait {
 	/*
 	 * 	State of partial searches
 	 */

@@ -19,7 +19,7 @@ import people.client.OurConfiguration;
 import people.client.PersonFetch;
 import people.client.PersonClient;
 import people.client.PersonClientGroup;
-import people.client.PersonPublic;
+import people.client.PersonTrait;
 import people.client.Statistics;
 import people.client.PersonService;
 
@@ -118,7 +118,7 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 	
 	
 		
-	private static PersonClient personServerToPersonClient(PersonPublic ps, long requestedID) {
+	private static PersonClient personServerToPersonClient(PersonTrait ps, long requestedID) {
 		PersonClient pc = null;
 		if (ps != null) {
 			PersonClient.debugValidate(ps);

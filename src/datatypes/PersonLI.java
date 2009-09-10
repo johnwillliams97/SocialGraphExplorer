@@ -28,11 +28,11 @@ import com.google.appengine.api.datastore.Text;
 import people.client.Misc;
 import people.client.OurConfiguration;
 import people.client.Statistics;
-import people.client.PersonPublic;
+import people.client.PersonTrait;
 import db.PMF;
 
 @PersistenceCapable(identityType=IdentityType.APPLICATION)
-public class PersonLI  implements Serializable, PersonPublic, CacheTrait {
+public class PersonLI  implements Serializable, PersonTrait, CacheTrait {
 	
 	//private static final long serialVersionUID = 1L;
 //	private static final long serialVersionUID = 6745964760100019554L;
@@ -226,7 +226,7 @@ public class PersonLI  implements Serializable, PersonPublic, CacheTrait {
 	  }
 	  /*
 		 * (non-Javadoc)
-		 * @see people.client.PersonPublic#isRealData()
+		 * @see people.client.PersonTrait#isRealData()
 		 * PersonLI data is real!
 		 */
 	  @Override
@@ -785,7 +785,7 @@ public class PersonLI  implements Serializable, PersonPublic, CacheTrait {
 	public static final PersonLI NO_PERSON = new PersonLI(
 			"Donald", 
 	  		"Duck", 
-	  		PersonPublic.NO_PERSON_UNIQUEID,
+	  		PersonTrait.NO_PERSON_UNIQUEID,
 	  		0,
 	  		"Disneyland",
 	  		"A Duck in the Entertainment Business",

@@ -9,7 +9,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * Hold relevant data for Person. This class is meant to be serialised in RPC
  * calls. 
  */
-public class PersonClient implements IsSerializable, PersonPublic {
+public class PersonClient implements IsSerializable, PersonTrait {
 	
 	private long   	uniqueID = UNIQUE_ID_NOT_FOUND;
 	private long    requestedID = UNIQUE_ID_NOT_FOUND;
@@ -58,7 +58,7 @@ public class PersonClient implements IsSerializable, PersonPublic {
 	 * Is this record base on real data?
 	 * On the client this for information only
 	 * (non-Javadoc)
-	 * @see people.client.PersonPublic#isRealData()
+	 * @see people.client.PersonTrait#isRealData()
 	 */
 	@Override
 	public boolean isRealData() {
@@ -205,7 +205,7 @@ public class PersonClient implements IsSerializable, PersonPublic {
 		return this.cacheLevel;
 	}
 	
-	public static void debugValidate(PersonPublic person) {
+	public static void debugValidate(PersonTrait person) {
 		 if (OurConfiguration.VALIDATION_MODE && person != null) {
 			 List<Long> connectionIDs = person.getConnectionIDs();
 			 long uniqueID = person.getUniqueID();
