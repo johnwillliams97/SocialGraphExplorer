@@ -25,7 +25,6 @@ import db.PMF;
 
 @PersistenceCapable(identityType=IdentityType.APPLICATION)
 public class PersonDummy  implements PersistentPersonTrait, CacheTrait {
-	
 	private static final long serialVersionUID = -8878621563703014847L;
 
 	private static final Logger logger = Logger.getLogger(PersonDummy.class.getName());
