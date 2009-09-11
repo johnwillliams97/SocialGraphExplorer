@@ -729,6 +729,5 @@ public class PersonLI  implements PersistentPersonTrait, CacheTrait {
 	  		"Disneyland",
 	  		"A Duck in the Entertainment Business",
 	  		null);
-	
-	
+
 }
