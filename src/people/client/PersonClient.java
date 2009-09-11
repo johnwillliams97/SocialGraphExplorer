@@ -119,14 +119,8 @@ public class PersonClient implements IsSerializable, PersonTrait {
 	public String getLocation() {
 		return this.location;
 	}
-	@Override
-	public void setIsChildConnectionInProgress(boolean isChildConnectionInProgress) {
-		this.isChildConnectionInProgress = isChildConnectionInProgress;	
-	}
-	@Override
-	public boolean getIsChildConnectionInProgress() {
-		return this.isChildConnectionInProgress;
-	}
+	
+	
 	@Override
 	public void setReadState(ReadState readState) {
 		this.readState = readState;	
@@ -183,10 +177,13 @@ public class PersonClient implements IsSerializable, PersonTrait {
 	}
 	
 	public boolean isIncomplete(boolean noDetail, boolean connectionsInProgress)  {
-		return 
+		boolean incomplete = 
 			((noDetail && (this.htmlPage == null)) ||
 			 (connectionsInProgress && this.isChildConnectionInProgress));
+		Misc.myAssert(!incomplete, "isIncomplete: " + this.getUniqueID() );
+		return incomplete;
 	}
+	
 	/*
 	 * Track person's client cache level  
 	 */

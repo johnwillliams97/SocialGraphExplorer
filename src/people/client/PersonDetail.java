@@ -98,19 +98,5 @@ public class PersonDetail extends Composite {
 	 	  body.setHTML(html);
 	   }
   
- 
-  /*
-   * Linked URL builders
-   */
-  static private String _linkedInBase = "http://www.linkedin.com/";
-	static String makeLiProfileName(long key) {
-		String name = _linkedInBase + "profile?viewProfile=&key=" + key;
-		return name;		
-	}
-	static String makeLiConnectionsName(long key) {
-		String name = _linkedInBase + "profile?viewConns=&key=" + key;
-		return name;		
-	}
-   	
    
 }

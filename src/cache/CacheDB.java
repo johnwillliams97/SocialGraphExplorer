@@ -4,20 +4,20 @@ package cache;
  */
 
 
-import datatypes.PersonLI;
+import datatypes.PersonDummy;
 
 
-public class CacheDB implements CacheActual<Long, PersonLI> {
+public class CacheDB implements CacheActual<Long, PersonDummy> {
 	
 	
 	@Override
-	public PersonLI get(Long key, WebReadPolicy policy, double timeBoundSec) {
-		PersonLI 	person = PersonLI.findInDBbyUniqueId(key);
+	public PersonDummy get(Long key, double timeBoundSec) {
+		PersonDummy 	person = PersonDummy.findInDBbyUniqueId(key);
 		return person;
 	}
 	
 	@Override
-	public void put(Long key, PersonLI value) {
+	public void put(Long key, PersonDummy value) {
 		assert(key == value.getUniqueID());
 		value.saveToDB();
 	}

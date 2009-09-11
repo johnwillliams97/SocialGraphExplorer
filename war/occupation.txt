@@ -1,0 +1,22 @@
+Advisor
+Administrator
+Architect
+Artist
+Assistant
+Coach
+Consultant
+Entertainer
+Entrepreneur
+Janitor
+Manager
+Researcher
+Thought leader
+Visionary
+Worker
+Wrangler
+Writer
+
+
+
+
+

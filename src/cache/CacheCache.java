@@ -8,10 +8,10 @@ import javax.cache.CacheException;
 import javax.cache.CacheManager;
 
 import people.client.Misc;
-import datatypes.PersonLI;
+import datatypes.PersonDummy;
 
 
-public class CacheCache implements CacheActual<Long, PersonLI> {
+public class CacheCache implements CacheActual<Long, PersonDummy> {
 	//private static final Logger logger = Logger.getLogger(CacheCache.class.getName());
 
 	private Cache theCache = null;
@@ -26,8 +26,8 @@ public class CacheCache implements CacheActual<Long, PersonLI> {
 	}
 	
 	@Override
-	public PersonLI get(Long key, WebReadPolicy policy, double timeBoundSec) {
-		PersonLI person = (PersonLI)theCache.get(key);
+	public PersonDummy get(Long key, double timeBoundSec) {
+		PersonDummy person = (PersonDummy)theCache.get(key);
 		if (person != null)
 			person.setWhence("CacheCache");
 		return person;
@@ -35,7 +35,7 @@ public class CacheCache implements CacheActual<Long, PersonLI> {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void put(Long key, PersonLI value) {
+	public void put(Long key, PersonDummy value) {
 		theCache.put(key, value);
 	}
 

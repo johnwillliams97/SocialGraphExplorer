@@ -37,8 +37,6 @@ public interface PersonTrait {
 	  public long   	getUniqueID() ;
 	  public List<Long> getConnectionIDs(); 
 	  public void   	setConnectionIDs(List<Long> connectionIDs);
-	  public void 		setIsChildConnectionInProgress(boolean isChildConnectionInProgress);
-	  public boolean 	getIsChildConnectionInProgress();
 	  public void       setReadState(ReadState readState);
 	  public ReadState  getReadState();
 	  public void       setHtmlPage(String htmlPage);

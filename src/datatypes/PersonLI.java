@@ -23,19 +23,19 @@ import javax.jdo.annotations.PrimaryKey;
 import com.google.appengine.api.datastore.Text;
 import cache.CacheTrait;
 import people.client.Misc;
-import people.client.OurConfiguration;
 import people.client.Statistics;
 import people.client.PersonTrait;
 import db.PMF;
 
 @PersistenceCapable(identityType=IdentityType.APPLICATION)
 public class PersonLI  implements PersistentPersonTrait, CacheTrait {
+	private static final Logger logger = Logger.getLogger(PersonLI.class.getName());
 	
 	private static final long serialVersionUID = -6983889227350201932L;
 
-	private static final Logger logger = Logger.getLogger(PersonLI.class.getName());
+	
 
-	public static final long DEFAULT_PERSON_RECORD_UNIQUEID = OurConfiguration.AUTHOR_UNIQUEID;
+	public static final long DEFAULT_PERSON_RECORD_UNIQUEID = 2L;
 
 	@SuppressWarnings("unused")
 	@PrimaryKey
@@ -322,16 +322,14 @@ public class PersonLI  implements PersistentPersonTrait, CacheTrait {
 		
 	 
 	/*
-	 * Server & DB managment
+	 * Server & DB management
 	 *   
 	 */
-	  
-	@Override
 	public void setIsChildConnectionInProgress(boolean isChildConnectionInProgress) {
 		this.isChildConnectionInProgress = isChildConnectionInProgress;	
 	}
 	
-	@Override
+
 	public boolean getIsChildConnectionInProgress() {
 		// This flag is currently broken !@#$
 		//return this.isChildConnectionInProgress;

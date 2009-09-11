@@ -279,8 +279,7 @@ public class PersonClientCache {
  		if (_numberOfCallbacksNeeded > 0) {
  			doCallback("discarding old server calls"); 
  		}
-		// Now the cache is in clean
- 		
+		// Now the cache is  clean!
  		
  		++_numberOfCallbacksNeeded;
  		

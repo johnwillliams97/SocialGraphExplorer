@@ -1,11 +1,7 @@
 package cache;
 
 import java.util.logging.Logger;
-
 import people.client.Misc;
-import people.client.OurConfiguration;
-
-import cache.CacheActual.WebReadPolicy;
 
 
 public class CacheStage<K, V extends CacheTrait> {
@@ -37,14 +33,12 @@ public class CacheStage<K, V extends CacheTrait> {
 		_sequence = sequence;
 	}
 	
-	public V get(K key, WebReadPolicy policy, double timeBoundSec) {
+	public V get(K key, double timeBoundSec) {
 		++_cacheStats.numGets;
 	
 		V value = null; 
 		try {
-			value = _cacheActual.get(key, policy, timeBoundSec);
-		//	if (value != null /*&& value.getWhence() == null*/)
-		//		value.setWhence(cacheActual.identify());
+			value = _cacheActual.get(key, timeBoundSec);
 		}
 		catch (Exception e) {
 			// Best effort response to an exception
@@ -54,34 +48,25 @@ public class CacheStage<K, V extends CacheTrait> {
 		
 		boolean incomplete = (value != null && value.isIncomplete());
 		
-		if (value == null || policy == WebReadPolicy.ALWAYS || incomplete) {
+		if (value == null || incomplete) {
 			++_cacheStats.numMisses;
 			if (_nextStage != null) {
 				if (incomplete) {
 					incomplete = true;
 				}
-				value = _nextStage.get(key, policy,  timeBoundSec);
+				value = _nextStage.get(key,  timeBoundSec);
 				if (value != null) {
 					_cacheActual.put(key, value); // Don't call this.put() !
 				}
 			}
 		}
 		
-		// Debug code !@#$
-		String cacheIdentity = _cacheActual.identify();
-		if (cacheIdentity.contains("CacheDB"))
-			assert(_nextStage == null);
-		else
-			assert(_nextStage != null);
-		//- Debug code
-		
 		return value;
 	}
 	
 	public void put(K key, V value, double timeBoundSec) {
 		++_cacheStats.numPuts;
-		final WebReadPolicy webReadPolicy = OurConfiguration.ALLOW_LINKEDIN_READS ? WebReadPolicy.AUTO : WebReadPolicy.NEVER;
-		V val = _cacheActual.get(key, webReadPolicy, timeBoundSec);
+		V val = _cacheActual.get(key, timeBoundSec);
 		if (!(val != null && val.equals(value))) {
 			_cacheActual.put(key, value);
 			if (_nextStage != null) {

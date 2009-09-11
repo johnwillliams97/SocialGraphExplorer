@@ -11,7 +11,7 @@ Made startup state configurable through URL args: SystemState.java
 2009/09/09
 ----------
 Made startup state configurable OurConfiguration.INITIAL_UI_STATE
-Changed URL args from positional to key=val e.g. "key=1814285&idx=10"
+Changed URL args from positional to key=val e.g. "key=2000&idx=99"
 Allow author's name, description and location to be viewed.
 Used _variableName style consistently for internal class variables
 Added SystemState.java
@@ -22,7 +22,7 @@ Overwrote last stable versions! Oh well.
 
 2009/09/08
 ----------
-Honour URL args e.g. http://localhost:59310/SocialGraphExplorer.html#1960788,99
+Honour URL args e.g. http://localhost:59310/SocialGraphExplorer.html#2000,99
 Added assertion description field to Misc.myAssert() because GWT disables asserts in web mode.
 Fixed "No persons are being fetched from CacheCache" by changing setWhence() calls
 Set web title for browser history list. PersonList.updateWindowTitle()

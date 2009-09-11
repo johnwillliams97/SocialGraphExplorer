@@ -132,6 +132,11 @@ public class SocialGraphExplorer
 		SystemState systemState = new SystemState(stateString);
 		CanonicalState canonicalState = new CanonicalState(systemState.getUniqueID(), systemState.getIndex());
 		
+		if (canonicalState.anchorUniqueID < OurConfiguration.MINIMUM_UNIQUEID)
+			canonicalState.anchorUniqueID = OurConfiguration.MINIMUM_UNIQUEID;
+		if (canonicalState.anchorUniqueID > OurConfiguration.MAXIMUM_UNIQUEID)
+			canonicalState.anchorUniqueID = OurConfiguration.MAXIMUM_UNIQUEID;
+		
 		// PersonList uses LoadsOfFun.get() in its constructor, so initialise it after
 		// 'singleton'.
 		personList = new PersonList(canonicalState,

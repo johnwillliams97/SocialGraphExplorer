@@ -1,0 +1,28 @@
+animal husbandry
+automotive
+banking
+building
+collections
+computer
+clothing
+dental
+education
+engineering
+entertainment
+fashion
+forestry
+law enforcement
+medical
+
+restaurant
+retail
+science
+software
+shipping
+telecommunications
+transport
+teaching
+
+
+
+

@@ -623,13 +623,11 @@ public class PersonList extends Composite implements ClickHandler {
         		int index = 0; // Anchor
         		if (i > 0)
         			index = _state.startIndex + (i-1) + 1; // Show indexes as being 1-offset
-        		//String url = "http://www.linkedin.com/profile?viewProfile=&key=" + person.getUniqueID();
-	        	//String link = "<a href='" + url + "'>" + squeeze(person.getNameFull(), 20) + "</a>";
-        		String link = squeeze(person.getNameFull(), 20);
+        		String link = squeeze(person.getNameFull(), 30);
+        		
     		   	_table.setText(i+1 , 0, link + " - " + index + ",  " 
 	        			+ person.getWhence() + ",  " 
-	        			+ (person.getIsChildConnectionInProgress() ? "in progress" : "..") + ","
-	        			+ (person.getHtmlPage() != null ? person.getHtmlPage().length()/1024 : 0) + "kb, " 
+	        			+ Misc.showBytes(person.getHtmlPage() != null ? person.getHtmlPage().length() : 0) + "kb, " 
 	        			+ person.getFetchDuration() + " sec, "
 	        			+ person.getFetchDurationFull() + " sec"
 	        			+ ", level " + person.getCacheLevel()

@@ -1,6 +1,7 @@
 
 package people.client;
 
+
 import com.google.gwt.user.client.Window;
 
 
@@ -27,4 +28,36 @@ public class Misc {
 		}
 	}
 	
+	private static final int KBYTE = 1024;
+	private static final int MBYTE = KBYTE * KBYTE;
+	
+	public static String showBytes(int bytes) {
+		String s = null;
+		if (bytes < 2 * KBYTE)
+			s = "" + bytes + "bytes";
+		else if (bytes < 2 * MBYTE)
+			s = "" + bytes/KBYTE + "kb";
+		else
+			s = "" + bytes/MBYTE + "mb";
+		return s;
+	}
+	/*
+	static public String decodeUrl(String description) {
+  		String descClean = null;
+  		if (description != null) {
+			try {
+				descClean = URLDecoder.decode(description, "UTF-8");
+			} catch (UnsupportedEncodingException e) {
+				Misc.reportException(e);
+			}
+			while (descClean.contains("&amp;")) {
+				descClean = descClean.replaceAll("&amp;", "&");
+			}
+			while (descClean.contains("&quot;")) {
+				descClean = descClean.replaceAll("&quot;", "'");
+			}
+  		}
+  		return descClean;
+  	}
+  	*/
 }

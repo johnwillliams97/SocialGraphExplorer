@@ -1,0 +1,42 @@
+Adelaide, Australia
+Alice Springs, Australia
+Brisbane, Australia
+Camberwell, Australia
+Canberra, Australia
+Cobden, Australia
+Cobrico, Ausrtralia
+Coburg, Australia
+Elingamite, Australia
+Glenfyne, Australia
+Hawthown, Australia
+Melbourne, Australia
+Sydney, Australia
+Perth, Australia
+Tandarook, Australia
+Toowoomba, Australia
+Warrnambool, Australia
+
+
+Foster City, CA, America
+San Francisco, CA, America
+San Mateo, CA, America
+Dayton, OH, America
+
+Saskatoon, Canada
+
+Helsingør, Denmark
+
+Vaasa, Finland
+
+Würzburg, Germany
+
+Guanajuato, Mexico
+
+Tromsø, Norway
+
+Stockholm, Sweden
+Umeå, Sweden
+
+Osmangazi, Turkey
+
+Oxford, UK

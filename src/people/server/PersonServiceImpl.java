@@ -8,9 +8,9 @@ import cache.CacheActual;
 import cache.CacheCache;
 import cache.CacheDB;
 import cache.CachePipeline;
-import cache.CacheActual.WebReadPolicy;
+import cache.CacheSynthesiseDummy;
 import datatypes.PersistentPersonTrait;
-import datatypes.PersonLI;
+import datatypes.PersonDummy;
 import people.client.Misc;
 import people.client.MiscCollections;
 import people.client.OurConfiguration;
@@ -27,19 +27,20 @@ import people.client.PersonService;
 @SuppressWarnings("serial")
 public class PersonServiceImpl extends RemoteServiceServlet implements PersonService {
 	private static final Logger logger = Logger.getLogger(PersonServiceImpl.class.getName());
-	private static final WebReadPolicy _webReadPolicy = OurConfiguration.ALLOW_LINKEDIN_READS ? WebReadPolicy.AUTO : WebReadPolicy.NEVER;
 	private static final double _maxTime = OurConfiguration.MAX_TIME_FOR_SERVLET_RESPONSE; 
 	private final long _servletLoadTimeMillis = System.currentTimeMillis();
 	private long _firstCallTimeMillis = -1L;
-	private CachePipeline<Long, PersonLI> _cachePipeline = null;
+	private CachePipeline<Long, PersonDummy> _cachePipeline = null;
 			 
-	public static CachePipeline<Long, PersonLI> makeCachePipeline() {
-		List<CacheActual<Long,PersonLI>> stagesActual = new ArrayList<CacheActual<Long,PersonLI>>();
+	public static CachePipeline<Long, PersonDummy> makeCachePipeline() {
+		List<CacheActual<Long,PersonDummy>> stagesActual = new ArrayList<CacheActual<Long,PersonDummy>>();
 		CacheCache cacheCache = new CacheCache();
 		stagesActual.add(cacheCache);
 		CacheDB cacheDB = new CacheDB();
 		stagesActual.add(cacheDB);
-		CachePipeline<Long, PersonLI> cachePipeline = new CachePipeline<Long, PersonLI>(stagesActual);
+		CacheSynthesiseDummy cacheSynthesiseDummy = new CacheSynthesiseDummy();
+		stagesActual.add(cacheSynthesiseDummy);
+		CachePipeline<Long, PersonDummy> cachePipeline = new CachePipeline<Long, PersonDummy>(stagesActual);
 		cachePipeline.identify();
 		return cachePipeline;
 	}
@@ -63,14 +64,12 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 			pc.setLocation(ps.getLocation());
 			pc.setEmployer(ps.getEmployer());
 			pc.setConnectionIDs(ps.getConnectionIDs());
-			pc.setIsChildConnectionInProgress(ps.getIsChildConnectionInProgress());
 			pc.setWhence(ps.getWhence());
 			pc.setFetchDuration(ps.getFetchDuration());
 			String htmlPage = ps.getHtmlPage();
 			if (htmlPage != null && OurConfiguration.HTML_DATA_MAX_SIZE > 0) {
-				int maxSize = Math.min(OurConfiguration.HTML_DATA_MAX_SIZE, htmlPage.length());
-				if (maxSize > 1)
-					htmlPage = htmlPage.substring(0, maxSize-1);
+				if (htmlPage.length() > OurConfiguration.HTML_DATA_MAX_SIZE)
+					htmlPage = htmlPage.substring(0, OurConfiguration.HTML_DATA_MAX_SIZE);
 			}
 			pc.setHtmlPage(htmlPage);
 			PersonClient.debugValidate(pc);
@@ -159,9 +158,12 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 			if (end - start > maxTime1)
 				break;
 			long uniqueID = requestedUniqueIDs[i];
-			PersonLI person = null;
+			PersonDummy person = null;
 			try {
-				 person = cachePipelineInstance.get(uniqueID, _webReadPolicy, start + maxTime1);
+				if (!(uniqueID >= OurConfiguration.MINIMUM_UNIQUEID && uniqueID <= OurConfiguration.MAXIMUM_UNIQUEID)) {
+					uniqueID = 555L;
+				}
+				person = cachePipelineInstance.get(uniqueID, start + maxTime1);
 			}
 			catch (Exception e) {
 				// Best effort response to an exception
@@ -171,14 +173,12 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 			}
 			if (person != null) {
 				PersonFetch fetch = new PersonFetch();
-				PersonClient rawPerson = personServerToPersonClient(person, requestedUniqueIDs[i]);
-				fetch.person = MangleNames.manglePerson(rawPerson);
+				fetch.person = personServerToPersonClient(person, requestedUniqueIDs[i]);
 				fetch.requestedUniqueID = requestedUniqueIDs[i];
 				fetch.level = requestedLevels[i];
 				fetchList.add(fetch);
 			}
 			logger.info(uniqueID + ":" + (person != null ? person.getNameFull() : "not found") + ", i = " + i + ". fetchList size = " + fetchList.size());
-			
 		}
 		logger.info("outta there!");
 		
@@ -202,6 +202,9 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 			logger.info("num fetches = " + fetches.length);
 		}
 			
+		if (fetchList.size() < requestedUniqueIDs.length) {
+			logger.warning("Incomplete fetch: " + fetchList.size() + " of " + requestedUniqueIDs.length);
+		}
 		resultsMain.timeSignatureMillis = this._servletLoadTimeMillis + this._firstCallTimeMillis; // This is the most unique signature I can synthesize
 		resultsMain.clientSequenceNumber = clientSequenceNumber;
 		resultsMain.numCallsForThisClientSequenceNumber = numCallsForThisClientSequenceNumber;

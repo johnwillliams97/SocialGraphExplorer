@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 import people.client.Misc;
-import cache.CacheActual.WebReadPolicy;
 
 
 public class CachePipeline<K, V extends CacheTrait> {
@@ -75,11 +74,11 @@ public class CachePipeline<K, V extends CacheTrait> {
 		return status;
 	}
 	
-	public /*synchronized */ V get(K key, WebReadPolicy policy, double timeBoundSec) {
+	public /*synchronized */ V get(K key, double timeBoundSec) {
 		V value = null;
 		
 		try {
-			value = firstStage.get(key, policy, timeBoundSec);
+			value = firstStage.get(key, timeBoundSec);
 		}
 		catch (Exception e) {
 			// Best effort response to an exception

@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 import cache.CachePipeline;
-import cache.CacheActual.WebReadPolicy;
-import datatypes.PersonLI;
+import datatypes.PersonDummy;
+import people.client.OurConfiguration;
 import people.client.PersonClient;
 import people.client.PersonTrait;
 import people.client.Statistics;
@@ -20,17 +20,25 @@ class CachePipelineInstance {
 	private int _numMemCacheFetches = 0;
 	private int _numDBCacheFetches = 0;
 	private int _numWTFCacheFetches = 0;
-	private CachePipeline<Long, PersonLI> _cachePipeline;
-	private int _numCacheMisses = 0;;
-	public CachePipelineInstance(CachePipeline<Long, PersonLI> cachePipeline) {
+	private CachePipeline<Long, PersonDummy> _cachePipeline;
+	private int _numCacheMisses = 0;
+	private String _filler = null;
+	
+	public CachePipelineInstance(CachePipeline<Long, PersonDummy> cachePipeline) {
 		_numFetches = 0;
 		_cachePipeline = cachePipeline;
+		_filler = "";
+		String phrase = "Yada yada ";
+		int len = phrase.length();
+		int maxlen = OurConfiguration.HTML_DATA_MAX_SIZE;
+		for (int i = 0; i < maxlen; i += len)
+			_filler += phrase;
 	}
-	public PersonLI get(long idIn, WebReadPolicy policy, double timeBoundSec) {
+	public PersonDummy get(long idIn, double timeBoundSec) {
 		double start = Statistics.getCurrentTime();
 		
 		long id = mapUnknownID(idIn);
-		PersonLI person = _cachePipeline.get(id, policy, timeBoundSec);
+		PersonDummy person = _cachePipeline.get(id, timeBoundSec);
 		cleanPersonConnections(person);
 		++_numFetches;
 		String whence = "none";
@@ -48,6 +56,17 @@ class CachePipelineInstance {
 					++_numWTFCacheFetches;
 				}
 			}
+			if (person.getHtmlPage() == null && OurConfiguration.ADD_FAKE_HTML) {
+				String htmlPage = "<b>" + person.getNameFull() + "</b><br/>";
+				htmlPage += "<i>" + person.getDescription() + "</i><br/>";
+				htmlPage += "<i>" + person.getLocation() + "</i><br/>";
+				htmlPage += "<i>" + person.getUniqueID() + "</i><br/>";
+				htmlPage += "<i>" + whence + "</i><br/>";
+				htmlPage += _filler;
+				person.setHtmlPage(htmlPage);
+				logger.warning("html size = " + person.getHtmlPage().length());
+				
+			}
 		}
 		else {
 			++_numCacheMisses ;
@@ -55,10 +74,13 @@ class CachePipelineInstance {
 		
 		return person;
 	}
-	// !@#$ Generalise this for PersistentPersonTrait.
+	// All  PersistentPersonTrait classes have a DEFAULT_PERSON_RECORD_UNIQUEID
+	// This is the value returned when the client requests a PersonTrait.GET_DEFAULT_PERSON_UNIQUEID
+	// It is used for bootstrapping when the client doesn't know what is in the server database
+	// 
 	private long mapUnknownID(long id) {
 		if (id == PersonTrait.GET_DEFAULT_PERSON_UNIQUEID)
-			id = PersonLI.DEFAULT_PERSON_RECORD_UNIQUEID;
+			id = PersonDummy.DEFAULT_PERSON_RECORD_UNIQUEID;
 		return id;
 	}
 	int getNumFetches() {
@@ -71,7 +93,7 @@ class CachePipelineInstance {
 		return _numDBCacheFetches;
 	}
 	
-	static private void cleanPersonConnections(PersonLI person) {
+	static private void cleanPersonConnections(PersonDummy person) {
 		if (person != null) {
 			List<Long> connectionIDs = person.getConnectionIDs();
 			if (connectionIDs != null) {
