@@ -11,16 +11,15 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  */
 public class PersonClient implements IsSerializable, PersonTrait {
 	
-	private long   	uniqueID = UNIQUE_ID_NOT_FOUND;
-	private long    requestedID = UNIQUE_ID_NOT_FOUND;
-	private String 	nameFull;
-	private String 	description;
-	private String 	location;
-	private String 	employer;
-	private boolean isChildConnectionInProgress;
-	private ReadState readState;
-	private List<Long> connectionIDs;
-	private String    htmlPage;
+	private long   	_uniqueID = UNIQUE_ID_NOT_FOUND;
+	private long    _requestedID = UNIQUE_ID_NOT_FOUND;
+	private String 	_nameFull;
+	private String 	_description;
+	private String 	_location;
+	private String 	_employer;
+	private ReadState _readState;
+	private List<Long> _connectionIDs;
+	private String    _htmlPage;
 	
 	// Token for cases when no person exists
 	private static final String MAGIC_STRING = "...  ";
@@ -36,21 +35,21 @@ public class PersonClient implements IsSerializable, PersonTrait {
 	
 			
 	public PersonClient(String nameFull, String description, String location) {
-		this.nameFull = nameFull;
-		this.description = description;
-		this.location = location;
+		_nameFull = nameFull;
+		_description = description;
+		_location = location;
 	}
 	// Magic object constructor
 	public PersonClient(String name, long uniqueID) {
 		this(MAGIC_STRING, name, MAGIC_STRING);
-		this.uniqueID = uniqueID;
+		_uniqueID = uniqueID;
 	}
 	public PersonClient() {
 		this(null, null, null);
 	}
 	// Simple test to distinguish magic persons from real persons
 	public boolean isMagicPerson() {
-		return (this.location != null && this.location.equals(MAGIC_STRING));
+		return (_location != null && _location.equals(MAGIC_STRING));
 	}
 	
 	private boolean _isRealData = true;  // assume the worst
@@ -66,120 +65,118 @@ public class PersonClient implements IsSerializable, PersonTrait {
 	 */
 	@Override
 	public void  setNameFull(String nameFull) {
-		this.nameFull = nameFull;
+		_nameFull = nameFull;
 	}
 	@Override
 	public String getNameFull() {
-		return this.nameFull;
+		return _nameFull;
 	}
 	@Override
 	public void   setUniqueID(long uniqueID) {
-		this.uniqueID = uniqueID;
+		_uniqueID = uniqueID;
 	}
 	@Override
 	public long  getUniqueID() {
-		return this.uniqueID;
+		return _uniqueID;
 	}
 	@Override
 	public List<Long> getConnectionIDs() {
-		return this.connectionIDs;
+		return _connectionIDs;
 	}
 	
 	@Override
 	public void  setConnectionIDs(List<Long> connectionIDs) {
 		if (connectionIDs != null) {
-			this.connectionIDs = new ArrayList<Long>();
-			this.connectionIDs.addAll(connectionIDs);
+			_connectionIDs = new ArrayList<Long>();
+			_connectionIDs.addAll(connectionIDs);
 		}
 		else {
-			this.connectionIDs = null;
+			_connectionIDs = null;
 		}
 	}
 	@Override
 	public void setDescription(String description) {
-		this.description = description;	
+		_description = description;	
 	}
 	@Override
 	public String getDescription() {
-		return this.description;
+		return _description;
 	}
 	@Override
 	public void setEmployer(String employer) {
-		this.employer = employer;
+		_employer = employer;
 	}
 	@Override
 	public String getEmployer() {
-		return this.employer;
+		return _employer;
 	}
 	@Override
 	public void setLocation(String location) {
-		this.location = location;	
+		_location = location;	
 	}
 	@Override
 	public String getLocation() {
-		return this.location;
+		return _location;
 	}
 	
 	
 	@Override
 	public void setReadState(ReadState readState) {
-		this.readState = readState;	
+		_readState = readState;	
 	}
 	@Override
 	public ReadState getReadState() {
-		return this.readState;
+		return _readState;
 	}
 	@Override
 	public void  setHtmlPage(String htmlPage) {
-		this.htmlPage = htmlPage;
+		_htmlPage = htmlPage;
 	}
 	@Override
 	public String getHtmlPage() {
-		return this.htmlPage;
+		return _htmlPage;
 	}
 	
 	public void setRequestedID(long requestedID) {
-		this.requestedID = requestedID;
+		_requestedID = requestedID;
 	}
 	public long getRequestedID() {
-		return this.requestedID;
+		return _requestedID;
 	}
 	
 	// !@#$ Hack for checking cache performance
-	String whence = "nowhere";
+	String _whence = "nowhere";
 	@Override
 	public void setWhence(String whence) {
-		this.whence = whence;
+		_whence = whence;
 	}
 	@Override
 	public String getWhence() {
-		return this.whence;
+		return _whence;
 	}
 	
 	// !@#$ Hack for checking cache performance
 	// This shows how long it took to fetch the person
-	double fetchDuration = 0.0;
+	double _fetchDuration = 0.0;
 	@Override
 	public void setFetchDuration(double fetchDuration) {
-		this.fetchDuration = fetchDuration;
+		_fetchDuration = fetchDuration;
 	}
 	@Override
 	public double getFetchDuration() {
-		return this.fetchDuration;
+		return _fetchDuration;
 	}
 	// Full client server round trip duration 
-	double fetchDurationFull = 0.0;
+	static double _fetchDurationFull = 0.0;
 	public void setFetchDurationFull(double fetchDuration) {
-		this.fetchDurationFull = fetchDuration;
+		_fetchDurationFull = fetchDuration;
 	}
 	public double getFetchDurationFull() {
-		return this.fetchDurationFull;
+		return _fetchDurationFull;
 	}
 	
 	public boolean isIncomplete(boolean noDetail, boolean connectionsInProgress)  {
-		boolean incomplete = 
-			((noDetail && (this.htmlPage == null)) ||
-			 (connectionsInProgress && this.isChildConnectionInProgress));
+		boolean incomplete = (noDetail && (_htmlPage == null));
 		Misc.myAssert(!incomplete, "isIncomplete: " + this.getUniqueID() );
 		return incomplete;
 	}
