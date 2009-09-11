@@ -25,9 +25,6 @@ public class OurConfiguration {
 	// Handy for debugging
 	public static final String INITIAL_UI_STATE = "key=1000&idx=10"; // e.g. "key=1000&idx=10";
 	
-	// The one person whose details you can make public
-	public static final long AUTHOR_UNIQUEID = 100L;
-	
 	// All unique IDs below this are reserved.
 	public static final long MINIMUM_UNIQUEID = 100L;
 	
