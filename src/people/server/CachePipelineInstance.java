@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 import cache.CachePipeline;
 import datatypes.PersonDummy;
+import people.client.Misc;
 import people.client.OurConfiguration;
 import people.client.PersonClient;
 import people.client.PersonTrait;
@@ -45,7 +46,7 @@ class CachePipelineInstance {
 					
 		if (person != null) {
 			double end = Statistics.getCurrentTime();
-			person.setFetchDuration(Statistics.round3(end-start));
+			person.setFetchDuration(Misc.round3(end-start));
 			whence = person.getWhence();
 			if (whence != null) {
 				if (whence.contains("CacheDB"))

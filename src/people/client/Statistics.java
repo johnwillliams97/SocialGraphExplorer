@@ -89,14 +89,6 @@ public class Statistics {
 		System.err.println("=============== ---------- ============");
 	}
 	
-	private static double roundBy(double x, double multiplier) {
-		return ((double)Math.round(x*multiplier))/multiplier;
-	}
-	public static double round1(double x) {
-		return roundBy(x, 10.0);
-	}
-	public static double round3(double x) {
-		return roundBy(x, 1000.0);
-	}
+	
 	
 }

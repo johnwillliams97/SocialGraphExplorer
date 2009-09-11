@@ -627,7 +627,7 @@ public class PersonList extends Composite implements ClickHandler {
         		
     		   	_table.setText(i+1 , 0, link + " - " + index + ",  " 
 	        			+ person.getWhence() + ",  " 
-	        			+ Misc.showBytes(person.getHtmlPage() != null ? person.getHtmlPage().length() : 0) + "kb, " 
+	        			+ Misc.showBytes(person.getHtmlPage() != null ? person.getHtmlPage().length() : 0) + ", " 
 	        			+ person.getFetchDuration() + " sec, "
 	        			+ person.getFetchDurationFull() + " sec"
 	        			+ ", level " + person.getCacheLevel()

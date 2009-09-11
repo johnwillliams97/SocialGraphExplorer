@@ -832,7 +832,7 @@ public class PersonClientCache {
 		  double duration = Statistics.getCurrentTime() - callTime;
 		  if (fetches != null) {
 			  for (PersonFetch fetch: fetches) {
-				  fetch.person.setFetchDurationFull(Statistics.round1(duration));
+				  fetch.person.setFetchDurationFull(Misc.round1(duration));
 			  }
 		  }
 	  }

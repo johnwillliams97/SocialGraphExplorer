@@ -254,7 +254,7 @@ public class RPCWrapper {
 			if (numFetches < result.requestedUniqueIDs.length)
 				SocialGraphExplorer.get().showInstantStatus2("Incomplete fetch", numFetches + " of " + numRequestedIDs);
 			
-			double roundTripDuration = Statistics.round1(Statistics.getCurrentTime() - result.callTime);
+			double roundTripDuration = Misc.round1(Statistics.getCurrentTime() - result.callTime);
 			// Track longest round-trip duration  
 			if (_maxRoundTripDuration < roundTripDuration)
 				_maxRoundTripDuration = roundTripDuration;

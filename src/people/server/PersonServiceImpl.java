@@ -183,17 +183,17 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 		logger.info("outta there!");
 		
 		Statistics.getInstance().recordEvent("responseDuration1");
-		resultsMain.responseDuration1 = Statistics.round3(Statistics.getCurrentTime() - start);
+		resultsMain.responseDuration1 = Misc.round3(Statistics.getCurrentTime() - start);
 
 		Statistics.getInstance().recordEvent("responseDuration2");
-		resultsMain.responseDuration2 = Statistics.round3(Statistics.getCurrentTime() - start);
+		resultsMain.responseDuration2 = Misc.round3(Statistics.getCurrentTime() - start);
 		
 		logger.info("* fetchList size = " + fetchList.size());
 		// Convert running list to output result
 		if (fetchList.size() > 0) { 
 			showPersonList(fetchList, "start");
 			Statistics.getInstance().recordEvent("responseDuration3");
-			resultsMain.responseDuration3 = Statistics.round3(Statistics.getCurrentTime() - start);
+			resultsMain.responseDuration3 = Misc.round3(Statistics.getCurrentTime() - start);
 			PersonFetch[] fetches = new PersonFetch[fetchList.size()];
 			for (int i = 0; i < fetches.length; ++i) {
 				fetches[i] = fetchList.get(i);;										
@@ -211,7 +211,7 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 		resultsMain.sequenceNumber = sequenceNumber;
 		
 		Statistics.getInstance().recordEvent("responseDuration");
-		resultsMain.responseDuration = Statistics.round3(Statistics.getCurrentTime() - start);
+		resultsMain.responseDuration = Misc.round3(Statistics.getCurrentTime() - start);
 		
 		//Statistics.getInstance().showAllEvents();	
 		

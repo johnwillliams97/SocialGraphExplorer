@@ -33,31 +33,22 @@ public class Misc {
 	
 	public static String showBytes(int bytes) {
 		String s = null;
-		if (bytes < 2 * KBYTE)
-			s = "" + bytes + "bytes";
-		else if (bytes < 2 * MBYTE)
-			s = "" + bytes/KBYTE + "kb";
+		if (bytes < KBYTE)
+			s = "" + bytes + " bytes";
+		else if (bytes < MBYTE)
+			s = "" + round1((double)bytes/(double)KBYTE) + " kb";
 		else
-			s = "" + bytes/MBYTE + "mb";
+			s = "" + round1((double)bytes/(double)MBYTE) + " mb";
 		return s;
 	}
-	/*
-	static public String decodeUrl(String description) {
-  		String descClean = null;
-  		if (description != null) {
-			try {
-				descClean = URLDecoder.decode(description, "UTF-8");
-			} catch (UnsupportedEncodingException e) {
-				Misc.reportException(e);
-			}
-			while (descClean.contains("&amp;")) {
-				descClean = descClean.replaceAll("&amp;", "&");
-			}
-			while (descClean.contains("&quot;")) {
-				descClean = descClean.replaceAll("&quot;", "'");
-			}
-  		}
-  		return descClean;
-  	}
-  	*/
+		
+	public static double round1(double x) {
+		return roundBy(x, 10.0);
+	}
+	public static double round3(double x) {
+		return roundBy(x, 1000.0);
+	}
+	private static double roundBy(double x, double multiplier) {
+		return ((double)Math.round(x*multiplier))/multiplier;
+	}
 }
