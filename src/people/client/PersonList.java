@@ -368,13 +368,14 @@ public class PersonList extends Composite implements ClickHandler {
 	// selected, display its associated PersonItem.
 	PersonClient person = getPersonForRow(row);
 	
+	/*
 	String dbgNameFull = "?!@";
 	long   dbgUniqueID = PersonClient.UNIQUE_ID_NOT_FOUND;
 	if (person != null) {
 		dbgNameFull = person.getNameFull() ;
 		dbgUniqueID = person.getUniqueID();
 	}
-	/*
+	
 	String cons = "[";
 	if (person != null) {
 		List<Long> conIDs = person.getConnectionIDs();
@@ -612,7 +613,7 @@ public class PersonList extends Composite implements ClickHandler {
   	//	SocialGraphExplorer.get().showInstantStatus("redrawUI()");
   	// Show the selected persons.
     	PersonClient person = null;
-    	int highestRow = -1;	    	
+    	int highestRow = 0;	    	
         for (int i = 0; i < VISIBLE_PERSONS_COUNT; ++i) {
         	markRowDisabled(i, false);
         	person = getPersonForRow(i);
@@ -644,12 +645,13 @@ public class PersonList extends Composite implements ClickHandler {
 	        }
         }
         // Select the first row if none is selected.
+        if (_selectedRow > highestRow) {
+        	_selectedRow = highestRow;
+        }
         if (_selectedRow < 0) {
         	_selectedRow = 0;
         }
-        else if (_selectedRow > highestRow) {
-        	_selectedRow = highestRow;
-        }
+       
         selectRow(_selectedRow);
     
         List<Long> connectionIDs = getAnchorConnectionIDs();

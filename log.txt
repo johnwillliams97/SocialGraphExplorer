@@ -1,7 +1,7 @@
 WORK LOG
 ========
 
-2009/09/10
+2009/09/12
 ----------
 Cleaned up UI.
 Created a data-driver fake person synthesiser

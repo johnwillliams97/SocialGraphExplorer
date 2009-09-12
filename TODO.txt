@@ -34,7 +34,7 @@ Cron jobs to update more records
 	http://code.google.com/appengine/docs/java/config/cron.html
 Test on all browsers and OSes
 	Vista + Chrome, Opera, IE, Safari, Firefox ok
-	Test Lynx
+	Test Lynx, IE6?
 * Write unit tests
 	http://code.google.com/webtoolkit/doc/1.6/DevGuideTesting.html
 Inject server bugs and test client recovery	
@@ -83,8 +83,7 @@ Add client-side timeouts to RPCWrapper
 	
 BUGS
 ----
-Find and fix all !@#$
-* Moving between screens should maintain row position on screen
+Find and fix all '!@#$' notes
 * RPC error (onFailureCallback()) when using back button
 Full HTML is not always being fetched. Could be PersonLI not being DataNucleas enhanced?
 Test these URLS
@@ -94,7 +93,7 @@ Test these URLS
 	#1814285,10
 * Handle faults
 	Missing data from server
-		e.g. http://peterwilliams9798.appspot.com/#1814285,10
+		e.g. http://peterwilliams9798.appspot.com/#9001,10
 	Time-out from server
 
 References
