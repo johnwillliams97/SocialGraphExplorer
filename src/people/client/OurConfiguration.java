@@ -10,12 +10,12 @@ public class OurConfiguration {
 
 	// Debugging. All flags == false => release mode.
 	public static final boolean DEBUG_MODE = true;
-	public static final boolean SHORT_LIST = false;
-	public static final boolean VALIDATION_MODE = true;
+	public static final boolean SHORT_LIST = true;
+	public static final boolean VALIDATION_MODE = false;
 	public static final boolean NO_SERVER_TIME_LIMIT = false;
 	public static final boolean SUPRESS_ERRORS = false;
 	public static final boolean SHORT_SERVER_RESPONSE = false;
-	public static final int     HTML_DATA_MAX_SIZE = 50*1024;
+	public static final int     HTML_DATA_MAX_SIZE = 4*1024;
 	public static final boolean ADD_FAKE_HTML = true;
 	
 	// Controls the number of synthetic connections created. This is an approximate value 
@@ -47,6 +47,9 @@ public class OurConfiguration {
 	// For PersonList
 	public static final  int VISIBLE_PERSONS_COUNT = SHORT_LIST ?  3 : 11; 
 	public static final  int CACHE_SIZE_LRU        = SHORT_LIST ?  5 : 200;
+	
+	// Configure server cache pipepline to use memcache
+	public static final boolean USE_MEMCACHE = true;
 
 	
  

@@ -34,8 +34,8 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 			 
 	public static CachePipeline<Long, PersonDummy> makeCachePipeline() {
 		List<CacheActual<Long,PersonDummy>> stagesActual = new ArrayList<CacheActual<Long,PersonDummy>>();
-		CacheCache cacheCache = new CacheCache();
-		stagesActual.add(cacheCache);
+	//	CacheCache cacheCache = new CacheCache();
+	//	stagesActual.add(cacheCache);
 		CacheDB cacheDB = new CacheDB();
 		stagesActual.add(cacheDB);
 		CacheSynthesiseDummy cacheSynthesiseDummy = new CacheSynthesiseDummy();

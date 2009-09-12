@@ -148,8 +148,14 @@ public class SocialGraphExplorer
 
 		// Create the right panel, containing the email list & details.
 		rightPanel.add(personList);
-		rightPanel.add(serverStatus);
-		rightPanel.add(personDetail);
+		if (OurConfiguration.DEBUG_MODE) {
+			rightPanel.add(serverStatus);
+			rightPanel.add(personDetail);
+		}
+		else {
+			rightPanel.add(personDetail);	
+			rightPanel.add(serverStatus);
+		}
     
 		personList.setWidth("100%");
 		personDetail.setWidth("100%");
