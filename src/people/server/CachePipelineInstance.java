@@ -58,12 +58,17 @@ class CachePipelineInstance {
 				}
 			}
 			if (person.getHtmlPage() == null && OurConfiguration.ADD_FAKE_HTML) {
-				String htmlPage = "<b>" + person.getNameFull() + "</b><br/>";
-				htmlPage += "<i>" + person.getDescription() + "</i><br/>";
-				htmlPage += "<i>" + person.getLocation() + "</i><br/>";
-				htmlPage += "<i>" + person.getUniqueID() + "</i><br/>";
-				htmlPage += "<i>" + whence + "</i><br/>";
-				htmlPage += _filler;
+				String html = "<b>" + person.getNameFull() + "</b>, ";
+				html += "<i>" + person.getDescription() + "</i>, ";
+				html += "<i>" + person.getLocation() + "</i>, ";
+				html += "<blue>ID = <i>" + person.getUniqueID() + "</i></blue>, ";
+				html += "<i>" + whence + "</i>:   ";
+				html += "<grey>" + person.getConnectionIDs() + "</grey><br/>";
+				StringBuilder page = new StringBuilder();
+				int numRepeats = OurConfiguration.HTML_DATA_MAX_SIZE/html.length();
+				for (int i = 0; i < numRepeats; ++i)
+					page.append(page);
+				String htmlPage = page.toString();
 				person.setHtmlPage(htmlPage);
 				logger.warning("html size = " + person.getHtmlPage().length());
 				

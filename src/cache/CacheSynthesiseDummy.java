@@ -45,7 +45,7 @@ public class CacheSynthesiseDummy implements CacheActual<Long, PersonDummy> {
 	public PersonDummy get(Long key,  double timeBoundSec) {
 		PersonDummy person = synthesisePerson(key);
 		if (person != null)
-			person.setWhence("CacheSynthesiseDummy");
+			person.setWhence("Synthesiser");
 		return person;
 	}
 
@@ -145,8 +145,11 @@ public class CacheSynthesiseDummy implements CacheActual<Long, PersonDummy> {
 		
 	}
 	
+	/*
+	 * This sets the distribution of a population of persons
+	 */
 	static boolean inRange(long i) {
-		return OurConfiguration.MINIMUM_UNIQUEID <= i && i <= OurConfiguration.MAXIMUM_UNIQUEID;
+		return (OurConfiguration.MINIMUM_UNIQUEID <= i && i <= OurConfiguration.MAXIMUM_UNIQUEID);
 	}
 	
 	private static List<String> readListFromFile(String fileName) {

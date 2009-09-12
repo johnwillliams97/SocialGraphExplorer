@@ -9,8 +9,8 @@ package people.client;
 public class OurConfiguration {
 
 	// Debugging. All flags == false => release mode.
-	public static final boolean DEBUG_MODE = true;
-	public static final boolean SHORT_LIST = false;
+	public static final boolean DEBUG_MODE = false;
+	public static final boolean SHORT_LIST = true;
 	public static final boolean VALIDATION_MODE = true;
 	public static final boolean NO_SERVER_TIME_LIMIT = false;
 	public static final boolean SUPRESS_ERRORS = false;
@@ -20,7 +20,9 @@ public class OurConfiguration {
 	
 	// Determines the system's starting state. null => default
 	// Handy for debugging
-	public static final String INITIAL_UI_STATE = null; // "key=8050idx=110"; // e.g. "key=1000&idx=10";
+	public static final String INITIAL_UI_STATE = "key=100idx=0";	// "key=8050idx=110";
+	// Params with bugs
+	// key=5009idx=110, key=8050idx=110
 	
 	// All unique IDs below this are reserved.
 	public static final long MINIMUM_UNIQUEID = 100L;
@@ -41,6 +43,7 @@ public class OurConfiguration {
 	// For PersonList
 	public static final  int VISIBLE_PERSONS_COUNT = SHORT_LIST ?  3 : 11; 
 	public static final  int CACHE_SIZE_LRU        = SHORT_LIST ?  5 : 200;
+	
  
 
 

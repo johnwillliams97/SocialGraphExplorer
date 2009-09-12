@@ -33,7 +33,7 @@ public class SystemState {
 
 	public String getAsString() {
 		String stateString = makeTerm(KEY_UNIQUEID, _uniqueID);
-		stateString += makeTerm(KEY_INDEX, _index);
+		stateString += addTerm(KEY_INDEX, _index);
 		if (_verbose) {
 			stateString += addTerm(KEY_MAX_SERVER_CALLS_PER_REQUEST, _maxServerCallsPerRequest);
 			stateString += addTerm(KEY_MAX_REQUESTS_IN_PROGRESS,     _maxRequestsInProgress);
