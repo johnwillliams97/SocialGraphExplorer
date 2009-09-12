@@ -12,7 +12,9 @@ public class CacheDB implements CacheActual<Long, PersonDummy> {
 	
 	@Override
 	public PersonDummy get(Long key, double timeBoundSec) {
-		PersonDummy 	person = PersonDummy.findInDBbyUniqueId(key);
+		PersonDummy person = PersonDummy.findInDBbyUniqueId(key);
+		if (person != null)
+			person.setWhence("CacheDB");
 		return person;
 	}
 	

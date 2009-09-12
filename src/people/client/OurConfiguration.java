@@ -9,18 +9,19 @@ package people.client;
 public class OurConfiguration {
 
 	// Debugging. All flags == false => release mode.
-	public static final boolean DEBUG_MODE = false;
-	public static final boolean SHORT_LIST = true;
+	public static final boolean DEBUG_MODE = true;
+	public static final boolean SHORT_LIST = false;
 	public static final boolean VALIDATION_MODE = true;
 	public static final boolean NO_SERVER_TIME_LIMIT = false;
 	public static final boolean SUPRESS_ERRORS = false;
 	public static final boolean SHORT_SERVER_RESPONSE = false;
-	public static final int     HTML_DATA_MAX_SIZE = 2*1024;
+	public static final int     HTML_DATA_MAX_SIZE = 20*1024;
 	public static final boolean ADD_FAKE_HTML = true;
 	
 	// Determines the system's starting state. null => default
 	// Handy for debugging
-	public static final String INITIAL_UI_STATE = "key=100&idx=0";	// "key=8050&idx=110";
+	// Default is "key=101idx=110" which is me
+	public static final String INITIAL_UI_STATE = "key=101&idx=0";	
 	// Params with bugs
 	// key=5009&idx=110, key=8050&idx=110
 	

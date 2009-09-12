@@ -69,7 +69,7 @@ public class CacheSynthesiseDummy implements CacheActual<Long, PersonDummy> {
 		PersonDummy person = new PersonDummy();
 		String nameFirst = getFromList(_nameFirst, uniqueID);
 		String nameLast1 = getFromList(_nameLast, uniqueID);
-		String nameLast2 = getFromList(_nameLast, uniqueID*PRIME1 + PRIME2);
+		String nameLast2 = getFromList(_nameLast, Math.abs(uniqueID*PRIME1 + PRIME2));
 		String nameLast = (nameLast1 == nameLast2) ? nameLast1 : nameLast1 + "-" + nameLast2;
 		String location = getFromList(_location, uniqueID);
 		String occupation = getFromList(_occupation, uniqueID);
@@ -159,7 +159,7 @@ public class CacheSynthesiseDummy implements CacheActual<Long, PersonDummy> {
 			File file = new File(fileName);
 			BufferedReader input = new BufferedReader(new FileReader(file));
 		    String line = null  ; 
-		    while (( line = input.readLine()) != null) {
+		    while ((line = input.readLine()) != null) {
 		    	if (line.length() > 0)
 		    		strings.add(line);
 		    }
@@ -177,6 +177,8 @@ public class CacheSynthesiseDummy implements CacheActual<Long, PersonDummy> {
 	
 	private String getFromList(List<String> list, long uniqueID) {
 		int index = (int)(uniqueID % (long)list.size());
+		if (index < 0)
+			assert(index >= 0);
 		return list.get(index);
 	}
 

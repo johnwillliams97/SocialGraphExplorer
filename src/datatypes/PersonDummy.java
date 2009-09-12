@@ -449,11 +449,7 @@ public class PersonDummy  implements PersistentPersonTrait, CacheTrait {
 		return _fetchDuration;
 	}
 	
-	@Override
-	public boolean isIncomplete() {
-		return false;
-	}
-	
+		
 	
 
 }

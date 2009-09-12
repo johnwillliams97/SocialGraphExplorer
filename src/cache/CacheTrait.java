@@ -6,9 +6,6 @@ package cache;
 
 public interface CacheTrait {
 	
-	// Incomplete record - needs to be re-fetched from a deeper cache level
-	public boolean isIncomplete();
-	
 	// Identifies the cache stage this object was fetched from
 	public void    setWhence(String whence);
 	public String  getWhence();

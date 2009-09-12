@@ -175,12 +175,7 @@ public class PersonClient implements IsSerializable, PersonTrait {
 		return _fetchDurationFull;
 	}
 	
-	public boolean isIncomplete(boolean noDetail, boolean connectionsInProgress)  {
-		boolean incomplete = (noDetail && (_htmlPage == null));
-		Misc.myAssert(!incomplete, "isIncomplete: " + this.getUniqueID() );
-		return incomplete;
-	}
-	
+		
 	/*
 	 * Track person's client cache level  
 	 */

@@ -161,7 +161,7 @@ public class PersonClientCache {
 	   */
 	  
 	  private static List<Integer> VISIBLE_CACHE_LEVEL_LIST   = Arrays.asList(new Integer[] {CACHE_LEVEL_ANCHOR, CACHE_LEVEL_VISIBLE});
-	  private static List<Integer> INVISIBLE_CACHE_LEVEL_LIST = Arrays.asList(new Integer[] {CACHE_LEVEL_CLICK1, CACHE_LEVEL_CLICK2});
+	  //private static List<Integer> INVISIBLE_CACHE_LEVEL_LIST = Arrays.asList(new Integer[] {CACHE_LEVEL_CLICK1, CACHE_LEVEL_CLICK2});
 	 
 	   /*
   	   * Ugly way of returning PersonClientCacheEntry[] 
@@ -518,42 +518,6 @@ public class PersonClientCache {
 	  }
 	  
 	  
-	  /*
-	   * Extract a list of incompletely fetched person from the fetches array returned by a server call
-	   * @param fetches - persons fetched from server
-	   * @param noDetail - return persons missing detail (full html)
-	   * @param connectionInProgress - return persons with partially complete connections list
-	   * @param targetLevels - return only these levels
-	   * @return - list of incompletely fetched persons
-	   */
-	  static private List<IDsAtLevel> getIncompletePersonsIDs(PersonFetch[] fetches, 
-			  						boolean noDetail, boolean connectionsInProgress,
-			  						List<Integer> targetLevels) {
-		  List<IDsAtLevel> list = new ArrayList<IDsAtLevel>();
-		  int numFetches = fetches != null ? fetches.length : 0;
-		  for (int i = 0; i < numFetches; ++i) {
-			  if (fetches[i].person.isIncomplete(noDetail, connectionsInProgress)) {
-				  int level = fetches[i].level;
-				  if (targetLevels.contains((Integer)level)) {
-					  long id = fetches[i].person.getUniqueID();
-					  Set<Long> ids = null;
-					  for (IDsAtLevel idsAtLevel: list) {
-						  if (idsAtLevel.level == level) {
-							  ids = idsAtLevel.ids;
-							  ids.add(id);
-							  break;
-						  }
-					  }
-					  if (ids == null) {
-						  ids = new LinkedHashSet<Long>();
-						  ids.add(id);
-						  list.add(new IDsAtLevel(level, ids));
-					  }
-				  }
-			  }
-		  }
-		  return list;
-	  }
 	  
 	  /*
 	   * get IDs of cache entries with the specified state from the specified cache levels
@@ -791,19 +755,12 @@ public class PersonClientCache {
 		  			}
 		  			
 		  			// Fetch more persons if not all are fetched or some are incompletely, but first check the number of RPC calls for this request
-		  			List<IDsAtLevel> unfetchedIDs = getIdLists(requestedLevels, CacheEntryState.PENDING);
-		  			List<IDsAtLevel> incompletePersonIDsVisible   = getIncompletePersonsIDs(fetches, true, true, VISIBLE_CACHE_LEVEL_LIST); // !@#$ only for visible levels
-		  			List<IDsAtLevel> incompletePersonIDsInvisible = getIncompletePersonsIDs(fetches, true, true, INVISIBLE_CACHE_LEVEL_LIST);
-		  			List<IDsAtLevel> incompletePersonIDs = RPCWrapper.meldIDsAtLevelLists(incompletePersonIDsVisible, incompletePersonIDsInvisible);
-		  			List<IDsAtLevel> idsToFetch = RPCWrapper.meldIDsAtLevelLists(unfetchedIDs, incompletePersonIDs);
+		  			List<IDsAtLevel> idsToFetch = getIdLists(requestedLevels, CacheEntryState.PENDING);
 		  			int numCallsForThisClientSequenceNumber = _requestsInProgress.getNumCalls(clientSequenceNumber);
 		  			if (idsToFetch.size() > 0 && numCallsForThisClientSequenceNumber <= _maxServerCallsPerRequest) {
 		  				SocialGraphExplorer.get().log("Incomplete fetch ", clientSequenceNumber 
-		  						+ ": " + RPCWrapper.getTotalNumberOfIDs(unfetchedIDs) + " unfetched "
-		  						+ "+ " + RPCWrapper.getTotalNumberOfIDs(incompletePersonIDsVisible) + " visible incomplete "
-		  						+ "+ " + RPCWrapper.getTotalNumberOfIDs(incompletePersonIDsInvisible) + " invisible incomplete "
-		  						+ "= " + RPCWrapper.getTotalNumberOfIDs(idsToFetch) + " total " 
-		  						+ ", ids = " + idsToFetch.get(0).ids 
+		  						+ ": " + RPCWrapper.getTotalNumberOfIDs(idsToFetch) + " unfetched "
+		   						+ ", ids = " + idsToFetch.get(0).ids 
 		  					);
 		  				
 		  				// Call server again from the response callback

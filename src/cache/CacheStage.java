@@ -46,21 +46,15 @@ public class CacheStage<K, V extends CacheTrait> {
 			Misc.reportException(e);
 		}
 		
-		boolean incomplete = (value != null && value.isIncomplete());
-		
-		if (value == null || incomplete) {
+		if (value == null) {
 			++_cacheStats.numMisses;
 			if (_nextStage != null) {
-				if (incomplete) {
-					incomplete = true;
-				}
 				value = _nextStage.get(key,  timeBoundSec);
 				if (value != null) {
 					_cacheActual.put(key, value); // Don't call this.put() !
 				}
 			}
 		}
-		
 		return value;
 	}
 	
@@ -74,16 +68,20 @@ public class CacheStage<K, V extends CacheTrait> {
 			}
 		}
 	}
+	
 	public void setNextStage(CacheStage<K,V> nextStage) {
 		_nextStage = nextStage;
 	}
+	
 	public CacheStage<K, V> getNextStage() {
 		return _nextStage;
 	}
+	
 	public String identify() {
 		String identity = "sequence=" + _sequence + ", id=" + _cacheActual.identify(); 
 		return identity;
 	}
+	
 	public String getStatus() {
 		return _cacheStats.getSummary();
 	}

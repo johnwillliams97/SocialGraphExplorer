@@ -27,6 +27,7 @@ public class CacheCache implements CacheActual<Long, PersonDummy> {
 	
 	@Override
 	public PersonDummy get(Long key, double timeBoundSec) {
+		//if (key == (Long)101L)	return null;
 		PersonDummy person = (PersonDummy)theCache.get(key);
 		if (person != null)
 			person.setWhence("CacheCache");

@@ -1,5 +1,7 @@
 package people.server;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -58,16 +60,26 @@ class CachePipelineInstance {
 				}
 			}
 			if (person.getHtmlPage() == null && OurConfiguration.ADD_FAKE_HTML) {
-				String html = "<b>" + person.getNameFull() + "</b>, ";
-				html += "<i>" + person.getDescription() + "</i>, ";
-				html += "<i>" + person.getLocation() + "</i>, ";
-				html += "<blue>ID = <i>" + person.getUniqueID() + "</i></blue>, ";
-				html += "<i>" + whence + "</i>:   ";
-				html += "<grey>" + person.getConnectionIDs() + "</grey><br/>";
+				StringBuilder fragment = new StringBuilder();
+				fragment.append("<b>" + makeGoogleLink(person.getNameFull()) + "</b>, ");
+				fragment.append("<i>" + makeGoogleLink(person.getDescription()) + "</i>, ");
+				fragment.append("<red><u>" + makeGoogleMapsLink(person.getLocation()) + "</u></red>, ");
+				fragment.append("<blue>ID = <blink>" + makeInternalLink(person.getUniqueID()) + "</blink></blue>, ");
+				fragment.append("<i><green>Fetched from the " + whence + " cache.<green></i>:   ");
+				fragment.append("<grey>");
+				for (Long uid: person.getConnectionIDs()) {
+					fragment.append(makeInternalLink(uid) + ", ");
+					if (fragment.length() > OurConfiguration.HTML_DATA_MAX_SIZE - 100)
+						break;
+				}
+				fragment.append("</grey><br/>");
+				String htmlFragment = fragment.toString();
+				
 				StringBuilder page = new StringBuilder();
-				int numRepeats = OurConfiguration.HTML_DATA_MAX_SIZE/html.length();
+				int numRepeats = OurConfiguration.HTML_DATA_MAX_SIZE/htmlFragment.length();
 				for (int i = 0; i < numRepeats; ++i)
-					page.append(page);
+					page.append(htmlFragment);
+				page.append(_filler);
 				String htmlPage = page.toString();
 				person.setHtmlPage(htmlPage);
 				logger.warning("html size = " + person.getHtmlPage().length());
@@ -77,9 +89,30 @@ class CachePipelineInstance {
 		else {
 			++_numCacheMisses ;
 		}
-		
 		return person;
 	}
+	
+	private static String makeInternalLink(long id) {
+		return makeLink("" + id, "/#key=");
+	}
+	private static String makeGoogleLink(String name) {
+		return makeLink(name, "http://www.google.com/search?q=");
+	}
+	private static String makeGoogleMapsLink(String name) {
+		return makeLink(name, "http://maps.google.com/maps?q=");
+	}
+	private static String makeLink(String name, String webSite) {
+		String encName = "UNKNOWN";
+		try {
+			encName = URLEncoder.encode(name, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		String url = webSite + encName;
+		String link = "<a href=\"" + url + "\">" + name + "<a>";
+		return link;
+	}
+	
 	// All  PersistentPersonTrait classes have a DEFAULT_PERSON_RECORD_UNIQUEID
 	// This is the value returned when the client requests a PersonTrait.GET_DEFAULT_PERSON_UNIQUEID
 	// It is used for bootstrapping when the client doesn't know what is in the server database
