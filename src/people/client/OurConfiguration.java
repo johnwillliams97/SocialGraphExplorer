@@ -20,9 +20,9 @@ public class OurConfiguration {
 	
 	// Determines the system's starting state. null => default
 	// Handy for debugging
-	public static final String INITIAL_UI_STATE = "key=100idx=0";	// "key=8050idx=110";
+	public static final String INITIAL_UI_STATE = "key=100&idx=0";	// "key=8050&idx=110";
 	// Params with bugs
-	// key=5009idx=110, key=8050idx=110
+	// key=5009&idx=110, key=8050&idx=110
 	
 	// All unique IDs below this are reserved.
 	public static final long MINIMUM_UNIQUEID = 100L;
