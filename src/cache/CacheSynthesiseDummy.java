@@ -20,11 +20,15 @@ import datatypes.PersonDummy;
 
 /*
  * This cache stage will create a PersonDummmy if none exists
+ * 
+ * This module reads some words from static files and builds records from them.
+ * The static files are in the war root. To prevent repetition of records, the 
+ * static files should have prime numbers of entries and each file should have
+ * a different number of entries.
  */
 
 public class CacheSynthesiseDummy implements CacheActual<Long, PersonDummy> {
 	private static final Logger logger = Logger.getLogger(CacheSynthesiseDummy.class.getName());
-
 	
 	private List<String> _nameFirst;
 	private List<String> _nameLast;
@@ -38,7 +42,6 @@ public class CacheSynthesiseDummy implements CacheActual<Long, PersonDummy> {
 		_location  = readListFromFile("location.txt");
 		_occupation  = readListFromFile("occupation.txt");
 		_industry  = readListFromFile("industry.txt");
-		
 	}
 	
 	@Override
@@ -142,7 +145,6 @@ public class CacheSynthesiseDummy implements CacheActual<Long, PersonDummy> {
 			}
 		}
 		return connectionIDs;
-		
 	}
 	
 	/*
