@@ -242,7 +242,7 @@ public class PersonList extends Composite implements ClickHandler {
 	        _state.startIndex = maxIndex;
 	      } else {
 	        styleRow(_selectedRow, false);
-	        _selectedRow = -1;
+	        resetSelectedRow();
 	        updatePersonList("higherButton");
 	      }
 	    } 
@@ -254,7 +254,7 @@ public class PersonList extends Composite implements ClickHandler {
 	        _state.startIndex = 0;
 	      } else {
 	        styleRow(_selectedRow, false);
-	        _selectedRow = -1;
+	        resetSelectedRow();
 	        updatePersonList("lowerButton");
 	      }
 	    } 
@@ -263,7 +263,7 @@ public class PersonList extends Composite implements ClickHandler {
 		    // Move to end.
 	        _state.startIndex = Interval.getMaxIndex(getAnchorConnectionIDs(), CONNECTIONS_PER_SCREEN);
 		    styleRow(_selectedRow, false);
-		    _selectedRow = -1;
+		    resetSelectedRow();
 		    updatePersonList("highestButton");
 		}
 		else if (sender == _lowestButton) {
@@ -287,14 +287,6 @@ public class PersonList extends Composite implements ClickHandler {
 	        	}
 	        	else  {
 	        		styleRow(_selectedRow, false);
-	        		// Set anchor state to desired state. Will be invalid until _state.anchorFetched is set to true.
-	        		// This is a signal that cache state is invalid.
-	        	//	long oldID = _state.anchorUniqueID;
-	        		/*
-	        		_state.startIndex = 0;
-	        		updateAnchor(getPersonForRow(row), true); // Make this person the anchor
-	             	For consistency, use one method to update person
-	             	*/
 	        		_selectedRow = -1;
 	        		CanonicalState newState = new CanonicalState(getPersonForRow(row).getUniqueID(), 0);
 	             	updatePersonListExtern(newState, false);
@@ -304,6 +296,9 @@ public class PersonList extends Composite implements ClickHandler {
 	    }
 	}
 	
+	private void resetSelectedRow() {
+	//	_selectedRow = -1;
+	}
   	/*
   	 * Get number of people in list. 
   	 * Currently this is the anchor person's number of connection
@@ -379,6 +374,7 @@ public class PersonList extends Composite implements ClickHandler {
 		dbgNameFull = person.getNameFull() ;
 		dbgUniqueID = person.getUniqueID();
 	}
+	/*
 	String cons = "[";
 	if (person != null) {
 		List<Long> conIDs = person.getConnectionIDs();
@@ -390,7 +386,7 @@ public class PersonList extends Composite implements ClickHandler {
 	}
 	cons += "]";
 	System.err.println("selectRow(" + row + ") selectedRow=" + _selectedRow + " " + dbgNameFull + " " + dbgUniqueID + cons);
-	 
+	 */
     styleRow(_selectedRow, false);
     styleRow(row, true);
 
@@ -399,15 +395,17 @@ public class PersonList extends Composite implements ClickHandler {
     	SocialGraphExplorer.get().displayPersonDetail(person);
   	}
 
-  private void styleRow(int row, boolean selected) {
-    if (row != -1) {
-      if (selected) {
-        _table.getRowFormatter().addStyleName(row + 1, "mail-SelectedRow");
-      } else {
-        _table.getRowFormatter().removeStyleName(row + 1, "mail-SelectedRow");
-      }
-    }
-  }
+  	private void styleRow(int row, boolean selected) {
+  		if (row != -1) {
+  			if (selected) {
+  				_table.getRowFormatter().addStyleName(row + 1, "mail-SelectedRow");
+  			} 
+  			else {
+  				_table.getRowFormatter().removeStyleName(row + 1, "mail-SelectedRow");
+  			}
+  		}
+  	}
+  	
   	private void markRowDisabled(int row, boolean selected) {
 	    if (row != -1) {
 	      if (selected) {
@@ -614,7 +612,7 @@ public class PersonList extends Composite implements ClickHandler {
   	//	SocialGraphExplorer.get().showInstantStatus("redrawUI()");
   	// Show the selected persons.
     	PersonClient person = null;
-    		    	
+    	int highestRow = -1;	    	
         for (int i = 0; i < VISIBLE_PERSONS_COUNT; ++i) {
         	markRowDisabled(i, false);
         	person = getPersonForRow(i);
@@ -636,6 +634,7 @@ public class PersonList extends Composite implements ClickHandler {
         		_table.setText(i+1 , 0, ""  + index + ": " + link + " (unique ID " + person.getUniqueID() + ") " + stats);
 	        	_table.setText(i+1 , 1, squeeze(person.getDescription(), 80) + " with " + numConnections + " connections");
 	            _table.setText(i+1 , 2, person.getLocation());
+	            highestRow = i;
 	    	}
         	else {
         		// Clear any remaining slots.
@@ -645,9 +644,13 @@ public class PersonList extends Composite implements ClickHandler {
 	        }
         }
         // Select the first row if none is selected.
-        if (_selectedRow == -1) {
-        	selectRow(0);
+        if (_selectedRow < 0) {
+        	_selectedRow = 0;
         }
+        else if (_selectedRow > highestRow) {
+        	_selectedRow = highestRow;
+        }
+        selectRow(_selectedRow);
     
         List<Long> connectionIDs = getAnchorConnectionIDs();
         int maxIndex = Interval.getMaxIndex(connectionIDs, CONNECTIONS_PER_SCREEN);

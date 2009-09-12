@@ -1,8 +1,6 @@
 LIST OF WORK TO DO (x = Complete. ? = May not be an issue. * Fix next)
 ------------------
 Add versioning to database (e.g. Long version) and fix data problems such as duplicate connections
-Clean up 'details' person html.
-	Check if html is in messy format and delete it if it is.
 Add authentication.
 Add cookies to save state between uses (anchor:start)
 Add Gears support
@@ -25,8 +23,6 @@ Sort connection on
 			Maybe use Cron Jobs http://code.google.com/appengine/docs/java/config/cron.html
 			Maybe use Task Queues http://code.google.com/appengine/kb/general.html#taskqueue
 			                      http://code.google.com/appengine/docs/java/taskqueue/overview.html
-Handle &#x260  as in "? Adrian Cotterill ?"  
-Remove "&amp;" etc from all strings
 Add build from scratch script
 Make UI usable
 	Get feedback from users
@@ -38,6 +34,7 @@ Cron jobs to update more records
 	http://code.google.com/appengine/docs/java/config/cron.html
 Test on all browsers and OSes
 	Vista + Chrome, Opera, IE, Safari, Firefox ok
+	Test Lynx
 * Write unit tests
 	http://code.google.com/webtoolkit/doc/1.6/DevGuideTesting.html
 Inject server bugs and test client recovery	
@@ -81,15 +78,13 @@ General exception handler: http://www.itsolut.com/chrismusings/2009/08/04/rootin
 	Fetching 10 records from server
 	10 records (1MB) fetched from server
 	...
-Read configuration to/from URL
-	key=123&idx=2&num_callbacks=2&fetches_per_call=5&..
+
 Add client-side timeouts to RPCWrapper
 	
 BUGS
 ----
 Find and fix all !@#$
-Remap URLs in HTML scraped from social networks (may be better to parse HTML)
-Moving between screens should maintain row position on screen
+* Moving between screens should maintain row position on screen
 * RPC error (onFailureCallback()) when using back button
 Full HTML is not always being fetched. Could be PersonLI not being DataNucleas enhanced?
 Test these URLS

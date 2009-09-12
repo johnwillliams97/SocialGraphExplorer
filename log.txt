@@ -2,7 +2,16 @@ WORK LOG
 ========
 
 2009/09/10
----------
+----------
+Cleaned up UI.
+Created a data-driver fake person synthesiser
+Maintain row position on screen when moving between screens
+Uploaded a stable version
+	Release http://10.latest.peterwilliams9798.appspot.com 
+	Debug   http://9.latest.peterwilliams9798.appspot.com
+
+2009/09/10
+----------
 Generalised server side PersonTrait records with PersistentPersonTrait.java
 Cache instance handles case of requested uniqueID < 0
 Cleaned-up some comments
@@ -31,7 +40,7 @@ Set web title for browser history list. PersonList.updateWindowTitle()
 ----------
 Tuned performance. Stopped discarding old requests. See updateCacheIfNoVisiblePending()
 
-Pushed a stable version
+Uploaded a stable version
 	Release http://8.latest.peterwilliams9798.appspot.com/ 
 	Debug   http://7.latest.peterwilliams9798.appspot.com/
 	
