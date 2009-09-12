@@ -15,11 +15,11 @@ public class Statistics {
 	private static Statistics _instance = null;
 	private static int        _instanceCount = 0;
 	
-	
 	public static Statistics getInstance() {
 	    assert(_instance != null);
 	    return _instance;
 	}
+	
 	public static Statistics createInstance(String name) {
 		++_instanceCount;
 		_instance = new Statistics();
@@ -42,25 +42,28 @@ public class Statistics {
 		}
 	}
 	
-//	private long _callStartTime = 0L;
-	private int  _sequenceNumber = 0;
+	private double _startTime = 0.0;
+	private int    _sequenceNumber = 0;
 	
 	//Need to synchronise access to _events since this list is shared across servlets
 	private List<Event> _events = null;
 	
 	private Statistics() {
-		//this._callStartTime = Calendar.getInstance().getTimeInMillis();
-		//this._callStartTime = System.nanoTime();
-		this._sequenceNumber = 0;
-		this._events = new ArrayList<Event>();
+		_sequenceNumber = 0;
+		_events = new ArrayList<Event>();
+		_startTime = getCurrentTime();
 	}
+	
 	public static double getCurrentTime() {
-	//	return (double)(Calendar.getInstance().getTimeInMillis() - _callStartTime)/1000.0;
-	//	return (double)(System.nanoTime() - _callStartTime)/1.0e9;
 		//return ((double)System.nanoTime())/1.0e9; // !@#$ Would like this for server
 		return ((double)System.currentTimeMillis())/1.0e3;
 	}
 	
+	public double getTimeSinceStart() {
+		return getCurrentTime() - _startTime;
+	}
+	
+	/*
 	public double getLastTime() {
 		double lastTime = 0.0;
 		synchronized(this) {
@@ -70,7 +73,7 @@ public class Statistics {
 		}
 		return lastTime;
 	}
-	
+	*/
 	
 	public  void recordEvent(String name) {
 		Event event = new Event(name);

@@ -45,7 +45,7 @@ public class CacheSynthesiseDummy implements CacheActual<Long, PersonDummy> {
 	public PersonDummy get(Long key,  double timeBoundSec) {
 		PersonDummy person = synthesisePerson(key);
 		if (person != null)
-			person.setWhence("Synthesiser");
+			person.setWhence("synthesiser");
 		return person;
 	}
 
@@ -95,8 +95,8 @@ public class CacheSynthesiseDummy implements CacheActual<Long, PersonDummy> {
 	 *  Inter-group 1) = All persons with uniqueID -5..-1,+1..+5 => 10
 	 *  Inter-group 2) = uniqueID + n*1000n = -5..-1,+1..+5 => 10
 	 */
-	private static final long LOCAL_RANGE = 1000L;
 	private static final long LOCAL_MODULUS = 10L;
+	private static final long LOCAL_RANGE = OurConfiguration.NUMBER_SYNTHECTIC_CONNECTIONS * LOCAL_MODULUS;
 	private static final long INTER1_RANGE = 5L;
 	private static final long INTER1_MODULUS = 1L;
 	private static final long INTER2_RANGE   = 5000L;

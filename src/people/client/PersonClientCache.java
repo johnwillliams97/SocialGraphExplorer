@@ -2,6 +2,7 @@ package people.client;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -742,6 +743,7 @@ public class PersonClientCache {
 	  			}
 	  			else {
 		  			recordCallDurations(fetches, callTime);
+		  			markupPersonDetails(fetches);
 		  			// Update the cache!
 		  			List<Long> misses = addToCache(fetches);
 		  			if (misses.size() > 0) {
@@ -790,6 +792,33 @@ public class PersonClientCache {
 		  if (fetches != null) {
 			  for (PersonFetch fetch: fetches) {
 				  fetch.person.setFetchDurationFull(Misc.round1(duration));
+			  }
+		  }
+	  }
+	  
+	  /*
+	   * Mark-up the person details with the fetch information for display on server. This 
+	   * is a demo/debug feature.
+	   * @param fetches - list of persons fetched from server
+	   */
+	  static private void markupPersonDetails(PersonFetch[] fetches) {
+		  if (fetches != null) {
+			  java.util.Date date = new Date();
+			  date.setTime(System.currentTimeMillis());
+			  String dateString = date.toString();
+			  for (PersonFetch fetch: fetches) {
+				  PersonClient person = fetch.person;
+				  String htmlPage = person.getHtmlPage();
+				  String size = Misc.showBytes(htmlPage != null ? htmlPage.length() : 0);
+				  String description = 
+					  "This record was fetched from the server on <b>" + dateString + "</b>. "
+				  	+ "It contained <b>" + size + "</b> of data. "
+				  	+ "It took <b>" + person.getFetchDuration() + " seconds </b> to load from the datastore on the server and "
+				  	+ "<b>" + person.getFetchDurationFull() + " seconds</b> to send and receive from client to server to client. "
+				  	+ "The data below was generated on the server to create a " + size + " payload to demonstrate client caching. " 
+				  	+ "See <a href=\"http://peterwilliams97.blogspot.com/search?q=GAE+%2B+GWT+Starter+Project\">here</a> for details. "
+				  	+ "<hr align=\"center\" width=\"70%\">";
+				 person.setHtmlPage(description + htmlPage);	
 			  }
 		  }
 	  }

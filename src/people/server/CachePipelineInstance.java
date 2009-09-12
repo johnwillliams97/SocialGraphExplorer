@@ -33,9 +33,11 @@ class CachePipelineInstance {
 		_filler = "";
 		String phrase = "Yada yada ";
 		int len = phrase.length();
-		int maxlen = OurConfiguration.HTML_DATA_MAX_SIZE;
+		int maxlen = Math.min(2000, OurConfiguration.HTML_DATA_MAX_SIZE);
+		StringBuilder fragment = new StringBuilder();
 		for (int i = 0; i < maxlen; i += len)
-			_filler += phrase;
+			fragment.append(phrase) ;
+		_filler = fragment.toString();
 	}
 	public PersonDummy get(long idIn, double timeBoundSec) {
 		double start = Statistics.getCurrentTime();
@@ -61,29 +63,30 @@ class CachePipelineInstance {
 			}
 			if (person.getHtmlPage() == null && OurConfiguration.ADD_FAKE_HTML) {
 				StringBuilder fragment = new StringBuilder();
-				fragment.append("<b>" + makeGoogleLink(person.getNameFull()) + "</b>, ");
-				fragment.append("<i>" + makeGoogleLink(person.getDescription()) + "</i>, ");
-				fragment.append("<red><u>" + makeGoogleMapsLink(person.getLocation()) + "</u></red>, ");
-				fragment.append("<blue>ID = <blink>" + makeInternalLink(person.getUniqueID()) + "</blink></blue>, ");
-				fragment.append("<i><green>Fetched from the " + whence + " cache.<green></i>:   ");
-				fragment.append("<grey>");
+				fragment.append("<red>You have selected the record of <b>" + makeGoogleLink(person.getNameFull()) + "</b>, </red>");
+				fragment.append("<green><b>" + makeGoogleLink(person.getDescription()) + "</b>, </green>");
+				fragment.append("<red><b>from " + makeGoogleMapsLink(person.getLocation()) + "</b>.</red> ");
+				fragment.append("<blue>This person is identified by a unique ID of <b>" + makeInternalLink(person.getUniqueID()) + "</b></blue>. ");
+				fragment.append("This person's record was fetched from the <i>" + whence + "</i> server cache ");
+				fragment.append("and has <b>" +  person.getConnectionIDs().size() + "</b> connections to persons with unique IDs of ");
 				for (Long uid: person.getConnectionIDs()) {
-					fragment.append(makeInternalLink(uid) + ", ");
 					if (fragment.length() > OurConfiguration.HTML_DATA_MAX_SIZE - 100)
 						break;
+					fragment.append(makeInternalLink(uid) + ", ");
+				
 				}
-				fragment.append("</grey><br/>");
+				fragment.append("<br/>");
 				String htmlFragment = fragment.toString();
 				
 				StringBuilder page = new StringBuilder();
 				int numRepeats = OurConfiguration.HTML_DATA_MAX_SIZE/htmlFragment.length();
-				for (int i = 0; i < numRepeats; ++i)
+				for (int i = 0; i < numRepeats; ++i) {
 					page.append(htmlFragment);
+				}
 				page.append(_filler);
 				String htmlPage = page.toString();
 				person.setHtmlPage(htmlPage);
 				logger.warning("html size = " + person.getHtmlPage().length());
-				
 			}
 		}
 		else {
@@ -101,15 +104,15 @@ class CachePipelineInstance {
 	private static String makeGoogleMapsLink(String name) {
 		return makeLink(name, "http://maps.google.com/maps?q=");
 	}
-	private static String makeLink(String name, String webSite) {
+	private static String makeLink(String name, String prefix) {
 		String encName = "UNKNOWN";
 		try {
 			encName = URLEncoder.encode(name, "UTF-8");
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
-		String url = webSite + encName;
-		String link = "<a href=\"" + url + "\">" + name + "<a>";
+		String url = prefix + encName;
+		String link = "<a href=\"" + url + "\">" + name + "</a>";
 		return link;
 	}
 	

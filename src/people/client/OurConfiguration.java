@@ -15,9 +15,12 @@ public class OurConfiguration {
 	public static final boolean NO_SERVER_TIME_LIMIT = false;
 	public static final boolean SUPRESS_ERRORS = false;
 	public static final boolean SHORT_SERVER_RESPONSE = false;
-	public static final int     HTML_DATA_MAX_SIZE = 20*1024;
+	public static final int     HTML_DATA_MAX_SIZE = 50*1024;
 	public static final boolean ADD_FAKE_HTML = true;
 	
+	// Controls the number of synthetic connections created. This is an approximate value 
+	// due to the complexity of the of the synthesis code
+	public static final long NUMBER_SYNTHECTIC_CONNECTIONS = 500L;
 	// Determines the system's starting state. null => default
 	// Handy for debugging
 	// Default is "key=101idx=110" which is me
@@ -29,7 +32,7 @@ public class OurConfiguration {
 	public static final long MINIMUM_UNIQUEID = 100L;
 	
 	// Control extent of uniqueIDs to shape data behaviour
-	public static final long MAXIMUM_UNIQUEID = 9999L;
+	public static final long MAXIMUM_UNIQUEID = 99999L;
 	
 	// For RequestsInProgress
 	public static final  int MAX_REQUESTS_IN_PROGRESS = 20;
@@ -44,6 +47,7 @@ public class OurConfiguration {
 	// For PersonList
 	public static final  int VISIBLE_PERSONS_COUNT = SHORT_LIST ?  3 : 11; 
 	public static final  int CACHE_SIZE_LRU        = SHORT_LIST ?  5 : 200;
+
 	
  
 

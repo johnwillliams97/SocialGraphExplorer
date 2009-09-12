@@ -624,18 +624,19 @@ public class PersonList extends Composite implements ClickHandler {
         		if (i > 0)
         			index = _state.startIndex + (i-1) + 1; // Show indexes as being 1-offset
         		String link = squeeze(person.getNameFull(), 30);
+        		String stats = "";
+        		if (OurConfiguration.DEBUG_MODE) {
+        			stats = person.getWhence() + ",  " 
+        			+ Misc.showBytes(person.getHtmlPage() != null ? person.getHtmlPage().length() : 0) + ", " 
+        			+ person.getFetchDuration() + " sec, "
+        			+ person.getFetchDurationFull() + " sec"
+        			+ ", level " + person.getCacheLevel();
+        		}
         		
-    		   	_table.setText(i+1 , 0, link + " - " + index + ",  " 
-	        			+ person.getWhence() + ",  " 
-	        			+ Misc.showBytes(person.getHtmlPage() != null ? person.getHtmlPage().length() : 0) + ", " 
-	        			+ person.getFetchDuration() + " sec, "
-	        			+ person.getFetchDurationFull() + " sec"
-	        			+ ", level " + person.getCacheLevel()
-	        			);
-	        	_table.setText(i+1 , 1, squeeze(person.getDescription(), 80) + " - " + numConnections);
-	            _table.setText(i+1 , 2, person.getLocation() + " - " + person.getUniqueID());
-	        			
-        	}
+        		_table.setText(i+1 , 0, ""  + index + ": " + link + " (unique ID " + person.getUniqueID() + ") " + stats);
+	        	_table.setText(i+1 , 1, squeeze(person.getDescription(), 80) + " with " + numConnections + " connections");
+	            _table.setText(i+1 , 2, person.getLocation());
+	    	}
         	else {
         		// Clear any remaining slots.
 	        	_table.setHTML(i+1 , 0, "&nbsp;");

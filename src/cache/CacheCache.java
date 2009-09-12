@@ -30,7 +30,7 @@ public class CacheCache implements CacheActual<Long, PersonDummy> {
 		//if (key == (Long)101L)	return null;
 		PersonDummy person = (PersonDummy)theCache.get(key);
 		if (person != null)
-			person.setWhence("CacheCache");
+			person.setWhence("memcache");
 		return person;
 	}
 
