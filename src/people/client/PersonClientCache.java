@@ -103,16 +103,23 @@ public class PersonClientCache {
 	
 	private RequestsInProgress _requestsInProgress = null;
 	
+	// For dummy testing mode
+	// tells server to attach a payload of this size to each person record when running in ADD_FAKE_HTML mode
+	private int _payloadBytes = -1;
+
+	
 	/* Set up the client cache
 	 * @param cacheLevelSize - Number of elements in cache (by level)
   	 * @param maxServerCallsPerRequest - Dynamic (overridable from URL) version of OurConfiguration.MAX_SERVER_CALLS_PER_REQUEST
   	 * @param maxRequestsInProgress - Dynamic (overridable from URL) version of OurConfiguration.MAX_REQUESTS_IN_PROGRESS
   	 * @param maxServerCallsInProgress - Dynamic (overridable from URL) version of OurConfiguration.MAX_SERVER_CALLS_IN_PROGRESS
+  	 * @param payloadBytes - tells server to attach a payload of this size to each person record when running in ADD_FAKE_HTML mode
      */
 	public PersonClientCache(int[] cacheLevelSize,
 							 int maxServerCallsPerRequest,
 							 int maxRequestsInProgress,
-							 int maxServerCallsInProgress) {
+							 int maxServerCallsInProgress,
+							 int payloadBytes) {
 	 	
 		Misc.myAssert(cacheLevelSize != null, "cacheLevelSize != null") ;
 		Misc.myAssert(cacheLevelSize.length == CACHE_LEVEL_NUMBER_LEVELS, "cacheLevelSize.length == CACHE_LEVEL_NUMBER_LEVELS");
@@ -122,6 +129,7 @@ public class PersonClientCache {
 		_maxServerCallsPerRequest = maxServerCallsPerRequest;
 		_requestsInProgress = new RequestsInProgress(maxRequestsInProgress);
 		_maxServerCallsInProgress = maxServerCallsInProgress;
+		_payloadBytes = payloadBytes;
 		_theClientCache = new PersonClientCacheEntry[CACHE_LEVEL_NUMBER_LEVELS][];
 		for (int level = 0; level < CACHE_LEVEL_NUMBER_LEVELS; ++level) {
 			_theClientCache[level] = new PersonClientCacheEntry[cacheLevelSize[level]];
@@ -695,7 +703,7 @@ public class PersonClientCache {
 		  idsAtLevelList.add(idsAtLevel);
 		  _rpcWrapper.getPersonsFromServer(_acceptorUpdateCache, 
 				  idsAtLevelList, clientSequenceNumber, numCallsForThisClientSequenceNumber,
-	  				"callServerToFetchPersons");
+	  				"callServerToFetchPersons", _payloadBytes);
 	  }	 
 	 
 	  private AcceptorUpdateCache _acceptorUpdateCache  = new AcceptorUpdateCache();

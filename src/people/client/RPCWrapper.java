@@ -168,12 +168,15 @@ public class RPCWrapper {
 	 * @param acceptor - Class that writes the updated data on the screen
 	 * @param requestedUniqueIDs - IDs to fetch
 	 * @param description - for debugging
+	 * 	 * @param payloadBytes - tells server to attach a payload of this size to each person record when running in ADD_FAKE_HTML mode
+
 	 */
 	public void getPersonsFromServer(final PersonsAcceptor acceptor, 
 	    							 List<IDsAtLevel> idsAtLevelList,
-	    							 long clientSequenceNumber,
-	    							 int numCallsForThisClientSequenceNumber,
-	    							 String description) {
+	    							 long   clientSequenceNumber,
+	    							 int    numCallsForThisClientSequenceNumber,
+	    							 String description,
+	    							 int    payloadBytes) {
 	    
     	_theAcceptor = acceptor;
     	
@@ -192,6 +195,7 @@ public class RPCWrapper {
 	        	numCallsForThisClientSequenceNumber,
 	        	_sequenceNumber,
 	        	Statistics.getCurrentTime(),
+	        	payloadBytes,
 	        	new AsyncCallback<PersonClientGroup>() {
 	        		public void onFailure(Throwable caught) {
 	        			onFailureCallback(caught);

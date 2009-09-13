@@ -53,7 +53,7 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 		logger.warning("Hi there!");
 	}
 		
-	private static PersonClient personServerToPersonClient(PersistentPersonTrait ps, long requestedID) {
+	private static PersonClient personServerToPersonClient(PersistentPersonTrait ps, long requestedID, int payloadBytes) {
 		PersonClient pc = null;
 		if (ps != null) {
 			PersonClient.debugValidate(ps);
@@ -69,9 +69,9 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 			pc.setWhence(ps.getWhence());
 			pc.setFetchDuration(ps.getFetchDuration());
 			String htmlPage = ps.getHtmlPage();
-			if (htmlPage != null && OurConfiguration.HTML_DATA_MAX_SIZE > 0) {
-				if (htmlPage.length() > OurConfiguration.HTML_DATA_MAX_SIZE)
-					htmlPage = htmlPage.substring(0, OurConfiguration.HTML_DATA_MAX_SIZE);
+			if (htmlPage != null && payloadBytes > 0) {
+				if (htmlPage.length() > payloadBytes)
+					htmlPage = htmlPage.substring(0, payloadBytes);
 			}
 			pc.setHtmlPage(htmlPage);
 			PersonClient.debugValidate(pc);
@@ -91,12 +91,13 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 	 * @param clientSequenceNumber - Number of high-level requests from this client
 	 * @param sequenceNumber - tracks client requests
 	 * @param currentTime - Time of call in seconds
+	 * @param payloadBytes - tells server to attach a payload of this size to each person record when running in ADD_FAKE_HTML mode
 	 * @return list of persons fetched from the data store
    */
 	@Override
 	public PersonClientGroup getPeople(long[] requestedUniqueIDs, int[] requestedLevels, 
 			long clientSequenceNumber, int numCallsForThisClientSequenceNumber, long sequenceNumber,
-			double callTime) {
+			double callTime, int payloadBytes) {
 		
 		logger.info(MiscCollections.arrayToString(requestedUniqueIDs));
 		Statistics.createInstance("getPeople");
@@ -108,7 +109,7 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 		resultsMain.sequenceNumber = sequenceNumber;
 		resultsMain.callTime = callTime;
 		
-		resultsMain = getPeople_(resultsMain, requestedUniqueIDs, requestedLevels, clientSequenceNumber, numCallsForThisClientSequenceNumber, sequenceNumber);
+		resultsMain = getPeople_(resultsMain, requestedUniqueIDs, requestedLevels, clientSequenceNumber, numCallsForThisClientSequenceNumber, sequenceNumber, payloadBytes);
 		
 		// Some debug info  
 		if (resultsMain.fetches == null) {
@@ -133,6 +134,7 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 	 * @param	requestedUniqueIDs - IDs of persons to fetch
 	 * @param	levels - client cache levels of the requestedUniqueIDs
 	 * @param sequenceNumber - tracks client requests
+	 * @param payloadBytes - tells server to attach a payload of this size to each person record when running in ADD_FAKE_HTML mode
 	 * @return list of persons fetched from the data store
 	 */
 	private PersonClientGroup getPeople_(
@@ -141,7 +143,8 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 						int[]  requestedLevels,
 						long   clientSequenceNumber, 
 						int    numCallsForThisClientSequenceNumber,
-						long   sequenceNumber) {
+						long   sequenceNumber,
+						int    payloadBytes) {
 	
 		CachePipelineInstance cachePipelineInstance = new CachePipelineInstance(_cachePipeline);
 		
@@ -165,7 +168,7 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 				if (!(uniqueID >= OurConfiguration.MINIMUM_UNIQUEID && uniqueID <= OurConfiguration.MAXIMUM_UNIQUEID)) {
 					uniqueID = 555L;
 				}
-				person = cachePipelineInstance.get(uniqueID, start + maxTime1);
+				person = cachePipelineInstance.get(uniqueID, start + maxTime1, payloadBytes);
 			}
 			catch (Exception e) {
 				// Best effort response to an exception
@@ -175,7 +178,7 @@ public class PersonServiceImpl extends RemoteServiceServlet implements PersonSer
 			}
 			if (person != null) {
 				PersonFetch fetch = new PersonFetch();
-				fetch.person = personServerToPersonClient(person, requestedUniqueIDs[i]);
+				fetch.person = personServerToPersonClient(person, requestedUniqueIDs[i], payloadBytes);
 				fetch.requestedUniqueID = requestedUniqueIDs[i];
 				fetch.level = requestedLevels[i];
 				fetchList.add(fetch);

@@ -14,7 +14,8 @@ public interface PersonServiceAsync {
 	 * @param clientSequenceNumber - Number of high-level requests from this client
 	 * @param numCallsForThisClientSequenceNumber - Number of calls for this clientSequenceNumber
 	 * @param sequenceNumber - Number of requests sent to server from this client
-	 * @param callTime - Time function was called in seconds
+	 * @param callTime - Time function was called in seconds 
+	 * @param payloadBytes - tells server to attach a payload of this size to each person record when running in ADD_FAKE_HTML mode
 	 * @param callback - returns list of persons fetched from the data store
 	 */
 	void getPeople(long[] requestedUniqueIDs, int[] levels, 
@@ -22,6 +23,7 @@ public interface PersonServiceAsync {
 			int numCallsForThisClientSequenceNumber,
 			long sequenceNumber,		
 			double callTime,
+			int    payloadBytes,
 		  AsyncCallback<PersonClientGroup> callback);
 	
 }

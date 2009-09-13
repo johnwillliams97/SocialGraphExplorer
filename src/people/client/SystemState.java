@@ -18,6 +18,7 @@ public class SystemState {
 	public static final String KEY_MAX_SERVER_CALLS_PER_REQUEST  = "scr";
 	public static final String KEY_MAX_REQUESTS_IN_PROGRESS      = "rip";
 	public static final String KEY_MAX_SERVER_CALLS_IN_PROGRESS  = "cip";
+	public static final String KEY_PAYLOAD_BYTES                 = "pld";
 	
 	private boolean _verbose = false; // Verbosity of URL only so a private variable
 	private long _uniqueID = PersonClient.MAGIC_PERSON_CLIENT_1_UNIQUE_ID;
@@ -25,20 +26,23 @@ public class SystemState {
 	private int  _maxServerCallsPerRequest = OurConfiguration.MAX_SERVER_CALLS_PER_REQUEST;
 	private int  _maxRequestsInProgress    = OurConfiguration.MAX_REQUESTS_IN_PROGRESS;
 	private int  _maxServerCallsInProgress = OurConfiguration.MAX_SERVER_CALLS_IN_PROGRESS;
+	private int  _payloadBytes             = OurConfiguration.HTML_DATA_MAX_SIZE;
 	
-	public SystemState(long uniqueID, int index) {
+	public SystemState(long uniqueID, int index, int payloadBytes) {
 		_uniqueID = uniqueID;
 		_index = index;
+		_payloadBytes = payloadBytes;
 	}
 
 	public String getAsString() {
 		String stateString = makeTerm(KEY_UNIQUEID, _uniqueID);
 		stateString += addTerm(KEY_INDEX, _index);
+		stateString += addTerm(KEY_PAYLOAD_BYTES, _payloadBytes);
 		if (_verbose) {
 			stateString += addTerm(KEY_MAX_SERVER_CALLS_PER_REQUEST, _maxServerCallsPerRequest);
 			stateString += addTerm(KEY_MAX_REQUESTS_IN_PROGRESS,     _maxRequestsInProgress);
 			stateString += addTerm(KEY_MAX_SERVER_CALLS_IN_PROGRESS, _maxServerCallsInProgress);
-			stateString += addTerm(KEY_VERBOSE, _verbose);
+			stateString += addTerm(KEY_VERBOSE,                      _verbose);
 		}
 		return stateString;
 	}
@@ -63,6 +67,8 @@ public class SystemState {
 							_uniqueID = Long.parseLong(val);
 						else if (key.equalsIgnoreCase(KEY_INDEX))
 							_index = Integer.parseInt(val);
+						else if (key.equalsIgnoreCase(KEY_PAYLOAD_BYTES))
+							_payloadBytes = Integer.parseInt(val);
 					}
 				}
 			}
@@ -84,9 +90,12 @@ public class SystemState {
 	public int getMaxServerCallsInProgress() {
 		return _maxServerCallsInProgress;
 	}
-	
+	public int getPayloadBytes() {
+		return _payloadBytes;
+	}
 	public SystemState(String stateString) {
 		parseStateString(stateString);
 	}
+
 
 }

@@ -6,6 +6,7 @@ WORK LOG
 Cleaned up UI.
 Created a data-driver fake person synthesiser
 Maintain row position on screen when moving between screens
+Made dummy payload size settable by URL "pld=2345" where the size is in bytes
 Uploaded a stable version
 	Release http://10.latest.peterwilliams9798.appspot.com 
 	Debug   http://9.latest.peterwilliams9798.appspot.com

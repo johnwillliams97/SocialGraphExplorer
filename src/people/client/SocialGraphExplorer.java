@@ -142,7 +142,8 @@ public class SocialGraphExplorer
 		personList = new PersonList(canonicalState,
 				systemState.getMaxServerCallsPerRequest(),
 				systemState.getMaxRequestsInProgress(),
-				systemState.getMaxServerCallsInProgress());
+				systemState.getMaxServerCallsInProgress(),
+				systemState.getPayloadBytes());
 		
 		personList.setWidth("100%");
 

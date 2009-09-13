@@ -175,7 +175,7 @@ public class CacheSynthesiseDummy implements CacheActual<Long, PersonDummy> {
 			Misc.reportException(e);
 		}
 		return strings;
-	  }
+	}
 	
 	private String getFromList(List<String> list, long uniqueID) {
 		int index = (int)(uniqueID % (long)list.size());

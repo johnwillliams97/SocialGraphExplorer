@@ -26,7 +26,6 @@ Sort connection on
 Add build from scratch script
 Make UI usable
 	Get feedback from users
-	Keep list pointer at same location when going forward and back screens
 	Distinguish main person from connections
 	Move scroll controls out of table
 Command line client

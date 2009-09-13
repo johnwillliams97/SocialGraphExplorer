@@ -18,11 +18,13 @@ public interface PersonService extends RemoteService {
 	 * @param sequenceNumber - tracks client requests
 	 * @param callTime - Time function was called in seconds
 	 * @param urlArgs - pass some of the URL args along to the server
+	 * @param payloadBytes - tells server to attach a payload of this size to each person record when running in ADD_FAKE_HTML mode
 	 * @return list of persons fetched from the data store
 	 */
 	PersonClientGroup getPeople(long[] requestedUniqueIDs, int[] levels, 
 				long clientSequenceNumber,	
 				int  numCallsForThisClientSequenceNumber,
 				long sequenceNumber,
-				double callTime);		
+				double callTime,
+				int   payloadBytes);		
 }

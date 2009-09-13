@@ -102,17 +102,23 @@ public class PersonList extends Composite implements ClickHandler {
 	
 	private static int[] _cacheLevelSize = null;
 	
+	// For dummy testing mode
+	// tells server to attach a payload of this size to each person record when running in ADD_FAKE_HTML mode
+	private int _payloadBytes = -1;
+
   	/*
   	 * Set up the list UI
   	 * @param canonicalState - Cannonical state read from  URL
   	 * @param maxServerCallsPerRequest - Dynamic (overridable from URL) version of OurConfiguration.MAX_SERVER_CALLS_PER_REQUEST
   	 * @param maxServerCallsInProgress - Dynamic (overridable from URL) version of OurConfiguration.MAX_REQUESTS_IN_PROGRESS
   	 * @param maxServerCallsInProgress - Dynamic (overridable from URL) version of OurConfiguration.MAX_SERVER_CALLS_IN_PROGRESS
-  */
+  	 * @param payloadBytes - tells server to attach a payload of this size to each person record when running in ADD_FAKE_HTML mode
+  	 */
 	public PersonList(CanonicalState canonicalState, 
 				      int maxServerCallsPerRequest,
 				      int maxRequestsInProgress,
-				      int maxServerCallsInProgress) {
+				      int maxServerCallsInProgress,
+				      int payloadBytes) {
 		// GWT sometimes calls this twice in hosted mode.
 		++debug_num_calls;
 		if (debug_num_calls > 1) {
@@ -126,8 +132,10 @@ public class PersonList extends Composite implements ClickHandler {
 		_cacheLevelSize[PersonClientCache.CACHE_LEVEL_CLICK1] =  4 * CONNECTIONS_PER_SCREEN;
 		_cacheLevelSize[PersonClientCache.CACHE_LEVEL_CLICK2] =  4 * CONNECTIONS_PER_SCREEN;
 		_cacheLevelSize[PersonClientCache.CACHE_LEVEL_RECENT] = OurConfiguration.CACHE_SIZE_LRU;
-		_personClientCache = new PersonClientCache(_cacheLevelSize, maxServerCallsPerRequest, maxRequestsInProgress, maxServerCallsInProgress);
+		_personClientCache = new PersonClientCache(_cacheLevelSize, maxServerCallsPerRequest, maxRequestsInProgress, maxServerCallsInProgress, payloadBytes);
 	
+		_payloadBytes = payloadBytes;
+		
 		// Setup the table UI.
 		_table.setCellSpacing(0);
 		_table.setCellPadding(0);
@@ -363,37 +371,15 @@ public class PersonList extends Composite implements ClickHandler {
    * Selects the given row (relative to the current page).
    * @param row the row to be selected
    */
-  private void selectRow(int row) {
-	// When a row (other than the first one, which is used as a header) is
-	// selected, display its associated PersonItem.
-	PersonClient person = getPersonForRow(row);
-	
-	/*
-	String dbgNameFull = "?!@";
-	long   dbgUniqueID = PersonClient.UNIQUE_ID_NOT_FOUND;
-	if (person != null) {
-		dbgNameFull = person.getNameFull() ;
-		dbgUniqueID = person.getUniqueID();
-	}
-	
-	String cons = "[";
-	if (person != null) {
-		List<Long> conIDs = person.getConnectionIDs();
-		if (conIDs != null) {
-			int numConnections = Math.min(conIDs.size(), CONNECTIONS_PER_SCREEN);
-			for (int i = 0; i < numConnections; ++i)
-				cons += "" + conIDs.get(i) + ",";
-		}
-	}
-	cons += "]";
-	System.err.println("selectRow(" + row + ") selectedRow=" + _selectedRow + " " + dbgNameFull + " " + dbgUniqueID + cons);
-	 */
-    styleRow(_selectedRow, false);
-    styleRow(row, true);
-
-   	_selectedRow = row;
- //   Person.get().displayItem(item);
-    	SocialGraphExplorer.get().displayPersonDetail(person);
+	private void selectRow(int row) {
+		// When a row (other than the first one, which is used as a header) is
+		// selected, display its associated PersonItem.
+		PersonClient person = getPersonForRow(row);
+			
+	    styleRow(_selectedRow, false);
+	    styleRow(row, true);
+	   	_selectedRow = row;
+	   	SocialGraphExplorer.get().displayPersonDetail(person);
   	}
 
   	private void styleRow(int row, boolean selected) {
@@ -468,6 +454,8 @@ public class PersonList extends Composite implements ClickHandler {
     		int maxIndex = Interval.getMaxIndex(getAnchorConnectionIDs(), CONNECTIONS_PER_SCREEN);
     		_state.startIndex = Math.max(_state.startIndex, 0);
     		_state.startIndex = Math.min(_state.startIndex, maxIndex);
+    		Misc.myAssert(maxIndex >= 0, "maxIndex >= 0");
+    		Misc.myAssert(_state.startIndex >= 0, "_state.startIndex >= 0");
     	}
     	
     	PersonClient.debugValidate(_theAnchor);
@@ -531,7 +519,7 @@ public class PersonList extends Composite implements ClickHandler {
   	 *                             + 1 to fetch persons with those IDs
   	 */
   	private void saveStateInHistory(CanonicalState canonicalState, boolean isRewind, boolean needs2ndCacheCall) {
-  		SystemState systemState = new SystemState(canonicalState.anchorUniqueID, canonicalState.startIndex);
+  		SystemState systemState = new SystemState(canonicalState.anchorUniqueID, canonicalState.startIndex, _payloadBytes);
   		String historyItem = systemState.getAsString();
   		
   		if (needs2ndCacheCall) { 		// This is the first part of a 2 part call. 
